@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net471</TargetFramework>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <Opal Include="opal.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <UsingTask TaskName="Opal.OpalTask" AssemblyFile="..\opal\pub\opal.exe" />
+  <Target Name="OpalCompile" BeforeTargets="CoreBuild">
+    <OpalTask Input="@(Opal)" Namespace="$(RootNamespace)"  Outputs="%(Opal.Filename).cs" />
+  </Target>
+
+  <!--<Import Project="..\opal\opal\pub\opal.targets" />-->
+</Project>

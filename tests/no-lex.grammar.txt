@@ -1,0 +1,18 @@
+Symbols:
+[0] = 
+[1] = +
+[2] = *
+[3] = /
+[4] = id
+[5] = language
+[6] = expr
+[7] = term
+[8] = primary
+
+R0: language(5) -> expr(6)
+R1: expr(6) -> expr(6) +(1) term(7)
+R2: expr(6) -> term(7)
+R3: term(7) -> term(7) *(2) primary(8)
+R4: term(7) -> term(7) /(3) primary(8)
+R5: term(7) -> primary(8)
+R6: primary(8) -> id(4)

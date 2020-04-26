@@ -1,0 +1,119 @@
+﻿public class Scanner: IDisposable
+{
+    private readonly IBuffer _buffer;
+    public const int Eof = -1;
+    private int _ch;
+    private int _line;
+	private int _column;
+
+	private int _lastAcceptingState;
+    private int _lastAcceptingPosition;
+    private int _lastLine;
+    private int _lastColumn;
+
+    public Scanner(string source, int line = 1, int column = 0)
+		: this(new StringBuffer(source), line, column) 
+	{}
+
+    public Scanner(IBuffer buffer, int line = 1, int column = 0)
+    {
+        _buffer = buffer;
+        _line = line;
+        _column = column;
+        NextChar();
+    }
+
+	public static Scanner FromFile(string filePath, int line = 1, int column = 0)
+	{
+		var text = File.ReadAllText(filePath);
+		return new Scanner(text, line, column);
+	}
+
+	public void Dispose()
+	{
+		_buffer.Dispose();
+	}
+
+    public string FilePath { get; private set; }
+
+    /// <summary>Skipping ignore, returns next token</summary>
+    public Token NextToken()
+    {
+        Token token;
+        do
+        {
+            token = RawNextToken();
+        } while (token.State < TokenStates.SyntaxError);
+
+        return token;
+    }
+       
+	Token RawNextToken()
+	{
+        Token token;
+		if (_ch == Eof)
+		{
+            token = new Token(_line, _column, _buffer.Position);
+            MarkAccepting(TokenStates.Empty);
+			goto EndState;
+		}
+        token = new Token(_line, _column, _buffer.Position - 1);
+		MarkAccepting(TokenStates.SyntaxError);
+
+(. dfa.states .)
+	EndState:
+		if (_lastAcceptingState == TokenStates.SyntaxError)
+		{
+			_lastAcceptingPosition = _buffer.Position - 1;
+			_lastAcceptingState = -1;
+		}
+		var value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
+		token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+		if (_buffer.Position != _lastAcceptingPosition)
+		{
+			_buffer.Position = _lastAcceptingPosition;
+			_line = _lastLine;
+			_column = _lastColumn;
+			NextChar();
+		}
+		return token;
+
+    EndState2:
+		value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
+		token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+		NextChar();
+		return token;
+	}
+
+    void MarkAccepting(int type)
+    {
+        _lastAcceptingState = type;
+        _lastAcceptingPosition = _buffer.Position;
+        _lastLine = _line;
+        _lastColumn = _column;
+    }
+
+    /// <summary>
+    /// Retrieves the next character, adjusting position information
+    /// </summary>
+    private void NextChar()
+    {
+        _ch = _buffer.Read();
+        if (_ch == '\n')
+        {
+            ++_line;
+            _column = 0;
+        }
+        //Normalize \r\n -> \n
+        else if (_ch == '\r' && _buffer.Peek() == '\n')
+        {
+            _ch = _buffer.Read();
+            ++_line;
+            _column = 0;
+        }
+        else
+        { 
+            ++_column;
+        }
+    }
+}

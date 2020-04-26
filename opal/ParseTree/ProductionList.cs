@@ -1,0 +1,297 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Generators;
+using Opal.Containers;
+using Opal.Index;
+using Opal.Nfa;
+
+namespace Opal.ParseTree
+{
+	public class ProductionList: List<Production>
+	{
+		public ProductionList()
+		{
+			Symbols = new Index<string>();
+            DefaultTypes = new Dictionary<int, string>();
+		}
+
+        public ProductionList Add(Token identifier, ProductionAttr attr, ProdDefList defs)
+        {
+            foreach (var def in defs)
+            {
+                var prod = new Production(identifier, attr, def);
+                Add(prod);
+            }
+            return this;
+        }
+
+        public ProductionList(Production p)
+            : this()
+        {
+            Add(p);
+        }
+
+        public ProductionList SetLanguage(Token name)
+        {
+            Language = new Identifier(name);
+            return this;
+        }
+
+        public static ProductionList SetLanguage(ProductionList prods, Token name)
+        {
+            prods.Language = new Identifier(name);
+            return prods;
+        }
+
+		#region Properties
+        public Identifier Language { get; private set; }
+        public int TerminalCount { get; private set; }
+        public int SymbolCount => Symbols.Count;
+        public Index<string> Symbols { get; }
+        public Dictionary<int, string> DefaultTypes { get; }
+        #endregion
+
+        public new void Add(Production production)
+		{
+			production.Index = Count;
+			base.Add(production);
+		}
+
+        public static ProductionList Add(ProductionList prods, Production prod)
+        {
+            prods.Add(prod);
+            return prods;
+        }
+
+		/// <summary>
+		/// Merges token states into production map
+		/// </summary>
+		/// <param name="stateMap"></param>
+		public bool SetStates(ILogger logger, AcceptingStates stateMap)
+		{
+            TerminalCount = stateMap.Count;
+            foreach (var name in stateMap.Names)
+                Symbols.Add(name);
+
+            if (!MarkTerminals(logger))
+                return false;
+
+            Reduce(logger);
+            MarkNonTerminals();
+
+            var types = new HashSet<string>();
+            foreach (var g in this.GroupBy(x=>x.Id))
+            {
+                types.Clear();
+                foreach (var item in g)
+                    item.GetTypes(types);
+                if (types.Count == 1)
+                    DefaultTypes.Add(g.Key, types.First());
+            }
+            for (var i = 0; i < TerminalCount; i++)
+                DefaultTypes.Add(i, "Token");
+
+            return true;
+		}
+
+		public int GetId(string name)
+		{
+			return Symbols.AddOrGet(name);
+		}
+
+		public void ExpandQuantifiers()
+		{
+			int temp = 0;
+			int length = Count;
+
+			string tempName;
+			int stateId;
+			Production tempExpr;
+
+			var fmt = "$temp{0}";
+
+			for (int i = 0; i < length; i++)
+			{
+				var prod = this[i];
+				for (int j = 0; j < prod.Right.Count; j++)
+				{
+					var expr = prod.Right[j];
+					switch (expr.Quantifier)
+					{
+						case Quantifier.One:
+							break;
+
+						case Quantifier.Question:
+							tempName = string.Format(fmt, temp++);
+							stateId = GetId(tempName);
+							tempExpr = new Production(prod.Left, tempName)
+							{
+								Id = stateId
+							};
+							Add(tempExpr);
+							tempExpr = new Production(prod.Left, tempName)
+							{
+								Id = stateId,
+							};
+							expr.Quantifier = Quantifier.One;
+							tempExpr.Right.Add(expr);
+							Add(tempExpr);
+							prod.Right[j] = new SymbolProd(expr, tempName, stateId);
+							break;
+
+                        case Quantifier.Star:
+                            tempName = string.Format(fmt, temp++);
+                            stateId = GetId(tempName);
+                            tempExpr = new Production(prod.Left, tempName)
+                            {
+                                Id = stateId
+                            };
+                            Add(tempExpr);
+                            tempExpr = new Production(prod.Left, tempName)
+                            {
+                                Id = stateId,
+                            };
+                            expr.Quantifier = Quantifier.One;
+                            tempExpr.Right.Add(expr);
+                            Add(tempExpr);
+                            prod.Right[j] = new SymbolProd(expr, tempName, stateId);
+                            break;
+
+
+                        case Quantifier.Plus:
+							expr.Quantifier = Quantifier.One;
+
+							tempName = string.Format(fmt, temp++);
+							stateId = GetId(tempName);
+							tempExpr = new Production(prod.Left, tempName)
+							{
+								Id = stateId
+							};
+							tempExpr.Right.Add(expr);
+							Add(tempExpr);
+
+							tempExpr = new Production(prod.Left, tempName)
+							{
+								Id = stateId,
+							};
+							tempExpr.Right.Add(new SymbolProd(expr, tempName, stateId));
+							tempExpr.Right.Add(expr);
+							Add(tempExpr);
+							prod.Right[j] = new SymbolProd(expr, tempName, stateId);
+							break;
+					}
+				}
+			}
+		}
+
+        private bool MarkTerminals(ILogger logger)
+        {
+            var isOk = true;
+            var nonTerminals = this
+                .Select(x => x.Left.Value)
+                .ToSet();
+
+            foreach (var prod in this)
+            {
+                foreach (var expr in prod.Right.OfType<SymbolProd>())
+                {
+                    if (Symbols.TryGetIndex(expr.Name, out var index))
+                    {
+                        expr.Id = index;
+                        expr.IsTerminal = true;
+                    }
+                    else if (!nonTerminals.Contains(expr.Name))
+                    {
+                        var newState = Symbols.Add(expr.Name);
+                        expr.SetTerminal(newState);
+                        TerminalCount = index;
+                        logger.LogMessage(Importance.High, expr, "production expr '{0}' is not defined", expr.Name);
+                        isOk = false;
+                    }
+                }
+            }
+            return isOk;
+        }
+
+        private void Reduce(ILogger logger)
+		{
+            var notFound = new HashSet<string>(this.Select(x => x.Left.Value));
+            var prods = new HashSet<int>(Enumerable.Range(0, Count));
+            var start = Language.Value;
+            notFound.Remove(start);
+            var stack = new Stack<Production>(this.Where(x => x.Left.Value == start));
+            while (stack.Count > 0)
+            {
+                var production = stack.Pop();
+                prods.Remove(production.Index);
+                foreach (var expr in production.Right.OfType<SymbolProd>().Where(x => !x.IsTerminal && notFound.Remove(x.Name)))
+                {
+                    foreach (var prod in this.Where(x => x.Left.Value == expr.Name))
+                    {
+                        if (prods.Remove(prod.Index))
+                            stack.Push(prod);
+                    }
+                }
+            }
+
+            foreach (var index in prods.OrderBy(x=>x))
+            {
+                var production = this[index];
+                logger.LogWarning(production.Left, "found and removed unreachable rule\n    {0}", production);
+            }
+            foreach (var index in prods.OrderByDescending(x => x))
+                RemoveAt(index);
+        }
+
+        private void MarkNonTerminals()
+        {
+            foreach (var prod in this)
+            {
+                prod.Id = GetId(prod.Left.Value);
+                foreach (var item in prod.Right.OfType<SymbolProd>().Where(x=>!x.IsTerminal))
+                    item.Id = GetId(item.Name);
+            }
+        }
+
+        public void Write(Generator generator, string noAction)
+		{
+            var option = GetOption(noAction);
+            generator.Indent(1);
+			foreach (var item in this)
+				item.Write(generator, this, option);
+            generator.UnIndent(1);
+        }
+
+        private static NoActionOption GetOption(string noAction)
+        {
+            NoActionOption option;
+            if (string.IsNullOrEmpty(noAction))
+                option = NoActionOption.First;
+            else if (noAction.Equals("first", StringComparison.InvariantCultureIgnoreCase))
+                option = NoActionOption.First;
+            else if (noAction.Equals("tuple", StringComparison.InvariantCultureIgnoreCase))
+                option = NoActionOption.Tuple;
+            else
+                option = NoActionOption.Null;
+            return option;
+               
+        }
+
+        private void Replace(int copy, int orig)
+		{
+			int copyId = this[copy].Id;
+			int origId = this[orig].Id;
+
+			for (int i = 0; i < copy; i++)
+			{
+				var prod = this[i];
+				foreach (var symbol in prod.Right.OfType<SymbolProd>())
+				{
+					if (symbol.Id == copyId)
+						symbol.Id = origId;
+				}
+			}
+		}
+	}
+}

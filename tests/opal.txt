@@ -1,0 +1,212 @@
+using Opal.Nfa;
+using Opal.ParseTree;
+
+namespace Opal;
+
+Options
+	//frame					= "opal.frame.txt"
+	no_action				= "null"
+	//nfa					= "opal.nfa.txt"
+	//scanner		= "switch"
+
+Characters
+	char_class_ctrl 		= [\[\]\^\\]
+	char_class_char 		= !char_class_ctrl-[\r\n\t]
+	char_class_esc          = char_class_ctrl+["'0abfnrtv]
+	
+	esc                     = [\\]
+	letter					= [a-zA-Z]
+	non_zero				= [1-9]
+	digit					= [0-9]
+	hex_digit				= [a-fA-F]+digit
+	cr						= [\r]
+	lf 						= [\n]
+	tab						= [\t]
+	quote 					= ["]
+	single_quote            = [']
+	string_char				= [^"\r\n\\]
+	string_esc_char         = ["'\\0abfnrtv]
+	space_char				= [ ]
+	other_white_space_char 	= tab+cr+lf
+	all_space               = space_char+other_white_space_char
+	start_id_char			= [_]+letter
+	id_char 				= start_id_char+digit
+	not_lf                  = ![\n]
+	
+Tokens
+	identifier = start_id_char id_char*;
+	char_class = '[' '^'? (char_class_char | (esc char_class_esc))* ']';
+	string = quote (string_char | (esc string_esc_char))* quote;
+ 
+	char_string = single_quote 
+	(
+		string_char | 
+		(esc 
+			( 
+				string_esc_char |
+				('u' hex_digit{4}) |
+				('x' hex_digit{1,4})
+			)
+		)
+	) single_quote;
+  
+	integer = '0' | (non_zero digit*);
+	arg = '$' ('0' | (non_zero digit*));
+	Space<ignore> = all_space+;
+	Comment<ignore> = "//" not_lf*;
+	
+Productions language
+	language = 
+		using_section 
+		namespace_section	
+		option_section 
+		characters_section 
+		token_section 
+		production_section										{ new Language($1: Identifier, $4: Graph, _productions); }
+
+	using_section = | using_section using_decl; 
+	
+	using_decl = "using" Identifier ';'							{ AddNamespace($1); }
+
+	namespace_section = | "namespace" Identifier ';'			{ $1; }
+
+	option_section	= | "Options" option_list;
+
+	option_list = option 
+				| option_list option;
+
+	option = identifier '=' String								{ AddOption($0, $2: StringConst); }
+
+	characters_section	= | "Characters" character_expr;
+
+	character_expr	=  character_pair							{ Add($0); }
+					|  character_expr character_pair			{ Add($1); }
+
+	character_pair = identifier '=' char_class_concat<IMatch>	{ new NamedCharClass($0, $2: IMatch); }
+
+	char_class_concat	
+				= char_class_unary
+				| char_class_concat '+' char_class_unary		{ Match.Union($0: IMatch, $1, $2: IMatch); }
+				| char_class_concat '-' char_class_unary		{ Match.Difference($0: IMatch, $1, $2: IMatch); }
+
+	char_class_unary = 
+		char_class_primary |
+		'!' char_class_unary									{ Match.Invert($0, $1: IMatch); }
+
+	char_class_primary	= CharClass
+						| identifier							{ FindCharClass($0); }
+						| Char									{ new SingleChar($0: CharConst); }
+
+	token_section =												{ SetGraph(); }
+				| "Tokens" token_list							{ $1; }
+
+	token_list  = token											{ SetGraph($0: Graph); }
+				| token_list token								{ Graph.Union($1: Graph); }
+
+	token		= identifier token_attr '=' token_expr ';'		{ Graph.MarkEnd($0, $1: Token, $3: Graph); }
+
+	token_attr	= | '<' identifier '>'							{ $1; }
+
+	token_expr	= token_quantifier
+				| token_expr '|' token_quantifier				{ Graph.Union($0: Graph, $2: Graph); }
+				| token_expr token_quantifier					{ Graph.Concatenate($0: Graph, $1: Graph); }
+
+	token_quantifier
+				= token_primary
+				| token_primary '+'								{ Graph.PlusClosure($0: Graph); }
+				| token_primary '*'								{ Graph.StarClosure($0: Graph); }
+				| token_primary '?'								{ Graph.QuestionClosure($0: Graph); }
+				| token_primary '{' Integer '}'					{ Graph.Quantifier($0: Graph, $2: Integer); }
+				| token_primary '{' Integer ',' Integer '}'		{ Graph.RangeQuantifier($0: Graph, $2: Integer, $4: Integer); }
+
+	token_primary	= identifier								{ CreateGraph(FindCharClass($0)); }
+					| Char										{ CreateGraph($0: EscChar); }
+					| CharClass									{ CreateGraph($0: IMatch); }
+					| String									{ Graph.Create($0: StringConst); }
+					| '(' token_expr ')'						{ $1; }
+
+	production_section 
+		= "Productions" identifier prod_list					{ _productions.SetLanguage($1); }
+
+	prod_list 
+		=	
+		| prod_list production;
+
+	production
+		= identifier production_attr '=' prod_def_list			{ _productions.Add($0, $1, $3:ProdDefList); }
+
+	production_attr 
+		=
+		| '<' Identifier func_opt '>'							{ new ProductionAttr($1, $2); }
+		
+	func_opt 
+		=	
+		| '(' func_opt_arg_type ')'								{ new FuncOption($1: Identifier); }
+	
+	func_opt_arg_type 
+		=	
+		| Identifier
+		;
+
+	prod_def_list	
+		=  prod_def_start prod_exprs ';'						{ ProdDefList.Add($0, $1); }
+		|  prod_def_start prod_def								{ ProdDefList.Add($0, $1); }
+
+	prod_def_start 
+		=														{ new ProdDefList(); }
+		| prod_def_start prod_exprs '|'							{ ProdDefList.Add($0, $1); }
+		| prod_def_start prod_def '|'							{ ProdDefList.Add($0, $1); }
+
+	prod_def 
+		= prod_exprs prod_action optional_semicolon				{ new ProdDef($0, $1: ActionExpr); }
+
+	optional_semicolon = | ';';
+
+	prod_exprs	
+		=														{ new ProductionExprs(); }
+		| prod_exprs prod_expr									{ ProductionExprs.Add($0, $1: ProductionExpr); }
+
+	prod_expr = prod_expr_primary production_attr				{ ProductionExpr.SetAttributes($0: ProductionExpr, $1: ProductionAttr); }
+
+	prod_expr_primary	= identifier							{ new SymbolProd($0); }
+						| String								{ AddStringTokenProd($0: StringConst); }
+						| Char									{ AddStringTokenProd($0: CharConst); }
+
+	prod_action =  '{' action_stmt  '}'							{ $1; }
+
+	action_stmt = 												{ new ActionNullExpr(); }
+				| action_expr ";"								{ $0; }
+
+	action_expr = "new" type '(' action_args ')'				{ new ActionNewExpr($1:Identifier, $3); }
+				| Identifier '(' action_args ')'				{ new ActionFuncExpr($0, $2); }
+				| action_primary_expr							{ $0; }
+
+	action_args =												{ new ActionArgs(); }
+				| action_expr									{ new ActionArgs($0: ActionExpr); }
+				| action_args ',' action_expr					{ ActionArgs.Add($0, $2: ActionExpr); }
+
+	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
+						| Identifier							{ new ActionMember($0); }
+						| Integer                               { new ActionIntConstant($0); }
+						| String                                { new ActionStringConstant($0); }
+
+	action_cast = 
+				| ':' Identifier								{ $1; }
+
+	type	=	Identifier										{ $0:Identifier; }
+			|	Identifier '<' generic_args '>'					{ Identifier.MakeType($0:Identifier, $2:GenericArgs); }
+			
+
+	generic_args	=	type									{ new GenericArgs($0:Identifier); }
+					|	generic_args ',' type					{ GenericArgs.Add($0, $2:Identifier); }
+					
+
+	Identifier	= Identifier '.' identifier						{ Identifier.Add($0, $2); }
+				| identifier									{ new Identifier($0); }
+
+	CharClass = char_class										{ new CharClass($0); }
+	Char = char_string											{ new EscChar($0); }
+	String = EscString											{ $0; }
+	EscString = string											{ new EscString($0); }
+	Integer = integer											{ new DecInteger($0); }
+

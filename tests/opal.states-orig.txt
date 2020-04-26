@@ -1,0 +1,3387 @@
+S0: (Transition = )
+    @language: · language, ＄ => 1
+    language: · using_section namespace_section option_section characters_section token_section production_section, ＄ => 2
+    using_section: ·, ＄
+    using_section: ·, @namespace
+    using_section: ·, @Options
+    using_section: ·, @Characters
+    using_section: ·, @Tokens
+    using_section: ·, @Productions
+    using_section: · using_section using_decl, ＄ => 2
+    using_section: · using_section using_decl, @namespace => 2
+    using_section: · using_section using_decl, @Options => 2
+    using_section: · using_section using_decl, @Characters => 2
+    using_section: · using_section using_decl, @Tokens => 2
+    using_section: · using_section using_decl, @Productions => 2
+    using_section: ·, @using
+    using_section: · using_section using_decl, @using => 2
+
+S1: (Transition = language(31))
+    @language: language ·, ＄
+
+S2: (Transition = using_section(32))
+    language: using_section · namespace_section option_section characters_section token_section production_section, ＄ => 3
+    using_section: using_section · using_decl, ＄ => 4
+    using_section: using_section · using_decl, @namespace => 4
+    using_section: using_section · using_decl, @Options => 4
+    using_section: using_section · using_decl, @Characters => 4
+    using_section: using_section · using_decl, @Tokens => 4
+    using_section: using_section · using_decl, @Productions => 4
+    using_section: using_section · using_decl, @using => 4
+    namespace_section: ·, ＄
+    namespace_section: ·, @Options
+    namespace_section: ·, @Characters
+    namespace_section: ·, @Tokens
+    namespace_section: ·, @Productions
+    namespace_section: · @namespace Identifier ;, ＄ => 5
+    namespace_section: · @namespace Identifier ;, @Options => 5
+    namespace_section: · @namespace Identifier ;, @Characters => 5
+    namespace_section: · @namespace Identifier ;, @Tokens => 5
+    namespace_section: · @namespace Identifier ;, @Productions => 5
+    using_decl: · @using Identifier ;, ＄ => 6
+    using_decl: · @using Identifier ;, @namespace => 6
+    using_decl: · @using Identifier ;, @Options => 6
+    using_decl: · @using Identifier ;, @Characters => 6
+    using_decl: · @using Identifier ;, @Tokens => 6
+    using_decl: · @using Identifier ;, @Productions => 6
+    using_decl: · @using Identifier ;, @using => 6
+
+S3: (Transition = namespace_section(33))
+    language: using_section namespace_section · option_section characters_section token_section production_section, ＄ => 7
+    option_section: ·, ＄
+    option_section: ·, @Characters
+    option_section: ·, @Tokens
+    option_section: ·, @Productions
+    option_section: · @Options option_list, ＄ => 8
+    option_section: · @Options option_list, @Characters => 8
+    option_section: · @Options option_list, @Tokens => 8
+    option_section: · @Options option_list, @Productions => 8
+
+S4: (Transition = using_decl(38))
+    using_section: using_section using_decl ·, ＄
+    using_section: using_section using_decl ·, @namespace
+    using_section: using_section using_decl ·, @Options
+    using_section: using_section using_decl ·, @Characters
+    using_section: using_section using_decl ·, @Tokens
+    using_section: using_section using_decl ·, @Productions
+    using_section: using_section using_decl ·, @using
+
+S5: (Transition = @namespace(9))
+    namespace_section: @namespace · Identifier ;, ＄ => 9
+    namespace_section: @namespace · Identifier ;, @Options => 9
+    namespace_section: @namespace · Identifier ;, @Characters => 9
+    namespace_section: @namespace · Identifier ;, @Tokens => 9
+    namespace_section: @namespace · Identifier ;, @Productions => 9
+    Identifier: · Identifier . identifier, ; => 9
+    Identifier: · identifier, ; => 10
+    Identifier: · Identifier . identifier, . => 9
+    Identifier: · identifier, . => 10
+
+S6: (Transition = @using(7))
+    using_decl: @using · Identifier ;, ＄ => 11
+    using_decl: @using · Identifier ;, @namespace => 11
+    using_decl: @using · Identifier ;, @Options => 11
+    using_decl: @using · Identifier ;, @Characters => 11
+    using_decl: @using · Identifier ;, @Tokens => 11
+    using_decl: @using · Identifier ;, @Productions => 11
+    using_decl: @using · Identifier ;, @using => 11
+    Identifier: · Identifier . identifier, ; => 11
+    Identifier: · identifier, ; => 10
+    Identifier: · Identifier . identifier, . => 11
+    Identifier: · identifier, . => 10
+
+S7: (Transition = option_section(34))
+    language: using_section namespace_section option_section · characters_section token_section production_section, ＄ => 12
+    characters_section: ·, ＄
+    characters_section: ·, @Tokens
+    characters_section: ·, @Productions
+    characters_section: · @Characters character_expr, ＄ => 13
+    characters_section: · @Characters character_expr, @Tokens => 13
+    characters_section: · @Characters character_expr, @Productions => 13
+
+S8: (Transition = @Options(10))
+    option_section: @Options · option_list, ＄ => 14
+    option_section: @Options · option_list, @Characters => 14
+    option_section: @Options · option_list, @Tokens => 14
+    option_section: @Options · option_list, @Productions => 14
+    option_list: · option, ＄ => 15
+    option_list: · option_list option, ＄ => 14
+    option_list: · option, @Characters => 15
+    option_list: · option_list option, @Characters => 14
+    option_list: · option, @Tokens => 15
+    option_list: · option_list option, @Tokens => 14
+    option_list: · option, @Productions => 15
+    option_list: · option_list option, @Productions => 14
+    option: · identifier = String, ＄ => 16
+    option_list: · option, identifier => 15
+    option_list: · option_list option, identifier => 14
+    option: · identifier = String, @Characters => 16
+    option: · identifier = String, @Tokens => 16
+    option: · identifier = String, @Productions => 16
+    option: · identifier = String, identifier => 16
+
+S9: (Transition = Identifier(39))
+    namespace_section: @namespace Identifier · ;, ＄ => 17
+    namespace_section: @namespace Identifier · ;, @Options => 17
+    namespace_section: @namespace Identifier · ;, @Characters => 17
+    namespace_section: @namespace Identifier · ;, @Tokens => 17
+    namespace_section: @namespace Identifier · ;, @Productions => 17
+    Identifier: Identifier · . identifier, ; => 18
+    Identifier: Identifier · . identifier, . => 18
+
+S10: (Transition = identifier(1))
+    Identifier: identifier ·, ;
+    Identifier: identifier ·, .
+
+S11: (Transition = Identifier(39))
+    using_decl: @using Identifier · ;, ＄ => 19
+    using_decl: @using Identifier · ;, @namespace => 19
+    using_decl: @using Identifier · ;, @Options => 19
+    using_decl: @using Identifier · ;, @Characters => 19
+    using_decl: @using Identifier · ;, @Tokens => 19
+    using_decl: @using Identifier · ;, @Productions => 19
+    using_decl: @using Identifier · ;, @using => 19
+    Identifier: Identifier · . identifier, ; => 18
+    Identifier: Identifier · . identifier, . => 18
+
+S12: (Transition = characters_section(35))
+    language: using_section namespace_section option_section characters_section · token_section production_section, ＄ => 20
+    token_section: ·, @Productions
+    token_section: · @Tokens token_list, @Productions => 21
+
+S13: (Transition = @Characters(12))
+    characters_section: @Characters · character_expr, ＄ => 22
+    characters_section: @Characters · character_expr, @Tokens => 22
+    characters_section: @Characters · character_expr, @Productions => 22
+    character_expr: · character_pair, ＄ => 23
+    character_expr: · character_expr character_pair, ＄ => 22
+    character_expr: · character_pair, @Tokens => 23
+    character_expr: · character_expr character_pair, @Tokens => 22
+    character_expr: · character_pair, @Productions => 23
+    character_expr: · character_expr character_pair, @Productions => 22
+    character_pair: · identifier = char_class_concat, ＄ => 24
+    character_expr: · character_pair, identifier => 23
+    character_expr: · character_expr character_pair, identifier => 22
+    character_pair: · identifier = char_class_concat, @Tokens => 24
+    character_pair: · identifier = char_class_concat, @Productions => 24
+    character_pair: · identifier = char_class_concat, identifier => 24
+
+S14: (Transition = option_list(40))
+    option_section: @Options option_list ·, ＄
+    option_section: @Options option_list ·, @Characters
+    option_section: @Options option_list ·, @Tokens
+    option_section: @Options option_list ·, @Productions
+    option_list: option_list · option, ＄ => 25
+    option_list: option_list · option, @Characters => 25
+    option_list: option_list · option, @Tokens => 25
+    option_list: option_list · option, @Productions => 25
+    option_list: option_list · option, identifier => 25
+    option: · identifier = String, ＄ => 16
+    option: · identifier = String, @Characters => 16
+    option: · identifier = String, @Tokens => 16
+    option: · identifier = String, @Productions => 16
+    option: · identifier = String, identifier => 16
+
+S15: (Transition = option(41))
+    option_list: option ·, ＄
+    option_list: option ·, @Characters
+    option_list: option ·, @Tokens
+    option_list: option ·, @Productions
+    option_list: option ·, identifier
+
+S16: (Transition = identifier(1))
+    option: identifier · = String, ＄ => 26
+    option: identifier · = String, @Characters => 26
+    option: identifier · = String, @Tokens => 26
+    option: identifier · = String, @Productions => 26
+    option: identifier · = String, identifier => 26
+
+S17: (Transition = ;(8))
+    namespace_section: @namespace Identifier ; ·, ＄
+    namespace_section: @namespace Identifier ; ·, @Options
+    namespace_section: @namespace Identifier ; ·, @Characters
+    namespace_section: @namespace Identifier ; ·, @Tokens
+    namespace_section: @namespace Identifier ; ·, @Productions
+
+S18: (Transition = .(30))
+    Identifier: Identifier . · identifier, ; => 27
+    Identifier: Identifier . · identifier, . => 27
+
+S19: (Transition = ;(8))
+    using_decl: @using Identifier ; ·, ＄
+    using_decl: @using Identifier ; ·, @namespace
+    using_decl: @using Identifier ; ·, @Options
+    using_decl: @using Identifier ; ·, @Characters
+    using_decl: @using Identifier ; ·, @Tokens
+    using_decl: @using Identifier ; ·, @Productions
+    using_decl: @using Identifier ; ·, @using
+
+S20: (Transition = token_section(36))
+    language: using_section namespace_section option_section characters_section token_section · production_section, ＄ => 28
+    production_section: · @Productions identifier prod_list, ＄ => 29
+
+S21: (Transition = @Tokens(16))
+    token_section: @Tokens · token_list, @Productions => 30
+    token_list: · token, @Productions => 31
+    token_list: · token_list token, @Productions => 30
+    token: · identifier token_attr = token_expr ;, @Productions => 32
+    token_list: · token, identifier => 31
+    token_list: · token_list token, identifier => 30
+    token: · identifier token_attr = token_expr ;, identifier => 32
+
+S22: (Transition = character_expr(43))
+    characters_section: @Characters character_expr ·, ＄
+    characters_section: @Characters character_expr ·, @Tokens
+    characters_section: @Characters character_expr ·, @Productions
+    character_expr: character_expr · character_pair, ＄ => 33
+    character_expr: character_expr · character_pair, @Tokens => 33
+    character_expr: character_expr · character_pair, @Productions => 33
+    character_expr: character_expr · character_pair, identifier => 33
+    character_pair: · identifier = char_class_concat, ＄ => 24
+    character_pair: · identifier = char_class_concat, @Tokens => 24
+    character_pair: · identifier = char_class_concat, @Productions => 24
+    character_pair: · identifier = char_class_concat, identifier => 24
+
+S23: (Transition = character_pair(44))
+    character_expr: character_pair ·, ＄
+    character_expr: character_pair ·, @Tokens
+    character_expr: character_pair ·, @Productions
+    character_expr: character_pair ·, identifier
+
+S24: (Transition = identifier(1))
+    character_pair: identifier · = char_class_concat, ＄ => 34
+    character_pair: identifier · = char_class_concat, @Tokens => 34
+    character_pair: identifier · = char_class_concat, @Productions => 34
+    character_pair: identifier · = char_class_concat, identifier => 34
+
+S25: (Transition = option(41))
+    option_list: option_list option ·, ＄
+    option_list: option_list option ·, @Characters
+    option_list: option_list option ·, @Tokens
+    option_list: option_list option ·, @Productions
+    option_list: option_list option ·, identifier
+
+S26: (Transition = =(11))
+    option: identifier = · String, ＄ => 35
+    option: identifier = · String, @Characters => 35
+    option: identifier = · String, @Tokens => 35
+    option: identifier = · String, @Productions => 35
+    option: identifier = · String, identifier => 35
+    String: · EscString, ＄ => 36
+    String: · EscString, @Characters => 36
+    String: · EscString, @Tokens => 36
+    String: · EscString, @Productions => 36
+    String: · EscString, identifier => 36
+    EscString: · string, ＄ => 37
+    EscString: · string, @Characters => 37
+    EscString: · string, @Tokens => 37
+    EscString: · string, @Productions => 37
+    EscString: · string, identifier => 37
+
+S27: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, ;
+    Identifier: Identifier . identifier ·, .
+
+S28: (Transition = production_section(37))
+    language: using_section namespace_section option_section characters_section token_section production_section ·, ＄
+
+S29: (Transition = @Productions(27))
+    production_section: @Productions · identifier prod_list, ＄ => 38
+
+S30: (Transition = token_list(50))
+    token_section: @Tokens token_list ·, @Productions
+    token_list: token_list · token, @Productions => 39
+    token_list: token_list · token, identifier => 39
+    token: · identifier token_attr = token_expr ;, @Productions => 32
+    token: · identifier token_attr = token_expr ;, identifier => 32
+
+S31: (Transition = token(51))
+    token_list: token ·, @Productions
+    token_list: token ·, identifier
+
+S32: (Transition = identifier(1))
+    token: identifier · token_attr = token_expr ;, @Productions => 40
+    token: identifier · token_attr = token_expr ;, identifier => 40
+    token_attr: ·, =
+    token_attr: · < identifier >, = => 41
+
+S33: (Transition = character_pair(44))
+    character_expr: character_expr character_pair ·, ＄
+    character_expr: character_expr character_pair ·, @Tokens
+    character_expr: character_expr character_pair ·, @Productions
+    character_expr: character_expr character_pair ·, identifier
+
+S34: (Transition = =(11))
+    character_pair: identifier = · char_class_concat, ＄ => 42
+    character_pair: identifier = · char_class_concat, @Tokens => 42
+    character_pair: identifier = · char_class_concat, @Productions => 42
+    character_pair: identifier = · char_class_concat, identifier => 42
+    char_class_concat: · char_class_unary, ＄ => 43
+    char_class_concat: · char_class_concat + char_class_unary, ＄ => 42
+    char_class_concat: · char_class_concat - char_class_unary, ＄ => 42
+    char_class_concat: · char_class_unary, @Tokens => 43
+    char_class_concat: · char_class_concat + char_class_unary, @Tokens => 42
+    char_class_concat: · char_class_concat - char_class_unary, @Tokens => 42
+    char_class_concat: · char_class_unary, @Productions => 43
+    char_class_concat: · char_class_concat + char_class_unary, @Productions => 42
+    char_class_concat: · char_class_concat - char_class_unary, @Productions => 42
+    char_class_concat: · char_class_unary, identifier => 43
+    char_class_concat: · char_class_concat + char_class_unary, identifier => 42
+    char_class_concat: · char_class_concat - char_class_unary, identifier => 42
+    char_class_unary: · char_class_primary, ＄ => 44
+    char_class_unary: · ! char_class_unary, ＄ => 45
+    char_class_concat: · char_class_unary, + => 43
+    char_class_concat: · char_class_concat + char_class_unary, + => 42
+    char_class_concat: · char_class_concat - char_class_unary, + => 42
+    char_class_concat: · char_class_unary, - => 43
+    char_class_concat: · char_class_concat + char_class_unary, - => 42
+    char_class_concat: · char_class_concat - char_class_unary, - => 42
+    char_class_unary: · char_class_primary, @Tokens => 44
+    char_class_unary: · ! char_class_unary, @Tokens => 45
+    char_class_unary: · char_class_primary, @Productions => 44
+    char_class_unary: · ! char_class_unary, @Productions => 45
+    char_class_unary: · char_class_primary, identifier => 44
+    char_class_unary: · ! char_class_unary, identifier => 45
+    char_class_primary: · CharClass, ＄ => 46
+    char_class_primary: · identifier, ＄ => 47
+    char_class_primary: · Char, ＄ => 48
+    char_class_unary: · char_class_primary, + => 44
+    char_class_unary: · ! char_class_unary, + => 45
+    char_class_unary: · char_class_primary, - => 44
+    char_class_unary: · ! char_class_unary, - => 45
+    char_class_primary: · CharClass, @Tokens => 46
+    char_class_primary: · identifier, @Tokens => 47
+    char_class_primary: · Char, @Tokens => 48
+    char_class_primary: · CharClass, @Productions => 46
+    char_class_primary: · identifier, @Productions => 47
+    char_class_primary: · Char, @Productions => 48
+    char_class_primary: · CharClass, identifier => 46
+    char_class_primary: · identifier, identifier => 47
+    char_class_primary: · Char, identifier => 48
+    CharClass: · char_class, ＄ => 49
+    Char: · char_string, ＄ => 50
+    char_class_primary: · CharClass, + => 46
+    char_class_primary: · identifier, + => 47
+    char_class_primary: · Char, + => 48
+    char_class_primary: · CharClass, - => 46
+    char_class_primary: · identifier, - => 47
+    char_class_primary: · Char, - => 48
+    CharClass: · char_class, @Tokens => 49
+    Char: · char_string, @Tokens => 50
+    CharClass: · char_class, @Productions => 49
+    Char: · char_string, @Productions => 50
+    CharClass: · char_class, identifier => 49
+    Char: · char_string, identifier => 50
+    CharClass: · char_class, + => 49
+    Char: · char_string, + => 50
+    CharClass: · char_class, - => 49
+    Char: · char_string, - => 50
+
+S35: (Transition = String(42))
+    option: identifier = String ·, ＄
+    option: identifier = String ·, @Characters
+    option: identifier = String ·, @Tokens
+    option: identifier = String ·, @Productions
+    option: identifier = String ·, identifier
+
+S36: (Transition = EscString(74))
+    String: EscString ·, ＄
+    String: EscString ·, @Characters
+    String: EscString ·, @Tokens
+    String: EscString ·, @Productions
+    String: EscString ·, identifier
+
+S37: (Transition = string(3))
+    EscString: string ·, ＄
+    EscString: string ·, @Characters
+    EscString: string ·, @Tokens
+    EscString: string ·, @Productions
+    EscString: string ·, identifier
+
+S38: (Transition = identifier(1))
+    production_section: @Productions identifier · prod_list, ＄ => 51
+    prod_list: ·, ＄
+    prod_list: · prod_list production, ＄ => 51
+    prod_list: ·, identifier
+    prod_list: · prod_list production, identifier => 51
+
+S39: (Transition = token(51))
+    token_list: token_list token ·, @Productions
+    token_list: token_list token ·, identifier
+
+S40: (Transition = token_attr(52))
+    token: identifier token_attr · = token_expr ;, @Productions => 52
+    token: identifier token_attr · = token_expr ;, identifier => 52
+
+S41: (Transition = <(17))
+    token_attr: < · identifier >, = => 53
+
+S42: (Transition = char_class_concat(45))
+    character_pair: identifier = char_class_concat ·, ＄
+    character_pair: identifier = char_class_concat ·, @Tokens
+    character_pair: identifier = char_class_concat ·, @Productions
+    character_pair: identifier = char_class_concat ·, identifier
+    char_class_concat: char_class_concat · + char_class_unary, ＄ => 54
+    char_class_concat: char_class_concat · - char_class_unary, ＄ => 55
+    char_class_concat: char_class_concat · + char_class_unary, @Tokens => 54
+    char_class_concat: char_class_concat · - char_class_unary, @Tokens => 55
+    char_class_concat: char_class_concat · + char_class_unary, @Productions => 54
+    char_class_concat: char_class_concat · - char_class_unary, @Productions => 55
+    char_class_concat: char_class_concat · + char_class_unary, identifier => 54
+    char_class_concat: char_class_concat · - char_class_unary, identifier => 55
+    char_class_concat: char_class_concat · + char_class_unary, + => 54
+    char_class_concat: char_class_concat · - char_class_unary, + => 55
+    char_class_concat: char_class_concat · + char_class_unary, - => 54
+    char_class_concat: char_class_concat · - char_class_unary, - => 55
+
+S43: (Transition = char_class_unary(46))
+    char_class_concat: char_class_unary ·, ＄
+    char_class_concat: char_class_unary ·, @Tokens
+    char_class_concat: char_class_unary ·, @Productions
+    char_class_concat: char_class_unary ·, identifier
+    char_class_concat: char_class_unary ·, +
+    char_class_concat: char_class_unary ·, -
+
+S44: (Transition = char_class_primary(47))
+    char_class_unary: char_class_primary ·, ＄
+    char_class_unary: char_class_primary ·, @Tokens
+    char_class_unary: char_class_primary ·, @Productions
+    char_class_unary: char_class_primary ·, identifier
+    char_class_unary: char_class_primary ·, +
+    char_class_unary: char_class_primary ·, -
+
+S45: (Transition = !(15))
+    char_class_unary: ! · char_class_unary, ＄ => 56
+    char_class_unary: ! · char_class_unary, @Tokens => 56
+    char_class_unary: ! · char_class_unary, @Productions => 56
+    char_class_unary: ! · char_class_unary, identifier => 56
+    char_class_unary: ! · char_class_unary, + => 56
+    char_class_unary: ! · char_class_unary, - => 56
+    char_class_unary: · char_class_primary, ＄ => 44
+    char_class_unary: · ! char_class_unary, ＄ => 45
+    char_class_unary: · char_class_primary, @Tokens => 44
+    char_class_unary: · ! char_class_unary, @Tokens => 45
+    char_class_unary: · char_class_primary, @Productions => 44
+    char_class_unary: · ! char_class_unary, @Productions => 45
+    char_class_unary: · char_class_primary, identifier => 44
+    char_class_unary: · ! char_class_unary, identifier => 45
+    char_class_unary: · char_class_primary, + => 44
+    char_class_unary: · ! char_class_unary, + => 45
+    char_class_unary: · char_class_primary, - => 44
+    char_class_unary: · ! char_class_unary, - => 45
+    char_class_primary: · CharClass, ＄ => 46
+    char_class_primary: · identifier, ＄ => 47
+    char_class_primary: · Char, ＄ => 48
+    char_class_primary: · CharClass, @Tokens => 46
+    char_class_primary: · identifier, @Tokens => 47
+    char_class_primary: · Char, @Tokens => 48
+    char_class_primary: · CharClass, @Productions => 46
+    char_class_primary: · identifier, @Productions => 47
+    char_class_primary: · Char, @Productions => 48
+    char_class_primary: · CharClass, identifier => 46
+    char_class_primary: · identifier, identifier => 47
+    char_class_primary: · Char, identifier => 48
+    char_class_primary: · CharClass, + => 46
+    char_class_primary: · identifier, + => 47
+    char_class_primary: · Char, + => 48
+    char_class_primary: · CharClass, - => 46
+    char_class_primary: · identifier, - => 47
+    char_class_primary: · Char, - => 48
+    CharClass: · char_class, ＄ => 49
+    Char: · char_string, ＄ => 50
+    CharClass: · char_class, @Tokens => 49
+    Char: · char_string, @Tokens => 50
+    CharClass: · char_class, @Productions => 49
+    Char: · char_string, @Productions => 50
+    CharClass: · char_class, identifier => 49
+    Char: · char_string, identifier => 50
+    CharClass: · char_class, + => 49
+    Char: · char_string, + => 50
+    CharClass: · char_class, - => 49
+    Char: · char_string, - => 50
+
+S46: (Transition = CharClass(48))
+    char_class_primary: CharClass ·, ＄
+    char_class_primary: CharClass ·, @Tokens
+    char_class_primary: CharClass ·, @Productions
+    char_class_primary: CharClass ·, identifier
+    char_class_primary: CharClass ·, +
+    char_class_primary: CharClass ·, -
+
+S47: (Transition = identifier(1))
+    char_class_primary: identifier ·, ＄
+    char_class_primary: identifier ·, @Tokens
+    char_class_primary: identifier ·, @Productions
+    char_class_primary: identifier ·, identifier
+    char_class_primary: identifier ·, +
+    char_class_primary: identifier ·, -
+
+S48: (Transition = Char(49))
+    char_class_primary: Char ·, ＄
+    char_class_primary: Char ·, @Tokens
+    char_class_primary: Char ·, @Productions
+    char_class_primary: Char ·, identifier
+    char_class_primary: Char ·, +
+    char_class_primary: Char ·, -
+
+S49: (Transition = char_class(2))
+    CharClass: char_class ·, ＄
+    CharClass: char_class ·, @Tokens
+    CharClass: char_class ·, @Productions
+    CharClass: char_class ·, identifier
+    CharClass: char_class ·, +
+    CharClass: char_class ·, -
+
+S50: (Transition = char_string(4))
+    Char: char_string ·, ＄
+    Char: char_string ·, @Tokens
+    Char: char_string ·, @Productions
+    Char: char_string ·, identifier
+    Char: char_string ·, +
+    Char: char_string ·, -
+
+S51: (Transition = prod_list(57))
+    production_section: @Productions identifier prod_list ·, ＄
+    prod_list: prod_list · production, ＄ => 57
+    prod_list: prod_list · production, identifier => 57
+    production: · identifier production_attr = prod_def_list, ＄ => 58
+    production: · identifier production_attr = prod_def_list, identifier => 58
+
+S52: (Transition = =(11))
+    token: identifier token_attr = · token_expr ;, @Productions => 59
+    token: identifier token_attr = · token_expr ;, identifier => 59
+    token_expr: · token_quantifier, ; => 60
+    token_expr: · token_expr | token_quantifier, ; => 59
+    token_expr: · token_expr token_quantifier, ; => 59
+    token_quantifier: · token_primary, ; => 61
+    token_quantifier: · token_primary +, ; => 61
+    token_quantifier: · token_primary *, ; => 61
+    token_quantifier: · token_primary ?, ; => 61
+    token_quantifier: · token_primary { Integer }, ; => 61
+    token_quantifier: · token_primary { Integer , Integer }, ; => 61
+    token_expr: · token_quantifier, | => 60
+    token_expr: · token_expr | token_quantifier, | => 59
+    token_expr: · token_expr token_quantifier, | => 59
+    token_expr: · token_quantifier, identifier => 60
+    token_expr: · token_quantifier, char_string => 60
+    token_expr: · token_quantifier, char_class => 60
+    token_expr: · token_quantifier, string => 60
+    token_expr: · token_quantifier, ( => 60
+    token_expr: · token_expr | token_quantifier, identifier => 59
+    token_expr: · token_expr | token_quantifier, char_string => 59
+    token_expr: · token_expr | token_quantifier, char_class => 59
+    token_expr: · token_expr | token_quantifier, string => 59
+    token_expr: · token_expr | token_quantifier, ( => 59
+    token_expr: · token_expr token_quantifier, identifier => 59
+    token_expr: · token_expr token_quantifier, char_string => 59
+    token_expr: · token_expr token_quantifier, char_class => 59
+    token_expr: · token_expr token_quantifier, string => 59
+    token_expr: · token_expr token_quantifier, ( => 59
+    token_primary: · identifier, ; => 62
+    token_primary: · Char, ; => 63
+    token_primary: · CharClass, ; => 64
+    token_primary: · String, ; => 65
+    token_primary: · ( token_expr ), ; => 66
+    token_primary: · identifier, + => 62
+    token_primary: · Char, + => 63
+    token_primary: · CharClass, + => 64
+    token_primary: · String, + => 65
+    token_primary: · ( token_expr ), + => 66
+    token_primary: · identifier, * => 62
+    token_primary: · Char, * => 63
+    token_primary: · CharClass, * => 64
+    token_primary: · String, * => 65
+    token_primary: · ( token_expr ), * => 66
+    token_primary: · identifier, ? => 62
+    token_primary: · Char, ? => 63
+    token_primary: · CharClass, ? => 64
+    token_primary: · String, ? => 65
+    token_primary: · ( token_expr ), ? => 66
+    token_primary: · identifier, { => 62
+    token_primary: · Char, { => 63
+    token_primary: · CharClass, { => 64
+    token_primary: · String, { => 65
+    token_primary: · ( token_expr ), { => 66
+    token_quantifier: · token_primary, | => 61
+    token_quantifier: · token_primary +, | => 61
+    token_quantifier: · token_primary *, | => 61
+    token_quantifier: · token_primary ?, | => 61
+    token_quantifier: · token_primary { Integer }, | => 61
+    token_quantifier: · token_primary { Integer , Integer }, | => 61
+    token_quantifier: · token_primary, identifier => 61
+    token_quantifier: · token_primary +, identifier => 61
+    token_quantifier: · token_primary *, identifier => 61
+    token_quantifier: · token_primary ?, identifier => 61
+    token_quantifier: · token_primary { Integer }, identifier => 61
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 61
+    token_quantifier: · token_primary, char_string => 61
+    token_quantifier: · token_primary +, char_string => 61
+    token_quantifier: · token_primary *, char_string => 61
+    token_quantifier: · token_primary ?, char_string => 61
+    token_quantifier: · token_primary { Integer }, char_string => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 61
+    token_quantifier: · token_primary, char_class => 61
+    token_quantifier: · token_primary +, char_class => 61
+    token_quantifier: · token_primary *, char_class => 61
+    token_quantifier: · token_primary ?, char_class => 61
+    token_quantifier: · token_primary { Integer }, char_class => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 61
+    token_quantifier: · token_primary, string => 61
+    token_quantifier: · token_primary +, string => 61
+    token_quantifier: · token_primary *, string => 61
+    token_quantifier: · token_primary ?, string => 61
+    token_quantifier: · token_primary { Integer }, string => 61
+    token_quantifier: · token_primary { Integer , Integer }, string => 61
+    token_quantifier: · token_primary, ( => 61
+    token_quantifier: · token_primary +, ( => 61
+    token_quantifier: · token_primary *, ( => 61
+    token_quantifier: · token_primary ?, ( => 61
+    token_quantifier: · token_primary { Integer }, ( => 61
+    token_quantifier: · token_primary { Integer , Integer }, ( => 61
+    Char: · char_string, ; => 67
+    CharClass: · char_class, ; => 68
+    String: · EscString, ; => 69
+    Char: · char_string, + => 67
+    CharClass: · char_class, + => 68
+    String: · EscString, + => 69
+    Char: · char_string, * => 67
+    CharClass: · char_class, * => 68
+    String: · EscString, * => 69
+    Char: · char_string, ? => 67
+    CharClass: · char_class, ? => 68
+    String: · EscString, ? => 69
+    Char: · char_string, { => 67
+    CharClass: · char_class, { => 68
+    String: · EscString, { => 69
+    token_primary: · identifier, | => 62
+    token_primary: · Char, | => 63
+    token_primary: · CharClass, | => 64
+    token_primary: · String, | => 65
+    token_primary: · ( token_expr ), | => 66
+    token_primary: · identifier, identifier => 62
+    token_primary: · Char, identifier => 63
+    token_primary: · CharClass, identifier => 64
+    token_primary: · String, identifier => 65
+    token_primary: · ( token_expr ), identifier => 66
+    token_primary: · identifier, char_string => 62
+    token_primary: · Char, char_string => 63
+    token_primary: · CharClass, char_string => 64
+    token_primary: · String, char_string => 65
+    token_primary: · ( token_expr ), char_string => 66
+    token_primary: · identifier, char_class => 62
+    token_primary: · Char, char_class => 63
+    token_primary: · CharClass, char_class => 64
+    token_primary: · String, char_class => 65
+    token_primary: · ( token_expr ), char_class => 66
+    token_primary: · identifier, string => 62
+    token_primary: · Char, string => 63
+    token_primary: · CharClass, string => 64
+    token_primary: · String, string => 65
+    token_primary: · ( token_expr ), string => 66
+    token_primary: · identifier, ( => 62
+    token_primary: · Char, ( => 63
+    token_primary: · CharClass, ( => 64
+    token_primary: · String, ( => 65
+    token_primary: · ( token_expr ), ( => 66
+    EscString: · string, ; => 70
+    EscString: · string, + => 70
+    EscString: · string, * => 70
+    EscString: · string, ? => 70
+    EscString: · string, { => 70
+    Char: · char_string, | => 67
+    CharClass: · char_class, | => 68
+    String: · EscString, | => 69
+    Char: · char_string, identifier => 67
+    CharClass: · char_class, identifier => 68
+    String: · EscString, identifier => 69
+    Char: · char_string, char_string => 67
+    CharClass: · char_class, char_string => 68
+    String: · EscString, char_string => 69
+    Char: · char_string, char_class => 67
+    CharClass: · char_class, char_class => 68
+    String: · EscString, char_class => 69
+    Char: · char_string, string => 67
+    CharClass: · char_class, string => 68
+    String: · EscString, string => 69
+    Char: · char_string, ( => 67
+    CharClass: · char_class, ( => 68
+    String: · EscString, ( => 69
+    EscString: · string, | => 70
+    EscString: · string, identifier => 70
+    EscString: · string, char_string => 70
+    EscString: · string, char_class => 70
+    EscString: · string, string => 70
+    EscString: · string, ( => 70
+
+S53: (Transition = identifier(1))
+    token_attr: < identifier · >, = => 71
+
+S54: (Transition = +(13))
+    char_class_concat: char_class_concat + · char_class_unary, ＄ => 72
+    char_class_concat: char_class_concat + · char_class_unary, @Tokens => 72
+    char_class_concat: char_class_concat + · char_class_unary, @Productions => 72
+    char_class_concat: char_class_concat + · char_class_unary, identifier => 72
+    char_class_concat: char_class_concat + · char_class_unary, + => 72
+    char_class_concat: char_class_concat + · char_class_unary, - => 72
+    char_class_unary: · char_class_primary, ＄ => 44
+    char_class_unary: · ! char_class_unary, ＄ => 45
+    char_class_unary: · char_class_primary, @Tokens => 44
+    char_class_unary: · ! char_class_unary, @Tokens => 45
+    char_class_unary: · char_class_primary, @Productions => 44
+    char_class_unary: · ! char_class_unary, @Productions => 45
+    char_class_unary: · char_class_primary, identifier => 44
+    char_class_unary: · ! char_class_unary, identifier => 45
+    char_class_unary: · char_class_primary, + => 44
+    char_class_unary: · ! char_class_unary, + => 45
+    char_class_unary: · char_class_primary, - => 44
+    char_class_unary: · ! char_class_unary, - => 45
+    char_class_primary: · CharClass, ＄ => 46
+    char_class_primary: · identifier, ＄ => 47
+    char_class_primary: · Char, ＄ => 48
+    char_class_primary: · CharClass, @Tokens => 46
+    char_class_primary: · identifier, @Tokens => 47
+    char_class_primary: · Char, @Tokens => 48
+    char_class_primary: · CharClass, @Productions => 46
+    char_class_primary: · identifier, @Productions => 47
+    char_class_primary: · Char, @Productions => 48
+    char_class_primary: · CharClass, identifier => 46
+    char_class_primary: · identifier, identifier => 47
+    char_class_primary: · Char, identifier => 48
+    char_class_primary: · CharClass, + => 46
+    char_class_primary: · identifier, + => 47
+    char_class_primary: · Char, + => 48
+    char_class_primary: · CharClass, - => 46
+    char_class_primary: · identifier, - => 47
+    char_class_primary: · Char, - => 48
+    CharClass: · char_class, ＄ => 49
+    Char: · char_string, ＄ => 50
+    CharClass: · char_class, @Tokens => 49
+    Char: · char_string, @Tokens => 50
+    CharClass: · char_class, @Productions => 49
+    Char: · char_string, @Productions => 50
+    CharClass: · char_class, identifier => 49
+    Char: · char_string, identifier => 50
+    CharClass: · char_class, + => 49
+    Char: · char_string, + => 50
+    CharClass: · char_class, - => 49
+    Char: · char_string, - => 50
+
+S55: (Transition = -(14))
+    char_class_concat: char_class_concat - · char_class_unary, ＄ => 73
+    char_class_concat: char_class_concat - · char_class_unary, @Tokens => 73
+    char_class_concat: char_class_concat - · char_class_unary, @Productions => 73
+    char_class_concat: char_class_concat - · char_class_unary, identifier => 73
+    char_class_concat: char_class_concat - · char_class_unary, + => 73
+    char_class_concat: char_class_concat - · char_class_unary, - => 73
+    char_class_unary: · char_class_primary, ＄ => 44
+    char_class_unary: · ! char_class_unary, ＄ => 45
+    char_class_unary: · char_class_primary, @Tokens => 44
+    char_class_unary: · ! char_class_unary, @Tokens => 45
+    char_class_unary: · char_class_primary, @Productions => 44
+    char_class_unary: · ! char_class_unary, @Productions => 45
+    char_class_unary: · char_class_primary, identifier => 44
+    char_class_unary: · ! char_class_unary, identifier => 45
+    char_class_unary: · char_class_primary, + => 44
+    char_class_unary: · ! char_class_unary, + => 45
+    char_class_unary: · char_class_primary, - => 44
+    char_class_unary: · ! char_class_unary, - => 45
+    char_class_primary: · CharClass, ＄ => 46
+    char_class_primary: · identifier, ＄ => 47
+    char_class_primary: · Char, ＄ => 48
+    char_class_primary: · CharClass, @Tokens => 46
+    char_class_primary: · identifier, @Tokens => 47
+    char_class_primary: · Char, @Tokens => 48
+    char_class_primary: · CharClass, @Productions => 46
+    char_class_primary: · identifier, @Productions => 47
+    char_class_primary: · Char, @Productions => 48
+    char_class_primary: · CharClass, identifier => 46
+    char_class_primary: · identifier, identifier => 47
+    char_class_primary: · Char, identifier => 48
+    char_class_primary: · CharClass, + => 46
+    char_class_primary: · identifier, + => 47
+    char_class_primary: · Char, + => 48
+    char_class_primary: · CharClass, - => 46
+    char_class_primary: · identifier, - => 47
+    char_class_primary: · Char, - => 48
+    CharClass: · char_class, ＄ => 49
+    Char: · char_string, ＄ => 50
+    CharClass: · char_class, @Tokens => 49
+    Char: · char_string, @Tokens => 50
+    CharClass: · char_class, @Productions => 49
+    Char: · char_string, @Productions => 50
+    CharClass: · char_class, identifier => 49
+    Char: · char_string, identifier => 50
+    CharClass: · char_class, + => 49
+    Char: · char_string, + => 50
+    CharClass: · char_class, - => 49
+    Char: · char_string, - => 50
+
+S56: (Transition = char_class_unary(46))
+    char_class_unary: ! char_class_unary ·, ＄
+    char_class_unary: ! char_class_unary ·, @Tokens
+    char_class_unary: ! char_class_unary ·, @Productions
+    char_class_unary: ! char_class_unary ·, identifier
+    char_class_unary: ! char_class_unary ·, +
+    char_class_unary: ! char_class_unary ·, -
+
+S57: (Transition = production(58))
+    prod_list: prod_list production ·, ＄
+    prod_list: prod_list production ·, identifier
+
+S58: (Transition = identifier(1))
+    production: identifier · production_attr = prod_def_list, ＄ => 74
+    production: identifier · production_attr = prod_def_list, identifier => 74
+    production_attr: ·, =
+    production_attr: · < Identifier func_opt >, = => 75
+
+S59: (Transition = token_expr(53))
+    token: identifier token_attr = token_expr · ;, @Productions => 76
+    token: identifier token_attr = token_expr · ;, identifier => 76
+    token_expr: token_expr · | token_quantifier, ; => 77
+    token_expr: token_expr · token_quantifier, ; => 78
+    token_expr: token_expr · | token_quantifier, | => 77
+    token_expr: token_expr · token_quantifier, | => 78
+    token_expr: token_expr · | token_quantifier, identifier => 77
+    token_expr: token_expr · | token_quantifier, char_string => 77
+    token_expr: token_expr · | token_quantifier, char_class => 77
+    token_expr: token_expr · | token_quantifier, string => 77
+    token_expr: token_expr · | token_quantifier, ( => 77
+    token_expr: token_expr · token_quantifier, identifier => 78
+    token_expr: token_expr · token_quantifier, char_string => 78
+    token_expr: token_expr · token_quantifier, char_class => 78
+    token_expr: token_expr · token_quantifier, string => 78
+    token_expr: token_expr · token_quantifier, ( => 78
+    token_quantifier: · token_primary, ; => 61
+    token_quantifier: · token_primary +, ; => 61
+    token_quantifier: · token_primary *, ; => 61
+    token_quantifier: · token_primary ?, ; => 61
+    token_quantifier: · token_primary { Integer }, ; => 61
+    token_quantifier: · token_primary { Integer , Integer }, ; => 61
+    token_quantifier: · token_primary, | => 61
+    token_quantifier: · token_primary +, | => 61
+    token_quantifier: · token_primary *, | => 61
+    token_quantifier: · token_primary ?, | => 61
+    token_quantifier: · token_primary { Integer }, | => 61
+    token_quantifier: · token_primary { Integer , Integer }, | => 61
+    token_quantifier: · token_primary, identifier => 61
+    token_quantifier: · token_primary +, identifier => 61
+    token_quantifier: · token_primary *, identifier => 61
+    token_quantifier: · token_primary ?, identifier => 61
+    token_quantifier: · token_primary { Integer }, identifier => 61
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 61
+    token_quantifier: · token_primary, char_string => 61
+    token_quantifier: · token_primary +, char_string => 61
+    token_quantifier: · token_primary *, char_string => 61
+    token_quantifier: · token_primary ?, char_string => 61
+    token_quantifier: · token_primary { Integer }, char_string => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 61
+    token_quantifier: · token_primary, char_class => 61
+    token_quantifier: · token_primary +, char_class => 61
+    token_quantifier: · token_primary *, char_class => 61
+    token_quantifier: · token_primary ?, char_class => 61
+    token_quantifier: · token_primary { Integer }, char_class => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 61
+    token_quantifier: · token_primary, string => 61
+    token_quantifier: · token_primary +, string => 61
+    token_quantifier: · token_primary *, string => 61
+    token_quantifier: · token_primary ?, string => 61
+    token_quantifier: · token_primary { Integer }, string => 61
+    token_quantifier: · token_primary { Integer , Integer }, string => 61
+    token_quantifier: · token_primary, ( => 61
+    token_quantifier: · token_primary +, ( => 61
+    token_quantifier: · token_primary *, ( => 61
+    token_quantifier: · token_primary ?, ( => 61
+    token_quantifier: · token_primary { Integer }, ( => 61
+    token_quantifier: · token_primary { Integer , Integer }, ( => 61
+    token_primary: · identifier, ; => 62
+    token_primary: · Char, ; => 63
+    token_primary: · CharClass, ; => 64
+    token_primary: · String, ; => 65
+    token_primary: · ( token_expr ), ; => 66
+    token_primary: · identifier, + => 62
+    token_primary: · Char, + => 63
+    token_primary: · CharClass, + => 64
+    token_primary: · String, + => 65
+    token_primary: · ( token_expr ), + => 66
+    token_primary: · identifier, * => 62
+    token_primary: · Char, * => 63
+    token_primary: · CharClass, * => 64
+    token_primary: · String, * => 65
+    token_primary: · ( token_expr ), * => 66
+    token_primary: · identifier, ? => 62
+    token_primary: · Char, ? => 63
+    token_primary: · CharClass, ? => 64
+    token_primary: · String, ? => 65
+    token_primary: · ( token_expr ), ? => 66
+    token_primary: · identifier, { => 62
+    token_primary: · Char, { => 63
+    token_primary: · CharClass, { => 64
+    token_primary: · String, { => 65
+    token_primary: · ( token_expr ), { => 66
+    token_primary: · identifier, | => 62
+    token_primary: · Char, | => 63
+    token_primary: · CharClass, | => 64
+    token_primary: · String, | => 65
+    token_primary: · ( token_expr ), | => 66
+    token_primary: · identifier, identifier => 62
+    token_primary: · Char, identifier => 63
+    token_primary: · CharClass, identifier => 64
+    token_primary: · String, identifier => 65
+    token_primary: · ( token_expr ), identifier => 66
+    token_primary: · identifier, char_string => 62
+    token_primary: · Char, char_string => 63
+    token_primary: · CharClass, char_string => 64
+    token_primary: · String, char_string => 65
+    token_primary: · ( token_expr ), char_string => 66
+    token_primary: · identifier, char_class => 62
+    token_primary: · Char, char_class => 63
+    token_primary: · CharClass, char_class => 64
+    token_primary: · String, char_class => 65
+    token_primary: · ( token_expr ), char_class => 66
+    token_primary: · identifier, string => 62
+    token_primary: · Char, string => 63
+    token_primary: · CharClass, string => 64
+    token_primary: · String, string => 65
+    token_primary: · ( token_expr ), string => 66
+    token_primary: · identifier, ( => 62
+    token_primary: · Char, ( => 63
+    token_primary: · CharClass, ( => 64
+    token_primary: · String, ( => 65
+    token_primary: · ( token_expr ), ( => 66
+    Char: · char_string, ; => 67
+    CharClass: · char_class, ; => 68
+    String: · EscString, ; => 69
+    Char: · char_string, + => 67
+    CharClass: · char_class, + => 68
+    String: · EscString, + => 69
+    Char: · char_string, * => 67
+    CharClass: · char_class, * => 68
+    String: · EscString, * => 69
+    Char: · char_string, ? => 67
+    CharClass: · char_class, ? => 68
+    String: · EscString, ? => 69
+    Char: · char_string, { => 67
+    CharClass: · char_class, { => 68
+    String: · EscString, { => 69
+    Char: · char_string, | => 67
+    CharClass: · char_class, | => 68
+    String: · EscString, | => 69
+    Char: · char_string, identifier => 67
+    CharClass: · char_class, identifier => 68
+    String: · EscString, identifier => 69
+    Char: · char_string, char_string => 67
+    CharClass: · char_class, char_string => 68
+    String: · EscString, char_string => 69
+    Char: · char_string, char_class => 67
+    CharClass: · char_class, char_class => 68
+    String: · EscString, char_class => 69
+    Char: · char_string, string => 67
+    CharClass: · char_class, string => 68
+    String: · EscString, string => 69
+    Char: · char_string, ( => 67
+    CharClass: · char_class, ( => 68
+    String: · EscString, ( => 69
+    EscString: · string, ; => 70
+    EscString: · string, + => 70
+    EscString: · string, * => 70
+    EscString: · string, ? => 70
+    EscString: · string, { => 70
+    EscString: · string, | => 70
+    EscString: · string, identifier => 70
+    EscString: · string, char_string => 70
+    EscString: · string, char_class => 70
+    EscString: · string, string => 70
+    EscString: · string, ( => 70
+
+S60: (Transition = token_quantifier(54))
+    token_expr: token_quantifier ·, ;
+    token_expr: token_quantifier ·, |
+    token_expr: token_quantifier ·, identifier
+    token_expr: token_quantifier ·, char_string
+    token_expr: token_quantifier ·, char_class
+    token_expr: token_quantifier ·, string
+    token_expr: token_quantifier ·, (
+
+S61: (Transition = token_primary(55))
+    token_quantifier: token_primary ·, ;
+    token_quantifier: token_primary · +, ; => 79
+    token_quantifier: token_primary · *, ; => 80
+    token_quantifier: token_primary · ?, ; => 81
+    token_quantifier: token_primary · { Integer }, ; => 82
+    token_quantifier: token_primary · { Integer , Integer }, ; => 82
+    token_quantifier: token_primary ·, |
+    token_quantifier: token_primary · +, | => 79
+    token_quantifier: token_primary · *, | => 80
+    token_quantifier: token_primary · ?, | => 81
+    token_quantifier: token_primary · { Integer }, | => 82
+    token_quantifier: token_primary · { Integer , Integer }, | => 82
+    token_quantifier: token_primary ·, identifier
+    token_quantifier: token_primary · +, identifier => 79
+    token_quantifier: token_primary · *, identifier => 80
+    token_quantifier: token_primary · ?, identifier => 81
+    token_quantifier: token_primary · { Integer }, identifier => 82
+    token_quantifier: token_primary · { Integer , Integer }, identifier => 82
+    token_quantifier: token_primary ·, char_string
+    token_quantifier: token_primary · +, char_string => 79
+    token_quantifier: token_primary · *, char_string => 80
+    token_quantifier: token_primary · ?, char_string => 81
+    token_quantifier: token_primary · { Integer }, char_string => 82
+    token_quantifier: token_primary · { Integer , Integer }, char_string => 82
+    token_quantifier: token_primary ·, char_class
+    token_quantifier: token_primary · +, char_class => 79
+    token_quantifier: token_primary · *, char_class => 80
+    token_quantifier: token_primary · ?, char_class => 81
+    token_quantifier: token_primary · { Integer }, char_class => 82
+    token_quantifier: token_primary · { Integer , Integer }, char_class => 82
+    token_quantifier: token_primary ·, string
+    token_quantifier: token_primary · +, string => 79
+    token_quantifier: token_primary · *, string => 80
+    token_quantifier: token_primary · ?, string => 81
+    token_quantifier: token_primary · { Integer }, string => 82
+    token_quantifier: token_primary · { Integer , Integer }, string => 82
+    token_quantifier: token_primary ·, (
+    token_quantifier: token_primary · +, ( => 79
+    token_quantifier: token_primary · *, ( => 80
+    token_quantifier: token_primary · ?, ( => 81
+    token_quantifier: token_primary · { Integer }, ( => 82
+    token_quantifier: token_primary · { Integer , Integer }, ( => 82
+
+S62: (Transition = identifier(1))
+    token_primary: identifier ·, ;
+    token_primary: identifier ·, +
+    token_primary: identifier ·, *
+    token_primary: identifier ·, ?
+    token_primary: identifier ·, {
+    token_primary: identifier ·, |
+    token_primary: identifier ·, identifier
+    token_primary: identifier ·, char_string
+    token_primary: identifier ·, char_class
+    token_primary: identifier ·, string
+    token_primary: identifier ·, (
+
+S63: (Transition = Char(49))
+    token_primary: Char ·, ;
+    token_primary: Char ·, +
+    token_primary: Char ·, *
+    token_primary: Char ·, ?
+    token_primary: Char ·, {
+    token_primary: Char ·, |
+    token_primary: Char ·, identifier
+    token_primary: Char ·, char_string
+    token_primary: Char ·, char_class
+    token_primary: Char ·, string
+    token_primary: Char ·, (
+
+S64: (Transition = CharClass(48))
+    token_primary: CharClass ·, ;
+    token_primary: CharClass ·, +
+    token_primary: CharClass ·, *
+    token_primary: CharClass ·, ?
+    token_primary: CharClass ·, {
+    token_primary: CharClass ·, |
+    token_primary: CharClass ·, identifier
+    token_primary: CharClass ·, char_string
+    token_primary: CharClass ·, char_class
+    token_primary: CharClass ·, string
+    token_primary: CharClass ·, (
+
+S65: (Transition = String(42))
+    token_primary: String ·, ;
+    token_primary: String ·, +
+    token_primary: String ·, *
+    token_primary: String ·, ?
+    token_primary: String ·, {
+    token_primary: String ·, |
+    token_primary: String ·, identifier
+    token_primary: String ·, char_string
+    token_primary: String ·, char_class
+    token_primary: String ·, string
+    token_primary: String ·, (
+
+S66: (Transition = ((25))
+    token_primary: ( · token_expr ), ; => 83
+    token_primary: ( · token_expr ), + => 83
+    token_primary: ( · token_expr ), * => 83
+    token_primary: ( · token_expr ), ? => 83
+    token_primary: ( · token_expr ), { => 83
+    token_primary: ( · token_expr ), | => 83
+    token_primary: ( · token_expr ), identifier => 83
+    token_primary: ( · token_expr ), char_string => 83
+    token_primary: ( · token_expr ), char_class => 83
+    token_primary: ( · token_expr ), string => 83
+    token_primary: ( · token_expr ), ( => 83
+    token_expr: · token_quantifier, ) => 84
+    token_expr: · token_expr | token_quantifier, ) => 83
+    token_expr: · token_expr token_quantifier, ) => 83
+    token_quantifier: · token_primary, ) => 85
+    token_quantifier: · token_primary +, ) => 85
+    token_quantifier: · token_primary *, ) => 85
+    token_quantifier: · token_primary ?, ) => 85
+    token_quantifier: · token_primary { Integer }, ) => 85
+    token_quantifier: · token_primary { Integer , Integer }, ) => 85
+    token_expr: · token_quantifier, | => 84
+    token_expr: · token_expr | token_quantifier, | => 83
+    token_expr: · token_expr token_quantifier, | => 83
+    token_expr: · token_quantifier, identifier => 84
+    token_expr: · token_quantifier, char_string => 84
+    token_expr: · token_quantifier, char_class => 84
+    token_expr: · token_quantifier, string => 84
+    token_expr: · token_quantifier, ( => 84
+    token_expr: · token_expr | token_quantifier, identifier => 83
+    token_expr: · token_expr | token_quantifier, char_string => 83
+    token_expr: · token_expr | token_quantifier, char_class => 83
+    token_expr: · token_expr | token_quantifier, string => 83
+    token_expr: · token_expr | token_quantifier, ( => 83
+    token_expr: · token_expr token_quantifier, identifier => 83
+    token_expr: · token_expr token_quantifier, char_string => 83
+    token_expr: · token_expr token_quantifier, char_class => 83
+    token_expr: · token_expr token_quantifier, string => 83
+    token_expr: · token_expr token_quantifier, ( => 83
+    token_primary: · identifier, ) => 86
+    token_primary: · Char, ) => 87
+    token_primary: · CharClass, ) => 88
+    token_primary: · String, ) => 89
+    token_primary: · ( token_expr ), ) => 90
+    token_primary: · identifier, + => 86
+    token_primary: · Char, + => 87
+    token_primary: · CharClass, + => 88
+    token_primary: · String, + => 89
+    token_primary: · ( token_expr ), + => 90
+    token_primary: · identifier, * => 86
+    token_primary: · Char, * => 87
+    token_primary: · CharClass, * => 88
+    token_primary: · String, * => 89
+    token_primary: · ( token_expr ), * => 90
+    token_primary: · identifier, ? => 86
+    token_primary: · Char, ? => 87
+    token_primary: · CharClass, ? => 88
+    token_primary: · String, ? => 89
+    token_primary: · ( token_expr ), ? => 90
+    token_primary: · identifier, { => 86
+    token_primary: · Char, { => 87
+    token_primary: · CharClass, { => 88
+    token_primary: · String, { => 89
+    token_primary: · ( token_expr ), { => 90
+    token_quantifier: · token_primary, | => 85
+    token_quantifier: · token_primary +, | => 85
+    token_quantifier: · token_primary *, | => 85
+    token_quantifier: · token_primary ?, | => 85
+    token_quantifier: · token_primary { Integer }, | => 85
+    token_quantifier: · token_primary { Integer , Integer }, | => 85
+    token_quantifier: · token_primary, identifier => 85
+    token_quantifier: · token_primary +, identifier => 85
+    token_quantifier: · token_primary *, identifier => 85
+    token_quantifier: · token_primary ?, identifier => 85
+    token_quantifier: · token_primary { Integer }, identifier => 85
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 85
+    token_quantifier: · token_primary, char_string => 85
+    token_quantifier: · token_primary +, char_string => 85
+    token_quantifier: · token_primary *, char_string => 85
+    token_quantifier: · token_primary ?, char_string => 85
+    token_quantifier: · token_primary { Integer }, char_string => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 85
+    token_quantifier: · token_primary, char_class => 85
+    token_quantifier: · token_primary +, char_class => 85
+    token_quantifier: · token_primary *, char_class => 85
+    token_quantifier: · token_primary ?, char_class => 85
+    token_quantifier: · token_primary { Integer }, char_class => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 85
+    token_quantifier: · token_primary, string => 85
+    token_quantifier: · token_primary +, string => 85
+    token_quantifier: · token_primary *, string => 85
+    token_quantifier: · token_primary ?, string => 85
+    token_quantifier: · token_primary { Integer }, string => 85
+    token_quantifier: · token_primary { Integer , Integer }, string => 85
+    token_quantifier: · token_primary, ( => 85
+    token_quantifier: · token_primary +, ( => 85
+    token_quantifier: · token_primary *, ( => 85
+    token_quantifier: · token_primary ?, ( => 85
+    token_quantifier: · token_primary { Integer }, ( => 85
+    token_quantifier: · token_primary { Integer , Integer }, ( => 85
+    Char: · char_string, ) => 91
+    CharClass: · char_class, ) => 92
+    String: · EscString, ) => 93
+    Char: · char_string, + => 91
+    CharClass: · char_class, + => 92
+    String: · EscString, + => 93
+    Char: · char_string, * => 91
+    CharClass: · char_class, * => 92
+    String: · EscString, * => 93
+    Char: · char_string, ? => 91
+    CharClass: · char_class, ? => 92
+    String: · EscString, ? => 93
+    Char: · char_string, { => 91
+    CharClass: · char_class, { => 92
+    String: · EscString, { => 93
+    token_primary: · identifier, | => 86
+    token_primary: · Char, | => 87
+    token_primary: · CharClass, | => 88
+    token_primary: · String, | => 89
+    token_primary: · ( token_expr ), | => 90
+    token_primary: · identifier, identifier => 86
+    token_primary: · Char, identifier => 87
+    token_primary: · CharClass, identifier => 88
+    token_primary: · String, identifier => 89
+    token_primary: · ( token_expr ), identifier => 90
+    token_primary: · identifier, char_string => 86
+    token_primary: · Char, char_string => 87
+    token_primary: · CharClass, char_string => 88
+    token_primary: · String, char_string => 89
+    token_primary: · ( token_expr ), char_string => 90
+    token_primary: · identifier, char_class => 86
+    token_primary: · Char, char_class => 87
+    token_primary: · CharClass, char_class => 88
+    token_primary: · String, char_class => 89
+    token_primary: · ( token_expr ), char_class => 90
+    token_primary: · identifier, string => 86
+    token_primary: · Char, string => 87
+    token_primary: · CharClass, string => 88
+    token_primary: · String, string => 89
+    token_primary: · ( token_expr ), string => 90
+    token_primary: · identifier, ( => 86
+    token_primary: · Char, ( => 87
+    token_primary: · CharClass, ( => 88
+    token_primary: · String, ( => 89
+    token_primary: · ( token_expr ), ( => 90
+    EscString: · string, ) => 94
+    EscString: · string, + => 94
+    EscString: · string, * => 94
+    EscString: · string, ? => 94
+    EscString: · string, { => 94
+    Char: · char_string, | => 91
+    CharClass: · char_class, | => 92
+    String: · EscString, | => 93
+    Char: · char_string, identifier => 91
+    CharClass: · char_class, identifier => 92
+    String: · EscString, identifier => 93
+    Char: · char_string, char_string => 91
+    CharClass: · char_class, char_string => 92
+    String: · EscString, char_string => 93
+    Char: · char_string, char_class => 91
+    CharClass: · char_class, char_class => 92
+    String: · EscString, char_class => 93
+    Char: · char_string, string => 91
+    CharClass: · char_class, string => 92
+    String: · EscString, string => 93
+    Char: · char_string, ( => 91
+    CharClass: · char_class, ( => 92
+    String: · EscString, ( => 93
+    EscString: · string, | => 94
+    EscString: · string, identifier => 94
+    EscString: · string, char_string => 94
+    EscString: · string, char_class => 94
+    EscString: · string, string => 94
+    EscString: · string, ( => 94
+
+S67: (Transition = char_string(4))
+    Char: char_string ·, ;
+    Char: char_string ·, +
+    Char: char_string ·, *
+    Char: char_string ·, ?
+    Char: char_string ·, {
+    Char: char_string ·, |
+    Char: char_string ·, identifier
+    Char: char_string ·, char_string
+    Char: char_string ·, char_class
+    Char: char_string ·, string
+    Char: char_string ·, (
+
+S68: (Transition = char_class(2))
+    CharClass: char_class ·, ;
+    CharClass: char_class ·, +
+    CharClass: char_class ·, *
+    CharClass: char_class ·, ?
+    CharClass: char_class ·, {
+    CharClass: char_class ·, |
+    CharClass: char_class ·, identifier
+    CharClass: char_class ·, char_string
+    CharClass: char_class ·, char_class
+    CharClass: char_class ·, string
+    CharClass: char_class ·, (
+
+S69: (Transition = EscString(74))
+    String: EscString ·, ;
+    String: EscString ·, +
+    String: EscString ·, *
+    String: EscString ·, ?
+    String: EscString ·, {
+    String: EscString ·, |
+    String: EscString ·, identifier
+    String: EscString ·, char_string
+    String: EscString ·, char_class
+    String: EscString ·, string
+    String: EscString ·, (
+
+S70: (Transition = string(3))
+    EscString: string ·, ;
+    EscString: string ·, +
+    EscString: string ·, *
+    EscString: string ·, ?
+    EscString: string ·, {
+    EscString: string ·, |
+    EscString: string ·, identifier
+    EscString: string ·, char_string
+    EscString: string ·, char_class
+    EscString: string ·, string
+    EscString: string ·, (
+
+S71: (Transition = >(18))
+    token_attr: < identifier > ·, =
+
+S72: (Transition = char_class_unary(46))
+    char_class_concat: char_class_concat + char_class_unary ·, ＄
+    char_class_concat: char_class_concat + char_class_unary ·, @Tokens
+    char_class_concat: char_class_concat + char_class_unary ·, @Productions
+    char_class_concat: char_class_concat + char_class_unary ·, identifier
+    char_class_concat: char_class_concat + char_class_unary ·, +
+    char_class_concat: char_class_concat + char_class_unary ·, -
+
+S73: (Transition = char_class_unary(46))
+    char_class_concat: char_class_concat - char_class_unary ·, ＄
+    char_class_concat: char_class_concat - char_class_unary ·, @Tokens
+    char_class_concat: char_class_concat - char_class_unary ·, @Productions
+    char_class_concat: char_class_concat - char_class_unary ·, identifier
+    char_class_concat: char_class_concat - char_class_unary ·, +
+    char_class_concat: char_class_concat - char_class_unary ·, -
+
+S74: (Transition = production_attr(59))
+    production: identifier production_attr · = prod_def_list, ＄ => 95
+    production: identifier production_attr · = prod_def_list, identifier => 95
+
+S75: (Transition = <(17))
+    production_attr: < · Identifier func_opt >, = => 96
+    Identifier: · Identifier . identifier, ＄ => 96
+    Identifier: · Identifier . identifier, ( => 96
+    Identifier: · Identifier . identifier, > => 96
+    Identifier: · Identifier . identifier, = => 96
+    Identifier: · identifier, ＄ => 97
+    Identifier: · identifier, ( => 97
+    Identifier: · identifier, > => 97
+    Identifier: · identifier, = => 97
+    Identifier: · Identifier . identifier, . => 96
+    Identifier: · identifier, . => 97
+
+S76: (Transition = ;(8))
+    token: identifier token_attr = token_expr ; ·, @Productions
+    token: identifier token_attr = token_expr ; ·, identifier
+
+S77: (Transition = |(19))
+    token_expr: token_expr | · token_quantifier, ; => 98
+    token_expr: token_expr | · token_quantifier, | => 98
+    token_expr: token_expr | · token_quantifier, identifier => 98
+    token_expr: token_expr | · token_quantifier, char_string => 98
+    token_expr: token_expr | · token_quantifier, char_class => 98
+    token_expr: token_expr | · token_quantifier, string => 98
+    token_expr: token_expr | · token_quantifier, ( => 98
+    token_quantifier: · token_primary, ; => 61
+    token_quantifier: · token_primary +, ; => 61
+    token_quantifier: · token_primary *, ; => 61
+    token_quantifier: · token_primary ?, ; => 61
+    token_quantifier: · token_primary { Integer }, ; => 61
+    token_quantifier: · token_primary { Integer , Integer }, ; => 61
+    token_quantifier: · token_primary, | => 61
+    token_quantifier: · token_primary +, | => 61
+    token_quantifier: · token_primary *, | => 61
+    token_quantifier: · token_primary ?, | => 61
+    token_quantifier: · token_primary { Integer }, | => 61
+    token_quantifier: · token_primary { Integer , Integer }, | => 61
+    token_quantifier: · token_primary, identifier => 61
+    token_quantifier: · token_primary +, identifier => 61
+    token_quantifier: · token_primary *, identifier => 61
+    token_quantifier: · token_primary ?, identifier => 61
+    token_quantifier: · token_primary { Integer }, identifier => 61
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 61
+    token_quantifier: · token_primary, char_string => 61
+    token_quantifier: · token_primary +, char_string => 61
+    token_quantifier: · token_primary *, char_string => 61
+    token_quantifier: · token_primary ?, char_string => 61
+    token_quantifier: · token_primary { Integer }, char_string => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 61
+    token_quantifier: · token_primary, char_class => 61
+    token_quantifier: · token_primary +, char_class => 61
+    token_quantifier: · token_primary *, char_class => 61
+    token_quantifier: · token_primary ?, char_class => 61
+    token_quantifier: · token_primary { Integer }, char_class => 61
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 61
+    token_quantifier: · token_primary, string => 61
+    token_quantifier: · token_primary +, string => 61
+    token_quantifier: · token_primary *, string => 61
+    token_quantifier: · token_primary ?, string => 61
+    token_quantifier: · token_primary { Integer }, string => 61
+    token_quantifier: · token_primary { Integer , Integer }, string => 61
+    token_quantifier: · token_primary, ( => 61
+    token_quantifier: · token_primary +, ( => 61
+    token_quantifier: · token_primary *, ( => 61
+    token_quantifier: · token_primary ?, ( => 61
+    token_quantifier: · token_primary { Integer }, ( => 61
+    token_quantifier: · token_primary { Integer , Integer }, ( => 61
+    token_primary: · identifier, ; => 62
+    token_primary: · Char, ; => 63
+    token_primary: · CharClass, ; => 64
+    token_primary: · String, ; => 65
+    token_primary: · ( token_expr ), ; => 66
+    token_primary: · identifier, + => 62
+    token_primary: · Char, + => 63
+    token_primary: · CharClass, + => 64
+    token_primary: · String, + => 65
+    token_primary: · ( token_expr ), + => 66
+    token_primary: · identifier, * => 62
+    token_primary: · Char, * => 63
+    token_primary: · CharClass, * => 64
+    token_primary: · String, * => 65
+    token_primary: · ( token_expr ), * => 66
+    token_primary: · identifier, ? => 62
+    token_primary: · Char, ? => 63
+    token_primary: · CharClass, ? => 64
+    token_primary: · String, ? => 65
+    token_primary: · ( token_expr ), ? => 66
+    token_primary: · identifier, { => 62
+    token_primary: · Char, { => 63
+    token_primary: · CharClass, { => 64
+    token_primary: · String, { => 65
+    token_primary: · ( token_expr ), { => 66
+    token_primary: · identifier, | => 62
+    token_primary: · Char, | => 63
+    token_primary: · CharClass, | => 64
+    token_primary: · String, | => 65
+    token_primary: · ( token_expr ), | => 66
+    token_primary: · identifier, identifier => 62
+    token_primary: · Char, identifier => 63
+    token_primary: · CharClass, identifier => 64
+    token_primary: · String, identifier => 65
+    token_primary: · ( token_expr ), identifier => 66
+    token_primary: · identifier, char_string => 62
+    token_primary: · Char, char_string => 63
+    token_primary: · CharClass, char_string => 64
+    token_primary: · String, char_string => 65
+    token_primary: · ( token_expr ), char_string => 66
+    token_primary: · identifier, char_class => 62
+    token_primary: · Char, char_class => 63
+    token_primary: · CharClass, char_class => 64
+    token_primary: · String, char_class => 65
+    token_primary: · ( token_expr ), char_class => 66
+    token_primary: · identifier, string => 62
+    token_primary: · Char, string => 63
+    token_primary: · CharClass, string => 64
+    token_primary: · String, string => 65
+    token_primary: · ( token_expr ), string => 66
+    token_primary: · identifier, ( => 62
+    token_primary: · Char, ( => 63
+    token_primary: · CharClass, ( => 64
+    token_primary: · String, ( => 65
+    token_primary: · ( token_expr ), ( => 66
+    Char: · char_string, ; => 67
+    CharClass: · char_class, ; => 68
+    String: · EscString, ; => 69
+    Char: · char_string, + => 67
+    CharClass: · char_class, + => 68
+    String: · EscString, + => 69
+    Char: · char_string, * => 67
+    CharClass: · char_class, * => 68
+    String: · EscString, * => 69
+    Char: · char_string, ? => 67
+    CharClass: · char_class, ? => 68
+    String: · EscString, ? => 69
+    Char: · char_string, { => 67
+    CharClass: · char_class, { => 68
+    String: · EscString, { => 69
+    Char: · char_string, | => 67
+    CharClass: · char_class, | => 68
+    String: · EscString, | => 69
+    Char: · char_string, identifier => 67
+    CharClass: · char_class, identifier => 68
+    String: · EscString, identifier => 69
+    Char: · char_string, char_string => 67
+    CharClass: · char_class, char_string => 68
+    String: · EscString, char_string => 69
+    Char: · char_string, char_class => 67
+    CharClass: · char_class, char_class => 68
+    String: · EscString, char_class => 69
+    Char: · char_string, string => 67
+    CharClass: · char_class, string => 68
+    String: · EscString, string => 69
+    Char: · char_string, ( => 67
+    CharClass: · char_class, ( => 68
+    String: · EscString, ( => 69
+    EscString: · string, ; => 70
+    EscString: · string, + => 70
+    EscString: · string, * => 70
+    EscString: · string, ? => 70
+    EscString: · string, { => 70
+    EscString: · string, | => 70
+    EscString: · string, identifier => 70
+    EscString: · string, char_string => 70
+    EscString: · string, char_class => 70
+    EscString: · string, string => 70
+    EscString: · string, ( => 70
+
+S78: (Transition = token_quantifier(54))
+    token_expr: token_expr token_quantifier ·, ;
+    token_expr: token_expr token_quantifier ·, |
+    token_expr: token_expr token_quantifier ·, identifier
+    token_expr: token_expr token_quantifier ·, char_string
+    token_expr: token_expr token_quantifier ·, char_class
+    token_expr: token_expr token_quantifier ·, string
+    token_expr: token_expr token_quantifier ·, (
+
+S79: (Transition = +(13))
+    token_quantifier: token_primary + ·, ;
+    token_quantifier: token_primary + ·, |
+    token_quantifier: token_primary + ·, identifier
+    token_quantifier: token_primary + ·, char_string
+    token_quantifier: token_primary + ·, char_class
+    token_quantifier: token_primary + ·, string
+    token_quantifier: token_primary + ·, (
+
+S80: (Transition = *(20))
+    token_quantifier: token_primary * ·, ;
+    token_quantifier: token_primary * ·, |
+    token_quantifier: token_primary * ·, identifier
+    token_quantifier: token_primary * ·, char_string
+    token_quantifier: token_primary * ·, char_class
+    token_quantifier: token_primary * ·, string
+    token_quantifier: token_primary * ·, (
+
+S81: (Transition = ?(21))
+    token_quantifier: token_primary ? ·, ;
+    token_quantifier: token_primary ? ·, |
+    token_quantifier: token_primary ? ·, identifier
+    token_quantifier: token_primary ? ·, char_string
+    token_quantifier: token_primary ? ·, char_class
+    token_quantifier: token_primary ? ·, string
+    token_quantifier: token_primary ? ·, (
+
+S82: (Transition = {(22))
+    token_quantifier: token_primary { · Integer }, ; => 99
+    token_quantifier: token_primary { · Integer , Integer }, ; => 99
+    token_quantifier: token_primary { · Integer }, | => 99
+    token_quantifier: token_primary { · Integer , Integer }, | => 99
+    token_quantifier: token_primary { · Integer }, identifier => 99
+    token_quantifier: token_primary { · Integer , Integer }, identifier => 99
+    token_quantifier: token_primary { · Integer }, char_string => 99
+    token_quantifier: token_primary { · Integer , Integer }, char_string => 99
+    token_quantifier: token_primary { · Integer }, char_class => 99
+    token_quantifier: token_primary { · Integer , Integer }, char_class => 99
+    token_quantifier: token_primary { · Integer }, string => 99
+    token_quantifier: token_primary { · Integer , Integer }, string => 99
+    token_quantifier: token_primary { · Integer }, ( => 99
+    token_quantifier: token_primary { · Integer , Integer }, ( => 99
+    Integer: · integer, } => 100
+    Integer: · integer, , => 100
+
+S83: (Transition = token_expr(53))
+    token_primary: ( token_expr · ), ; => 101
+    token_primary: ( token_expr · ), + => 101
+    token_primary: ( token_expr · ), * => 101
+    token_primary: ( token_expr · ), ? => 101
+    token_primary: ( token_expr · ), { => 101
+    token_primary: ( token_expr · ), | => 101
+    token_primary: ( token_expr · ), identifier => 101
+    token_primary: ( token_expr · ), char_string => 101
+    token_primary: ( token_expr · ), char_class => 101
+    token_primary: ( token_expr · ), string => 101
+    token_primary: ( token_expr · ), ( => 101
+    token_expr: token_expr · | token_quantifier, ) => 102
+    token_expr: token_expr · token_quantifier, ) => 103
+    token_expr: token_expr · | token_quantifier, | => 102
+    token_expr: token_expr · token_quantifier, | => 103
+    token_expr: token_expr · | token_quantifier, identifier => 102
+    token_expr: token_expr · | token_quantifier, char_string => 102
+    token_expr: token_expr · | token_quantifier, char_class => 102
+    token_expr: token_expr · | token_quantifier, string => 102
+    token_expr: token_expr · | token_quantifier, ( => 102
+    token_expr: token_expr · token_quantifier, identifier => 103
+    token_expr: token_expr · token_quantifier, char_string => 103
+    token_expr: token_expr · token_quantifier, char_class => 103
+    token_expr: token_expr · token_quantifier, string => 103
+    token_expr: token_expr · token_quantifier, ( => 103
+    token_quantifier: · token_primary, ) => 85
+    token_quantifier: · token_primary +, ) => 85
+    token_quantifier: · token_primary *, ) => 85
+    token_quantifier: · token_primary ?, ) => 85
+    token_quantifier: · token_primary { Integer }, ) => 85
+    token_quantifier: · token_primary { Integer , Integer }, ) => 85
+    token_quantifier: · token_primary, | => 85
+    token_quantifier: · token_primary +, | => 85
+    token_quantifier: · token_primary *, | => 85
+    token_quantifier: · token_primary ?, | => 85
+    token_quantifier: · token_primary { Integer }, | => 85
+    token_quantifier: · token_primary { Integer , Integer }, | => 85
+    token_quantifier: · token_primary, identifier => 85
+    token_quantifier: · token_primary +, identifier => 85
+    token_quantifier: · token_primary *, identifier => 85
+    token_quantifier: · token_primary ?, identifier => 85
+    token_quantifier: · token_primary { Integer }, identifier => 85
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 85
+    token_quantifier: · token_primary, char_string => 85
+    token_quantifier: · token_primary +, char_string => 85
+    token_quantifier: · token_primary *, char_string => 85
+    token_quantifier: · token_primary ?, char_string => 85
+    token_quantifier: · token_primary { Integer }, char_string => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 85
+    token_quantifier: · token_primary, char_class => 85
+    token_quantifier: · token_primary +, char_class => 85
+    token_quantifier: · token_primary *, char_class => 85
+    token_quantifier: · token_primary ?, char_class => 85
+    token_quantifier: · token_primary { Integer }, char_class => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 85
+    token_quantifier: · token_primary, string => 85
+    token_quantifier: · token_primary +, string => 85
+    token_quantifier: · token_primary *, string => 85
+    token_quantifier: · token_primary ?, string => 85
+    token_quantifier: · token_primary { Integer }, string => 85
+    token_quantifier: · token_primary { Integer , Integer }, string => 85
+    token_quantifier: · token_primary, ( => 85
+    token_quantifier: · token_primary +, ( => 85
+    token_quantifier: · token_primary *, ( => 85
+    token_quantifier: · token_primary ?, ( => 85
+    token_quantifier: · token_primary { Integer }, ( => 85
+    token_quantifier: · token_primary { Integer , Integer }, ( => 85
+    token_primary: · identifier, ) => 86
+    token_primary: · Char, ) => 87
+    token_primary: · CharClass, ) => 88
+    token_primary: · String, ) => 89
+    token_primary: · ( token_expr ), ) => 90
+    token_primary: · identifier, + => 86
+    token_primary: · Char, + => 87
+    token_primary: · CharClass, + => 88
+    token_primary: · String, + => 89
+    token_primary: · ( token_expr ), + => 90
+    token_primary: · identifier, * => 86
+    token_primary: · Char, * => 87
+    token_primary: · CharClass, * => 88
+    token_primary: · String, * => 89
+    token_primary: · ( token_expr ), * => 90
+    token_primary: · identifier, ? => 86
+    token_primary: · Char, ? => 87
+    token_primary: · CharClass, ? => 88
+    token_primary: · String, ? => 89
+    token_primary: · ( token_expr ), ? => 90
+    token_primary: · identifier, { => 86
+    token_primary: · Char, { => 87
+    token_primary: · CharClass, { => 88
+    token_primary: · String, { => 89
+    token_primary: · ( token_expr ), { => 90
+    token_primary: · identifier, | => 86
+    token_primary: · Char, | => 87
+    token_primary: · CharClass, | => 88
+    token_primary: · String, | => 89
+    token_primary: · ( token_expr ), | => 90
+    token_primary: · identifier, identifier => 86
+    token_primary: · Char, identifier => 87
+    token_primary: · CharClass, identifier => 88
+    token_primary: · String, identifier => 89
+    token_primary: · ( token_expr ), identifier => 90
+    token_primary: · identifier, char_string => 86
+    token_primary: · Char, char_string => 87
+    token_primary: · CharClass, char_string => 88
+    token_primary: · String, char_string => 89
+    token_primary: · ( token_expr ), char_string => 90
+    token_primary: · identifier, char_class => 86
+    token_primary: · Char, char_class => 87
+    token_primary: · CharClass, char_class => 88
+    token_primary: · String, char_class => 89
+    token_primary: · ( token_expr ), char_class => 90
+    token_primary: · identifier, string => 86
+    token_primary: · Char, string => 87
+    token_primary: · CharClass, string => 88
+    token_primary: · String, string => 89
+    token_primary: · ( token_expr ), string => 90
+    token_primary: · identifier, ( => 86
+    token_primary: · Char, ( => 87
+    token_primary: · CharClass, ( => 88
+    token_primary: · String, ( => 89
+    token_primary: · ( token_expr ), ( => 90
+    Char: · char_string, ) => 91
+    CharClass: · char_class, ) => 92
+    String: · EscString, ) => 93
+    Char: · char_string, + => 91
+    CharClass: · char_class, + => 92
+    String: · EscString, + => 93
+    Char: · char_string, * => 91
+    CharClass: · char_class, * => 92
+    String: · EscString, * => 93
+    Char: · char_string, ? => 91
+    CharClass: · char_class, ? => 92
+    String: · EscString, ? => 93
+    Char: · char_string, { => 91
+    CharClass: · char_class, { => 92
+    String: · EscString, { => 93
+    Char: · char_string, | => 91
+    CharClass: · char_class, | => 92
+    String: · EscString, | => 93
+    Char: · char_string, identifier => 91
+    CharClass: · char_class, identifier => 92
+    String: · EscString, identifier => 93
+    Char: · char_string, char_string => 91
+    CharClass: · char_class, char_string => 92
+    String: · EscString, char_string => 93
+    Char: · char_string, char_class => 91
+    CharClass: · char_class, char_class => 92
+    String: · EscString, char_class => 93
+    Char: · char_string, string => 91
+    CharClass: · char_class, string => 92
+    String: · EscString, string => 93
+    Char: · char_string, ( => 91
+    CharClass: · char_class, ( => 92
+    String: · EscString, ( => 93
+    EscString: · string, ) => 94
+    EscString: · string, + => 94
+    EscString: · string, * => 94
+    EscString: · string, ? => 94
+    EscString: · string, { => 94
+    EscString: · string, | => 94
+    EscString: · string, identifier => 94
+    EscString: · string, char_string => 94
+    EscString: · string, char_class => 94
+    EscString: · string, string => 94
+    EscString: · string, ( => 94
+
+S84: (Transition = token_quantifier(54))
+    token_expr: token_quantifier ·, )
+    token_expr: token_quantifier ·, |
+    token_expr: token_quantifier ·, identifier
+    token_expr: token_quantifier ·, char_string
+    token_expr: token_quantifier ·, char_class
+    token_expr: token_quantifier ·, string
+    token_expr: token_quantifier ·, (
+
+S85: (Transition = token_primary(55))
+    token_quantifier: token_primary ·, )
+    token_quantifier: token_primary · +, ) => 104
+    token_quantifier: token_primary · *, ) => 105
+    token_quantifier: token_primary · ?, ) => 106
+    token_quantifier: token_primary · { Integer }, ) => 107
+    token_quantifier: token_primary · { Integer , Integer }, ) => 107
+    token_quantifier: token_primary ·, |
+    token_quantifier: token_primary · +, | => 104
+    token_quantifier: token_primary · *, | => 105
+    token_quantifier: token_primary · ?, | => 106
+    token_quantifier: token_primary · { Integer }, | => 107
+    token_quantifier: token_primary · { Integer , Integer }, | => 107
+    token_quantifier: token_primary ·, identifier
+    token_quantifier: token_primary · +, identifier => 104
+    token_quantifier: token_primary · *, identifier => 105
+    token_quantifier: token_primary · ?, identifier => 106
+    token_quantifier: token_primary · { Integer }, identifier => 107
+    token_quantifier: token_primary · { Integer , Integer }, identifier => 107
+    token_quantifier: token_primary ·, char_string
+    token_quantifier: token_primary · +, char_string => 104
+    token_quantifier: token_primary · *, char_string => 105
+    token_quantifier: token_primary · ?, char_string => 106
+    token_quantifier: token_primary · { Integer }, char_string => 107
+    token_quantifier: token_primary · { Integer , Integer }, char_string => 107
+    token_quantifier: token_primary ·, char_class
+    token_quantifier: token_primary · +, char_class => 104
+    token_quantifier: token_primary · *, char_class => 105
+    token_quantifier: token_primary · ?, char_class => 106
+    token_quantifier: token_primary · { Integer }, char_class => 107
+    token_quantifier: token_primary · { Integer , Integer }, char_class => 107
+    token_quantifier: token_primary ·, string
+    token_quantifier: token_primary · +, string => 104
+    token_quantifier: token_primary · *, string => 105
+    token_quantifier: token_primary · ?, string => 106
+    token_quantifier: token_primary · { Integer }, string => 107
+    token_quantifier: token_primary · { Integer , Integer }, string => 107
+    token_quantifier: token_primary ·, (
+    token_quantifier: token_primary · +, ( => 104
+    token_quantifier: token_primary · *, ( => 105
+    token_quantifier: token_primary · ?, ( => 106
+    token_quantifier: token_primary · { Integer }, ( => 107
+    token_quantifier: token_primary · { Integer , Integer }, ( => 107
+
+S86: (Transition = identifier(1))
+    token_primary: identifier ·, )
+    token_primary: identifier ·, +
+    token_primary: identifier ·, *
+    token_primary: identifier ·, ?
+    token_primary: identifier ·, {
+    token_primary: identifier ·, |
+    token_primary: identifier ·, identifier
+    token_primary: identifier ·, char_string
+    token_primary: identifier ·, char_class
+    token_primary: identifier ·, string
+    token_primary: identifier ·, (
+
+S87: (Transition = Char(49))
+    token_primary: Char ·, )
+    token_primary: Char ·, +
+    token_primary: Char ·, *
+    token_primary: Char ·, ?
+    token_primary: Char ·, {
+    token_primary: Char ·, |
+    token_primary: Char ·, identifier
+    token_primary: Char ·, char_string
+    token_primary: Char ·, char_class
+    token_primary: Char ·, string
+    token_primary: Char ·, (
+
+S88: (Transition = CharClass(48))
+    token_primary: CharClass ·, )
+    token_primary: CharClass ·, +
+    token_primary: CharClass ·, *
+    token_primary: CharClass ·, ?
+    token_primary: CharClass ·, {
+    token_primary: CharClass ·, |
+    token_primary: CharClass ·, identifier
+    token_primary: CharClass ·, char_string
+    token_primary: CharClass ·, char_class
+    token_primary: CharClass ·, string
+    token_primary: CharClass ·, (
+
+S89: (Transition = String(42))
+    token_primary: String ·, )
+    token_primary: String ·, +
+    token_primary: String ·, *
+    token_primary: String ·, ?
+    token_primary: String ·, {
+    token_primary: String ·, |
+    token_primary: String ·, identifier
+    token_primary: String ·, char_string
+    token_primary: String ·, char_class
+    token_primary: String ·, string
+    token_primary: String ·, (
+
+S90: (Transition = ((25))
+    token_primary: ( · token_expr ), ) => 108
+    token_primary: ( · token_expr ), + => 108
+    token_primary: ( · token_expr ), * => 108
+    token_primary: ( · token_expr ), ? => 108
+    token_primary: ( · token_expr ), { => 108
+    token_primary: ( · token_expr ), | => 108
+    token_primary: ( · token_expr ), identifier => 108
+    token_primary: ( · token_expr ), char_string => 108
+    token_primary: ( · token_expr ), char_class => 108
+    token_primary: ( · token_expr ), string => 108
+    token_primary: ( · token_expr ), ( => 108
+    token_expr: · token_quantifier, ) => 84
+    token_expr: · token_expr | token_quantifier, ) => 108
+    token_expr: · token_expr token_quantifier, ) => 108
+    token_quantifier: · token_primary, ) => 85
+    token_quantifier: · token_primary +, ) => 85
+    token_quantifier: · token_primary *, ) => 85
+    token_quantifier: · token_primary ?, ) => 85
+    token_quantifier: · token_primary { Integer }, ) => 85
+    token_quantifier: · token_primary { Integer , Integer }, ) => 85
+    token_expr: · token_quantifier, | => 84
+    token_expr: · token_expr | token_quantifier, | => 108
+    token_expr: · token_expr token_quantifier, | => 108
+    token_expr: · token_quantifier, identifier => 84
+    token_expr: · token_quantifier, char_string => 84
+    token_expr: · token_quantifier, char_class => 84
+    token_expr: · token_quantifier, string => 84
+    token_expr: · token_quantifier, ( => 84
+    token_expr: · token_expr | token_quantifier, identifier => 108
+    token_expr: · token_expr | token_quantifier, char_string => 108
+    token_expr: · token_expr | token_quantifier, char_class => 108
+    token_expr: · token_expr | token_quantifier, string => 108
+    token_expr: · token_expr | token_quantifier, ( => 108
+    token_expr: · token_expr token_quantifier, identifier => 108
+    token_expr: · token_expr token_quantifier, char_string => 108
+    token_expr: · token_expr token_quantifier, char_class => 108
+    token_expr: · token_expr token_quantifier, string => 108
+    token_expr: · token_expr token_quantifier, ( => 108
+    token_primary: · identifier, ) => 86
+    token_primary: · Char, ) => 87
+    token_primary: · CharClass, ) => 88
+    token_primary: · String, ) => 89
+    token_primary: · ( token_expr ), ) => 90
+    token_primary: · identifier, + => 86
+    token_primary: · Char, + => 87
+    token_primary: · CharClass, + => 88
+    token_primary: · String, + => 89
+    token_primary: · ( token_expr ), + => 90
+    token_primary: · identifier, * => 86
+    token_primary: · Char, * => 87
+    token_primary: · CharClass, * => 88
+    token_primary: · String, * => 89
+    token_primary: · ( token_expr ), * => 90
+    token_primary: · identifier, ? => 86
+    token_primary: · Char, ? => 87
+    token_primary: · CharClass, ? => 88
+    token_primary: · String, ? => 89
+    token_primary: · ( token_expr ), ? => 90
+    token_primary: · identifier, { => 86
+    token_primary: · Char, { => 87
+    token_primary: · CharClass, { => 88
+    token_primary: · String, { => 89
+    token_primary: · ( token_expr ), { => 90
+    token_quantifier: · token_primary, | => 85
+    token_quantifier: · token_primary +, | => 85
+    token_quantifier: · token_primary *, | => 85
+    token_quantifier: · token_primary ?, | => 85
+    token_quantifier: · token_primary { Integer }, | => 85
+    token_quantifier: · token_primary { Integer , Integer }, | => 85
+    token_quantifier: · token_primary, identifier => 85
+    token_quantifier: · token_primary +, identifier => 85
+    token_quantifier: · token_primary *, identifier => 85
+    token_quantifier: · token_primary ?, identifier => 85
+    token_quantifier: · token_primary { Integer }, identifier => 85
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 85
+    token_quantifier: · token_primary, char_string => 85
+    token_quantifier: · token_primary +, char_string => 85
+    token_quantifier: · token_primary *, char_string => 85
+    token_quantifier: · token_primary ?, char_string => 85
+    token_quantifier: · token_primary { Integer }, char_string => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 85
+    token_quantifier: · token_primary, char_class => 85
+    token_quantifier: · token_primary +, char_class => 85
+    token_quantifier: · token_primary *, char_class => 85
+    token_quantifier: · token_primary ?, char_class => 85
+    token_quantifier: · token_primary { Integer }, char_class => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 85
+    token_quantifier: · token_primary, string => 85
+    token_quantifier: · token_primary +, string => 85
+    token_quantifier: · token_primary *, string => 85
+    token_quantifier: · token_primary ?, string => 85
+    token_quantifier: · token_primary { Integer }, string => 85
+    token_quantifier: · token_primary { Integer , Integer }, string => 85
+    token_quantifier: · token_primary, ( => 85
+    token_quantifier: · token_primary +, ( => 85
+    token_quantifier: · token_primary *, ( => 85
+    token_quantifier: · token_primary ?, ( => 85
+    token_quantifier: · token_primary { Integer }, ( => 85
+    token_quantifier: · token_primary { Integer , Integer }, ( => 85
+    Char: · char_string, ) => 91
+    CharClass: · char_class, ) => 92
+    String: · EscString, ) => 93
+    Char: · char_string, + => 91
+    CharClass: · char_class, + => 92
+    String: · EscString, + => 93
+    Char: · char_string, * => 91
+    CharClass: · char_class, * => 92
+    String: · EscString, * => 93
+    Char: · char_string, ? => 91
+    CharClass: · char_class, ? => 92
+    String: · EscString, ? => 93
+    Char: · char_string, { => 91
+    CharClass: · char_class, { => 92
+    String: · EscString, { => 93
+    token_primary: · identifier, | => 86
+    token_primary: · Char, | => 87
+    token_primary: · CharClass, | => 88
+    token_primary: · String, | => 89
+    token_primary: · ( token_expr ), | => 90
+    token_primary: · identifier, identifier => 86
+    token_primary: · Char, identifier => 87
+    token_primary: · CharClass, identifier => 88
+    token_primary: · String, identifier => 89
+    token_primary: · ( token_expr ), identifier => 90
+    token_primary: · identifier, char_string => 86
+    token_primary: · Char, char_string => 87
+    token_primary: · CharClass, char_string => 88
+    token_primary: · String, char_string => 89
+    token_primary: · ( token_expr ), char_string => 90
+    token_primary: · identifier, char_class => 86
+    token_primary: · Char, char_class => 87
+    token_primary: · CharClass, char_class => 88
+    token_primary: · String, char_class => 89
+    token_primary: · ( token_expr ), char_class => 90
+    token_primary: · identifier, string => 86
+    token_primary: · Char, string => 87
+    token_primary: · CharClass, string => 88
+    token_primary: · String, string => 89
+    token_primary: · ( token_expr ), string => 90
+    token_primary: · identifier, ( => 86
+    token_primary: · Char, ( => 87
+    token_primary: · CharClass, ( => 88
+    token_primary: · String, ( => 89
+    token_primary: · ( token_expr ), ( => 90
+    EscString: · string, ) => 94
+    EscString: · string, + => 94
+    EscString: · string, * => 94
+    EscString: · string, ? => 94
+    EscString: · string, { => 94
+    Char: · char_string, | => 91
+    CharClass: · char_class, | => 92
+    String: · EscString, | => 93
+    Char: · char_string, identifier => 91
+    CharClass: · char_class, identifier => 92
+    String: · EscString, identifier => 93
+    Char: · char_string, char_string => 91
+    CharClass: · char_class, char_string => 92
+    String: · EscString, char_string => 93
+    Char: · char_string, char_class => 91
+    CharClass: · char_class, char_class => 92
+    String: · EscString, char_class => 93
+    Char: · char_string, string => 91
+    CharClass: · char_class, string => 92
+    String: · EscString, string => 93
+    Char: · char_string, ( => 91
+    CharClass: · char_class, ( => 92
+    String: · EscString, ( => 93
+    EscString: · string, | => 94
+    EscString: · string, identifier => 94
+    EscString: · string, char_string => 94
+    EscString: · string, char_class => 94
+    EscString: · string, string => 94
+    EscString: · string, ( => 94
+
+S91: (Transition = char_string(4))
+    Char: char_string ·, )
+    Char: char_string ·, +
+    Char: char_string ·, *
+    Char: char_string ·, ?
+    Char: char_string ·, {
+    Char: char_string ·, |
+    Char: char_string ·, identifier
+    Char: char_string ·, char_string
+    Char: char_string ·, char_class
+    Char: char_string ·, string
+    Char: char_string ·, (
+
+S92: (Transition = char_class(2))
+    CharClass: char_class ·, )
+    CharClass: char_class ·, +
+    CharClass: char_class ·, *
+    CharClass: char_class ·, ?
+    CharClass: char_class ·, {
+    CharClass: char_class ·, |
+    CharClass: char_class ·, identifier
+    CharClass: char_class ·, char_string
+    CharClass: char_class ·, char_class
+    CharClass: char_class ·, string
+    CharClass: char_class ·, (
+
+S93: (Transition = EscString(74))
+    String: EscString ·, )
+    String: EscString ·, +
+    String: EscString ·, *
+    String: EscString ·, ?
+    String: EscString ·, {
+    String: EscString ·, |
+    String: EscString ·, identifier
+    String: EscString ·, char_string
+    String: EscString ·, char_class
+    String: EscString ·, string
+    String: EscString ·, (
+
+S94: (Transition = string(3))
+    EscString: string ·, )
+    EscString: string ·, +
+    EscString: string ·, *
+    EscString: string ·, ?
+    EscString: string ·, {
+    EscString: string ·, |
+    EscString: string ·, identifier
+    EscString: string ·, char_string
+    EscString: string ·, char_class
+    EscString: string ·, string
+    EscString: string ·, (
+
+S95: (Transition = =(11))
+    production: identifier production_attr = · prod_def_list, ＄ => 109
+    production: identifier production_attr = · prod_def_list, identifier => 109
+    prod_def_list: · prod_def_start prod_exprs ;, ＄ => 110
+    prod_def_list: · prod_def_start prod_def, ＄ => 110
+    prod_def_list: · prod_def_start prod_exprs ;, identifier => 110
+    prod_def_list: · prod_def_start prod_def, identifier => 110
+    prod_def_start: ·, ＄
+    prod_def_start: ·, identifier
+    prod_def_start: ·, string
+    prod_def_start: ·, char_string
+    prod_def_start: ·, ;
+    prod_def_start: · prod_def_start prod_exprs |, ＄ => 110
+    prod_def_start: · prod_def_start prod_exprs |, identifier => 110
+    prod_def_start: · prod_def_start prod_exprs |, string => 110
+    prod_def_start: · prod_def_start prod_exprs |, char_string => 110
+    prod_def_start: · prod_def_start prod_exprs |, ; => 110
+    prod_def_start: · prod_def_start prod_def |, ＄ => 110
+    prod_def_start: · prod_def_start prod_def |, identifier => 110
+    prod_def_start: · prod_def_start prod_def |, string => 110
+    prod_def_start: · prod_def_start prod_def |, char_string => 110
+    prod_def_start: · prod_def_start prod_def |, ; => 110
+    prod_def_start: ·, {
+    prod_def_start: · prod_def_start prod_exprs |, { => 110
+    prod_def_start: · prod_def_start prod_def |, { => 110
+    prod_def_start: ·, |
+    prod_def_start: · prod_def_start prod_exprs |, | => 110
+    prod_def_start: · prod_def_start prod_def |, | => 110
+
+S96: (Transition = Identifier(39))
+    production_attr: < Identifier · func_opt >, = => 111
+    Identifier: Identifier · . identifier, ＄ => 112
+    Identifier: Identifier · . identifier, ( => 112
+    Identifier: Identifier · . identifier, > => 112
+    Identifier: Identifier · . identifier, = => 112
+    Identifier: Identifier · . identifier, . => 112
+    func_opt: ·, >
+    func_opt: · ( func_opt_arg_type ), > => 113
+
+S97: (Transition = identifier(1))
+    Identifier: identifier ·, ＄
+    Identifier: identifier ·, (
+    Identifier: identifier ·, >
+    Identifier: identifier ·, =
+    Identifier: identifier ·, .
+
+S98: (Transition = token_quantifier(54))
+    token_expr: token_expr | token_quantifier ·, ;
+    token_expr: token_expr | token_quantifier ·, |
+    token_expr: token_expr | token_quantifier ·, identifier
+    token_expr: token_expr | token_quantifier ·, char_string
+    token_expr: token_expr | token_quantifier ·, char_class
+    token_expr: token_expr | token_quantifier ·, string
+    token_expr: token_expr | token_quantifier ·, (
+
+S99: (Transition = Integer(56))
+    token_quantifier: token_primary { Integer · }, ; => 114
+    token_quantifier: token_primary { Integer · , Integer }, ; => 115
+    token_quantifier: token_primary { Integer · }, | => 114
+    token_quantifier: token_primary { Integer · , Integer }, | => 115
+    token_quantifier: token_primary { Integer · }, identifier => 114
+    token_quantifier: token_primary { Integer · , Integer }, identifier => 115
+    token_quantifier: token_primary { Integer · }, char_string => 114
+    token_quantifier: token_primary { Integer · , Integer }, char_string => 115
+    token_quantifier: token_primary { Integer · }, char_class => 114
+    token_quantifier: token_primary { Integer · , Integer }, char_class => 115
+    token_quantifier: token_primary { Integer · }, string => 114
+    token_quantifier: token_primary { Integer · , Integer }, string => 115
+    token_quantifier: token_primary { Integer · }, ( => 114
+    token_quantifier: token_primary { Integer · , Integer }, ( => 115
+
+S100: (Transition = integer(5))
+    Integer: integer ·, }
+    Integer: integer ·, ,
+
+S101: (Transition = )(26))
+    token_primary: ( token_expr ) ·, ;
+    token_primary: ( token_expr ) ·, +
+    token_primary: ( token_expr ) ·, *
+    token_primary: ( token_expr ) ·, ?
+    token_primary: ( token_expr ) ·, {
+    token_primary: ( token_expr ) ·, |
+    token_primary: ( token_expr ) ·, identifier
+    token_primary: ( token_expr ) ·, char_string
+    token_primary: ( token_expr ) ·, char_class
+    token_primary: ( token_expr ) ·, string
+    token_primary: ( token_expr ) ·, (
+
+S102: (Transition = |(19))
+    token_expr: token_expr | · token_quantifier, ) => 116
+    token_expr: token_expr | · token_quantifier, | => 116
+    token_expr: token_expr | · token_quantifier, identifier => 116
+    token_expr: token_expr | · token_quantifier, char_string => 116
+    token_expr: token_expr | · token_quantifier, char_class => 116
+    token_expr: token_expr | · token_quantifier, string => 116
+    token_expr: token_expr | · token_quantifier, ( => 116
+    token_quantifier: · token_primary, ) => 85
+    token_quantifier: · token_primary +, ) => 85
+    token_quantifier: · token_primary *, ) => 85
+    token_quantifier: · token_primary ?, ) => 85
+    token_quantifier: · token_primary { Integer }, ) => 85
+    token_quantifier: · token_primary { Integer , Integer }, ) => 85
+    token_quantifier: · token_primary, | => 85
+    token_quantifier: · token_primary +, | => 85
+    token_quantifier: · token_primary *, | => 85
+    token_quantifier: · token_primary ?, | => 85
+    token_quantifier: · token_primary { Integer }, | => 85
+    token_quantifier: · token_primary { Integer , Integer }, | => 85
+    token_quantifier: · token_primary, identifier => 85
+    token_quantifier: · token_primary +, identifier => 85
+    token_quantifier: · token_primary *, identifier => 85
+    token_quantifier: · token_primary ?, identifier => 85
+    token_quantifier: · token_primary { Integer }, identifier => 85
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 85
+    token_quantifier: · token_primary, char_string => 85
+    token_quantifier: · token_primary +, char_string => 85
+    token_quantifier: · token_primary *, char_string => 85
+    token_quantifier: · token_primary ?, char_string => 85
+    token_quantifier: · token_primary { Integer }, char_string => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 85
+    token_quantifier: · token_primary, char_class => 85
+    token_quantifier: · token_primary +, char_class => 85
+    token_quantifier: · token_primary *, char_class => 85
+    token_quantifier: · token_primary ?, char_class => 85
+    token_quantifier: · token_primary { Integer }, char_class => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 85
+    token_quantifier: · token_primary, string => 85
+    token_quantifier: · token_primary +, string => 85
+    token_quantifier: · token_primary *, string => 85
+    token_quantifier: · token_primary ?, string => 85
+    token_quantifier: · token_primary { Integer }, string => 85
+    token_quantifier: · token_primary { Integer , Integer }, string => 85
+    token_quantifier: · token_primary, ( => 85
+    token_quantifier: · token_primary +, ( => 85
+    token_quantifier: · token_primary *, ( => 85
+    token_quantifier: · token_primary ?, ( => 85
+    token_quantifier: · token_primary { Integer }, ( => 85
+    token_quantifier: · token_primary { Integer , Integer }, ( => 85
+    token_primary: · identifier, ) => 86
+    token_primary: · Char, ) => 87
+    token_primary: · CharClass, ) => 88
+    token_primary: · String, ) => 89
+    token_primary: · ( token_expr ), ) => 90
+    token_primary: · identifier, + => 86
+    token_primary: · Char, + => 87
+    token_primary: · CharClass, + => 88
+    token_primary: · String, + => 89
+    token_primary: · ( token_expr ), + => 90
+    token_primary: · identifier, * => 86
+    token_primary: · Char, * => 87
+    token_primary: · CharClass, * => 88
+    token_primary: · String, * => 89
+    token_primary: · ( token_expr ), * => 90
+    token_primary: · identifier, ? => 86
+    token_primary: · Char, ? => 87
+    token_primary: · CharClass, ? => 88
+    token_primary: · String, ? => 89
+    token_primary: · ( token_expr ), ? => 90
+    token_primary: · identifier, { => 86
+    token_primary: · Char, { => 87
+    token_primary: · CharClass, { => 88
+    token_primary: · String, { => 89
+    token_primary: · ( token_expr ), { => 90
+    token_primary: · identifier, | => 86
+    token_primary: · Char, | => 87
+    token_primary: · CharClass, | => 88
+    token_primary: · String, | => 89
+    token_primary: · ( token_expr ), | => 90
+    token_primary: · identifier, identifier => 86
+    token_primary: · Char, identifier => 87
+    token_primary: · CharClass, identifier => 88
+    token_primary: · String, identifier => 89
+    token_primary: · ( token_expr ), identifier => 90
+    token_primary: · identifier, char_string => 86
+    token_primary: · Char, char_string => 87
+    token_primary: · CharClass, char_string => 88
+    token_primary: · String, char_string => 89
+    token_primary: · ( token_expr ), char_string => 90
+    token_primary: · identifier, char_class => 86
+    token_primary: · Char, char_class => 87
+    token_primary: · CharClass, char_class => 88
+    token_primary: · String, char_class => 89
+    token_primary: · ( token_expr ), char_class => 90
+    token_primary: · identifier, string => 86
+    token_primary: · Char, string => 87
+    token_primary: · CharClass, string => 88
+    token_primary: · String, string => 89
+    token_primary: · ( token_expr ), string => 90
+    token_primary: · identifier, ( => 86
+    token_primary: · Char, ( => 87
+    token_primary: · CharClass, ( => 88
+    token_primary: · String, ( => 89
+    token_primary: · ( token_expr ), ( => 90
+    Char: · char_string, ) => 91
+    CharClass: · char_class, ) => 92
+    String: · EscString, ) => 93
+    Char: · char_string, + => 91
+    CharClass: · char_class, + => 92
+    String: · EscString, + => 93
+    Char: · char_string, * => 91
+    CharClass: · char_class, * => 92
+    String: · EscString, * => 93
+    Char: · char_string, ? => 91
+    CharClass: · char_class, ? => 92
+    String: · EscString, ? => 93
+    Char: · char_string, { => 91
+    CharClass: · char_class, { => 92
+    String: · EscString, { => 93
+    Char: · char_string, | => 91
+    CharClass: · char_class, | => 92
+    String: · EscString, | => 93
+    Char: · char_string, identifier => 91
+    CharClass: · char_class, identifier => 92
+    String: · EscString, identifier => 93
+    Char: · char_string, char_string => 91
+    CharClass: · char_class, char_string => 92
+    String: · EscString, char_string => 93
+    Char: · char_string, char_class => 91
+    CharClass: · char_class, char_class => 92
+    String: · EscString, char_class => 93
+    Char: · char_string, string => 91
+    CharClass: · char_class, string => 92
+    String: · EscString, string => 93
+    Char: · char_string, ( => 91
+    CharClass: · char_class, ( => 92
+    String: · EscString, ( => 93
+    EscString: · string, ) => 94
+    EscString: · string, + => 94
+    EscString: · string, * => 94
+    EscString: · string, ? => 94
+    EscString: · string, { => 94
+    EscString: · string, | => 94
+    EscString: · string, identifier => 94
+    EscString: · string, char_string => 94
+    EscString: · string, char_class => 94
+    EscString: · string, string => 94
+    EscString: · string, ( => 94
+
+S103: (Transition = token_quantifier(54))
+    token_expr: token_expr token_quantifier ·, )
+    token_expr: token_expr token_quantifier ·, |
+    token_expr: token_expr token_quantifier ·, identifier
+    token_expr: token_expr token_quantifier ·, char_string
+    token_expr: token_expr token_quantifier ·, char_class
+    token_expr: token_expr token_quantifier ·, string
+    token_expr: token_expr token_quantifier ·, (
+
+S104: (Transition = +(13))
+    token_quantifier: token_primary + ·, )
+    token_quantifier: token_primary + ·, |
+    token_quantifier: token_primary + ·, identifier
+    token_quantifier: token_primary + ·, char_string
+    token_quantifier: token_primary + ·, char_class
+    token_quantifier: token_primary + ·, string
+    token_quantifier: token_primary + ·, (
+
+S105: (Transition = *(20))
+    token_quantifier: token_primary * ·, )
+    token_quantifier: token_primary * ·, |
+    token_quantifier: token_primary * ·, identifier
+    token_quantifier: token_primary * ·, char_string
+    token_quantifier: token_primary * ·, char_class
+    token_quantifier: token_primary * ·, string
+    token_quantifier: token_primary * ·, (
+
+S106: (Transition = ?(21))
+    token_quantifier: token_primary ? ·, )
+    token_quantifier: token_primary ? ·, |
+    token_quantifier: token_primary ? ·, identifier
+    token_quantifier: token_primary ? ·, char_string
+    token_quantifier: token_primary ? ·, char_class
+    token_quantifier: token_primary ? ·, string
+    token_quantifier: token_primary ? ·, (
+
+S107: (Transition = {(22))
+    token_quantifier: token_primary { · Integer }, ) => 117
+    token_quantifier: token_primary { · Integer , Integer }, ) => 117
+    token_quantifier: token_primary { · Integer }, | => 117
+    token_quantifier: token_primary { · Integer , Integer }, | => 117
+    token_quantifier: token_primary { · Integer }, identifier => 117
+    token_quantifier: token_primary { · Integer , Integer }, identifier => 117
+    token_quantifier: token_primary { · Integer }, char_string => 117
+    token_quantifier: token_primary { · Integer , Integer }, char_string => 117
+    token_quantifier: token_primary { · Integer }, char_class => 117
+    token_quantifier: token_primary { · Integer , Integer }, char_class => 117
+    token_quantifier: token_primary { · Integer }, string => 117
+    token_quantifier: token_primary { · Integer , Integer }, string => 117
+    token_quantifier: token_primary { · Integer }, ( => 117
+    token_quantifier: token_primary { · Integer , Integer }, ( => 117
+    Integer: · integer, } => 100
+    Integer: · integer, , => 100
+
+S108: (Transition = token_expr(53))
+    token_primary: ( token_expr · ), ) => 118
+    token_primary: ( token_expr · ), + => 118
+    token_primary: ( token_expr · ), * => 118
+    token_primary: ( token_expr · ), ? => 118
+    token_primary: ( token_expr · ), { => 118
+    token_primary: ( token_expr · ), | => 118
+    token_primary: ( token_expr · ), identifier => 118
+    token_primary: ( token_expr · ), char_string => 118
+    token_primary: ( token_expr · ), char_class => 118
+    token_primary: ( token_expr · ), string => 118
+    token_primary: ( token_expr · ), ( => 118
+    token_expr: token_expr · | token_quantifier, ) => 102
+    token_expr: token_expr · token_quantifier, ) => 103
+    token_expr: token_expr · | token_quantifier, | => 102
+    token_expr: token_expr · token_quantifier, | => 103
+    token_expr: token_expr · | token_quantifier, identifier => 102
+    token_expr: token_expr · | token_quantifier, char_string => 102
+    token_expr: token_expr · | token_quantifier, char_class => 102
+    token_expr: token_expr · | token_quantifier, string => 102
+    token_expr: token_expr · | token_quantifier, ( => 102
+    token_expr: token_expr · token_quantifier, identifier => 103
+    token_expr: token_expr · token_quantifier, char_string => 103
+    token_expr: token_expr · token_quantifier, char_class => 103
+    token_expr: token_expr · token_quantifier, string => 103
+    token_expr: token_expr · token_quantifier, ( => 103
+    token_quantifier: · token_primary, ) => 85
+    token_quantifier: · token_primary +, ) => 85
+    token_quantifier: · token_primary *, ) => 85
+    token_quantifier: · token_primary ?, ) => 85
+    token_quantifier: · token_primary { Integer }, ) => 85
+    token_quantifier: · token_primary { Integer , Integer }, ) => 85
+    token_quantifier: · token_primary, | => 85
+    token_quantifier: · token_primary +, | => 85
+    token_quantifier: · token_primary *, | => 85
+    token_quantifier: · token_primary ?, | => 85
+    token_quantifier: · token_primary { Integer }, | => 85
+    token_quantifier: · token_primary { Integer , Integer }, | => 85
+    token_quantifier: · token_primary, identifier => 85
+    token_quantifier: · token_primary +, identifier => 85
+    token_quantifier: · token_primary *, identifier => 85
+    token_quantifier: · token_primary ?, identifier => 85
+    token_quantifier: · token_primary { Integer }, identifier => 85
+    token_quantifier: · token_primary { Integer , Integer }, identifier => 85
+    token_quantifier: · token_primary, char_string => 85
+    token_quantifier: · token_primary +, char_string => 85
+    token_quantifier: · token_primary *, char_string => 85
+    token_quantifier: · token_primary ?, char_string => 85
+    token_quantifier: · token_primary { Integer }, char_string => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_string => 85
+    token_quantifier: · token_primary, char_class => 85
+    token_quantifier: · token_primary +, char_class => 85
+    token_quantifier: · token_primary *, char_class => 85
+    token_quantifier: · token_primary ?, char_class => 85
+    token_quantifier: · token_primary { Integer }, char_class => 85
+    token_quantifier: · token_primary { Integer , Integer }, char_class => 85
+    token_quantifier: · token_primary, string => 85
+    token_quantifier: · token_primary +, string => 85
+    token_quantifier: · token_primary *, string => 85
+    token_quantifier: · token_primary ?, string => 85
+    token_quantifier: · token_primary { Integer }, string => 85
+    token_quantifier: · token_primary { Integer , Integer }, string => 85
+    token_quantifier: · token_primary, ( => 85
+    token_quantifier: · token_primary +, ( => 85
+    token_quantifier: · token_primary *, ( => 85
+    token_quantifier: · token_primary ?, ( => 85
+    token_quantifier: · token_primary { Integer }, ( => 85
+    token_quantifier: · token_primary { Integer , Integer }, ( => 85
+    token_primary: · identifier, ) => 86
+    token_primary: · Char, ) => 87
+    token_primary: · CharClass, ) => 88
+    token_primary: · String, ) => 89
+    token_primary: · ( token_expr ), ) => 90
+    token_primary: · identifier, + => 86
+    token_primary: · Char, + => 87
+    token_primary: · CharClass, + => 88
+    token_primary: · String, + => 89
+    token_primary: · ( token_expr ), + => 90
+    token_primary: · identifier, * => 86
+    token_primary: · Char, * => 87
+    token_primary: · CharClass, * => 88
+    token_primary: · String, * => 89
+    token_primary: · ( token_expr ), * => 90
+    token_primary: · identifier, ? => 86
+    token_primary: · Char, ? => 87
+    token_primary: · CharClass, ? => 88
+    token_primary: · String, ? => 89
+    token_primary: · ( token_expr ), ? => 90
+    token_primary: · identifier, { => 86
+    token_primary: · Char, { => 87
+    token_primary: · CharClass, { => 88
+    token_primary: · String, { => 89
+    token_primary: · ( token_expr ), { => 90
+    token_primary: · identifier, | => 86
+    token_primary: · Char, | => 87
+    token_primary: · CharClass, | => 88
+    token_primary: · String, | => 89
+    token_primary: · ( token_expr ), | => 90
+    token_primary: · identifier, identifier => 86
+    token_primary: · Char, identifier => 87
+    token_primary: · CharClass, identifier => 88
+    token_primary: · String, identifier => 89
+    token_primary: · ( token_expr ), identifier => 90
+    token_primary: · identifier, char_string => 86
+    token_primary: · Char, char_string => 87
+    token_primary: · CharClass, char_string => 88
+    token_primary: · String, char_string => 89
+    token_primary: · ( token_expr ), char_string => 90
+    token_primary: · identifier, char_class => 86
+    token_primary: · Char, char_class => 87
+    token_primary: · CharClass, char_class => 88
+    token_primary: · String, char_class => 89
+    token_primary: · ( token_expr ), char_class => 90
+    token_primary: · identifier, string => 86
+    token_primary: · Char, string => 87
+    token_primary: · CharClass, string => 88
+    token_primary: · String, string => 89
+    token_primary: · ( token_expr ), string => 90
+    token_primary: · identifier, ( => 86
+    token_primary: · Char, ( => 87
+    token_primary: · CharClass, ( => 88
+    token_primary: · String, ( => 89
+    token_primary: · ( token_expr ), ( => 90
+    Char: · char_string, ) => 91
+    CharClass: · char_class, ) => 92
+    String: · EscString, ) => 93
+    Char: · char_string, + => 91
+    CharClass: · char_class, + => 92
+    String: · EscString, + => 93
+    Char: · char_string, * => 91
+    CharClass: · char_class, * => 92
+    String: · EscString, * => 93
+    Char: · char_string, ? => 91
+    CharClass: · char_class, ? => 92
+    String: · EscString, ? => 93
+    Char: · char_string, { => 91
+    CharClass: · char_class, { => 92
+    String: · EscString, { => 93
+    Char: · char_string, | => 91
+    CharClass: · char_class, | => 92
+    String: · EscString, | => 93
+    Char: · char_string, identifier => 91
+    CharClass: · char_class, identifier => 92
+    String: · EscString, identifier => 93
+    Char: · char_string, char_string => 91
+    CharClass: · char_class, char_string => 92
+    String: · EscString, char_string => 93
+    Char: · char_string, char_class => 91
+    CharClass: · char_class, char_class => 92
+    String: · EscString, char_class => 93
+    Char: · char_string, string => 91
+    CharClass: · char_class, string => 92
+    String: · EscString, string => 93
+    Char: · char_string, ( => 91
+    CharClass: · char_class, ( => 92
+    String: · EscString, ( => 93
+    EscString: · string, ) => 94
+    EscString: · string, + => 94
+    EscString: · string, * => 94
+    EscString: · string, ? => 94
+    EscString: · string, { => 94
+    EscString: · string, | => 94
+    EscString: · string, identifier => 94
+    EscString: · string, char_string => 94
+    EscString: · string, char_class => 94
+    EscString: · string, string => 94
+    EscString: · string, ( => 94
+
+S109: (Transition = prod_def_list(60))
+    production: identifier production_attr = prod_def_list ·, ＄
+    production: identifier production_attr = prod_def_list ·, identifier
+
+S110: (Transition = prod_def_start(63))
+    prod_def_list: prod_def_start · prod_exprs ;, ＄ => 119
+    prod_def_list: prod_def_start · prod_def, ＄ => 120
+    prod_def_list: prod_def_start · prod_exprs ;, identifier => 119
+    prod_def_list: prod_def_start · prod_def, identifier => 120
+    prod_def_start: prod_def_start · prod_exprs |, ＄ => 119
+    prod_def_start: prod_def_start · prod_exprs |, identifier => 119
+    prod_def_start: prod_def_start · prod_exprs |, string => 119
+    prod_def_start: prod_def_start · prod_exprs |, char_string => 119
+    prod_def_start: prod_def_start · prod_exprs |, ; => 119
+    prod_def_start: prod_def_start · prod_def |, ＄ => 120
+    prod_def_start: prod_def_start · prod_def |, identifier => 120
+    prod_def_start: prod_def_start · prod_def |, string => 120
+    prod_def_start: prod_def_start · prod_def |, char_string => 120
+    prod_def_start: prod_def_start · prod_def |, ; => 120
+    prod_def_start: prod_def_start · prod_exprs |, { => 119
+    prod_def_start: prod_def_start · prod_def |, { => 120
+    prod_def_start: prod_def_start · prod_exprs |, | => 119
+    prod_def_start: prod_def_start · prod_def |, | => 120
+    prod_exprs: ·, ;
+    prod_exprs: · prod_exprs prod_expr, ; => 119
+    prod_def: · prod_exprs prod_action, ＄ => 119
+    prod_def: · prod_exprs prod_action, identifier => 119
+    prod_exprs: ·, |
+    prod_exprs: · prod_exprs prod_expr, | => 119
+    prod_def: · prod_exprs prod_action, | => 119
+    prod_exprs: ·, identifier
+    prod_exprs: ·, string
+    prod_exprs: ·, char_string
+    prod_exprs: · prod_exprs prod_expr, identifier => 119
+    prod_exprs: · prod_exprs prod_expr, string => 119
+    prod_exprs: · prod_exprs prod_expr, char_string => 119
+    prod_exprs: ·, {
+    prod_exprs: · prod_exprs prod_expr, { => 119
+
+S111: (Transition = func_opt(61))
+    production_attr: < Identifier func_opt · >, = => 121
+
+S112: (Transition = .(30))
+    Identifier: Identifier . · identifier, ＄ => 122
+    Identifier: Identifier . · identifier, ( => 122
+    Identifier: Identifier . · identifier, > => 122
+    Identifier: Identifier . · identifier, = => 122
+    Identifier: Identifier . · identifier, . => 122
+
+S113: (Transition = ((25))
+    func_opt: ( · func_opt_arg_type ), > => 123
+    func_opt_arg_type: ·, )
+    func_opt_arg_type: · Identifier, ) => 124
+    Identifier: · Identifier . identifier, ) => 124
+    Identifier: · identifier, ) => 125
+    Identifier: · Identifier . identifier, . => 124
+    Identifier: · identifier, . => 125
+
+S114: (Transition = }(23))
+    token_quantifier: token_primary { Integer } ·, ;
+    token_quantifier: token_primary { Integer } ·, |
+    token_quantifier: token_primary { Integer } ·, identifier
+    token_quantifier: token_primary { Integer } ·, char_string
+    token_quantifier: token_primary { Integer } ·, char_class
+    token_quantifier: token_primary { Integer } ·, string
+    token_quantifier: token_primary { Integer } ·, (
+
+S115: (Transition = ,(24))
+    token_quantifier: token_primary { Integer , · Integer }, ; => 126
+    token_quantifier: token_primary { Integer , · Integer }, | => 126
+    token_quantifier: token_primary { Integer , · Integer }, identifier => 126
+    token_quantifier: token_primary { Integer , · Integer }, char_string => 126
+    token_quantifier: token_primary { Integer , · Integer }, char_class => 126
+    token_quantifier: token_primary { Integer , · Integer }, string => 126
+    token_quantifier: token_primary { Integer , · Integer }, ( => 126
+    Integer: · integer, } => 100
+
+S116: (Transition = token_quantifier(54))
+    token_expr: token_expr | token_quantifier ·, )
+    token_expr: token_expr | token_quantifier ·, |
+    token_expr: token_expr | token_quantifier ·, identifier
+    token_expr: token_expr | token_quantifier ·, char_string
+    token_expr: token_expr | token_quantifier ·, char_class
+    token_expr: token_expr | token_quantifier ·, string
+    token_expr: token_expr | token_quantifier ·, (
+
+S117: (Transition = Integer(56))
+    token_quantifier: token_primary { Integer · }, ) => 127
+    token_quantifier: token_primary { Integer · , Integer }, ) => 128
+    token_quantifier: token_primary { Integer · }, | => 127
+    token_quantifier: token_primary { Integer · , Integer }, | => 128
+    token_quantifier: token_primary { Integer · }, identifier => 127
+    token_quantifier: token_primary { Integer · , Integer }, identifier => 128
+    token_quantifier: token_primary { Integer · }, char_string => 127
+    token_quantifier: token_primary { Integer · , Integer }, char_string => 128
+    token_quantifier: token_primary { Integer · }, char_class => 127
+    token_quantifier: token_primary { Integer · , Integer }, char_class => 128
+    token_quantifier: token_primary { Integer · }, string => 127
+    token_quantifier: token_primary { Integer · , Integer }, string => 128
+    token_quantifier: token_primary { Integer · }, ( => 127
+    token_quantifier: token_primary { Integer · , Integer }, ( => 128
+
+S118: (Transition = )(26))
+    token_primary: ( token_expr ) ·, )
+    token_primary: ( token_expr ) ·, +
+    token_primary: ( token_expr ) ·, *
+    token_primary: ( token_expr ) ·, ?
+    token_primary: ( token_expr ) ·, {
+    token_primary: ( token_expr ) ·, |
+    token_primary: ( token_expr ) ·, identifier
+    token_primary: ( token_expr ) ·, char_string
+    token_primary: ( token_expr ) ·, char_class
+    token_primary: ( token_expr ) ·, string
+    token_primary: ( token_expr ) ·, (
+
+S119: (Transition = prod_exprs(64))
+    prod_def_list: prod_def_start prod_exprs · ;, ＄ => 129
+    prod_def_list: prod_def_start prod_exprs · ;, identifier => 129
+    prod_def_start: prod_def_start prod_exprs · |, ＄ => 130
+    prod_def_start: prod_def_start prod_exprs · |, identifier => 130
+    prod_def_start: prod_def_start prod_exprs · |, string => 130
+    prod_def_start: prod_def_start prod_exprs · |, char_string => 130
+    prod_def_start: prod_def_start prod_exprs · |, ; => 130
+    prod_def_start: prod_def_start prod_exprs · |, { => 130
+    prod_def_start: prod_def_start prod_exprs · |, | => 130
+    prod_exprs: prod_exprs · prod_expr, ; => 131
+    prod_def: prod_exprs · prod_action, ＄ => 132
+    prod_def: prod_exprs · prod_action, identifier => 132
+    prod_exprs: prod_exprs · prod_expr, | => 131
+    prod_def: prod_exprs · prod_action, | => 132
+    prod_exprs: prod_exprs · prod_expr, identifier => 131
+    prod_exprs: prod_exprs · prod_expr, string => 131
+    prod_exprs: prod_exprs · prod_expr, char_string => 131
+    prod_exprs: prod_exprs · prod_expr, { => 131
+    prod_expr: · prod_expr_primary production_attr, ; => 133
+    prod_action: · { action_stmt }, ＄ => 134
+    prod_action: · { action_stmt }, identifier => 134
+    prod_expr: · prod_expr_primary production_attr, | => 133
+    prod_action: · { action_stmt }, | => 134
+    prod_expr: · prod_expr_primary production_attr, identifier => 133
+    prod_expr: · prod_expr_primary production_attr, string => 133
+    prod_expr: · prod_expr_primary production_attr, char_string => 133
+    prod_expr: · prod_expr_primary production_attr, { => 133
+    prod_expr_primary: · identifier, ＄ => 135
+    prod_expr_primary: · identifier, < => 135
+    prod_expr_primary: · identifier, ; => 135
+    prod_expr_primary: · String, ＄ => 136
+    prod_expr_primary: · String, < => 136
+    prod_expr_primary: · String, ; => 136
+    prod_expr_primary: · Char, ＄ => 137
+    prod_expr_primary: · Char, < => 137
+    prod_expr_primary: · Char, ; => 137
+    prod_expr_primary: · identifier, | => 135
+    prod_expr_primary: · String, | => 136
+    prod_expr_primary: · Char, | => 137
+    prod_expr_primary: · identifier, identifier => 135
+    prod_expr_primary: · String, identifier => 136
+    prod_expr_primary: · Char, identifier => 137
+    prod_expr_primary: · identifier, string => 135
+    prod_expr_primary: · String, string => 136
+    prod_expr_primary: · Char, string => 137
+    prod_expr_primary: · identifier, char_string => 135
+    prod_expr_primary: · String, char_string => 136
+    prod_expr_primary: · Char, char_string => 137
+    prod_expr_primary: · identifier, { => 135
+    prod_expr_primary: · String, { => 136
+    prod_expr_primary: · Char, { => 137
+    String: · EscString, ＄ => 138
+    String: · EscString, < => 138
+    String: · EscString, ; => 138
+    Char: · char_string, ＄ => 139
+    Char: · char_string, < => 139
+    Char: · char_string, ; => 139
+    String: · EscString, | => 138
+    Char: · char_string, | => 139
+    String: · EscString, identifier => 138
+    Char: · char_string, identifier => 139
+    String: · EscString, string => 138
+    Char: · char_string, string => 139
+    String: · EscString, char_string => 138
+    Char: · char_string, char_string => 139
+    String: · EscString, { => 138
+    Char: · char_string, { => 139
+    EscString: · string, ＄ => 140
+    EscString: · string, < => 140
+    EscString: · string, ; => 140
+    EscString: · string, | => 140
+    EscString: · string, identifier => 140
+    EscString: · string, string => 140
+    EscString: · string, char_string => 140
+    EscString: · string, { => 140
+
+S120: (Transition = prod_def(65))
+    prod_def_list: prod_def_start prod_def ·, ＄
+    prod_def_list: prod_def_start prod_def ·, identifier
+    prod_def_start: prod_def_start prod_def · |, ＄ => 141
+    prod_def_start: prod_def_start prod_def · |, identifier => 141
+    prod_def_start: prod_def_start prod_def · |, string => 141
+    prod_def_start: prod_def_start prod_def · |, char_string => 141
+    prod_def_start: prod_def_start prod_def · |, ; => 141
+    prod_def_start: prod_def_start prod_def · |, { => 141
+    prod_def_start: prod_def_start prod_def · |, | => 141
+
+S121: (Transition = >(18))
+    production_attr: < Identifier func_opt > ·, =
+
+S122: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, ＄
+    Identifier: Identifier . identifier ·, (
+    Identifier: Identifier . identifier ·, >
+    Identifier: Identifier . identifier ·, =
+    Identifier: Identifier . identifier ·, .
+
+S123: (Transition = func_opt_arg_type(62))
+    func_opt: ( func_opt_arg_type · ), > => 142
+
+S124: (Transition = Identifier(39))
+    func_opt_arg_type: Identifier ·, )
+    Identifier: Identifier · . identifier, ) => 143
+    Identifier: Identifier · . identifier, . => 143
+
+S125: (Transition = identifier(1))
+    Identifier: identifier ·, )
+    Identifier: identifier ·, .
+
+S126: (Transition = Integer(56))
+    token_quantifier: token_primary { Integer , Integer · }, ; => 144
+    token_quantifier: token_primary { Integer , Integer · }, | => 144
+    token_quantifier: token_primary { Integer , Integer · }, identifier => 144
+    token_quantifier: token_primary { Integer , Integer · }, char_string => 144
+    token_quantifier: token_primary { Integer , Integer · }, char_class => 144
+    token_quantifier: token_primary { Integer , Integer · }, string => 144
+    token_quantifier: token_primary { Integer , Integer · }, ( => 144
+
+S127: (Transition = }(23))
+    token_quantifier: token_primary { Integer } ·, )
+    token_quantifier: token_primary { Integer } ·, |
+    token_quantifier: token_primary { Integer } ·, identifier
+    token_quantifier: token_primary { Integer } ·, char_string
+    token_quantifier: token_primary { Integer } ·, char_class
+    token_quantifier: token_primary { Integer } ·, string
+    token_quantifier: token_primary { Integer } ·, (
+
+S128: (Transition = ,(24))
+    token_quantifier: token_primary { Integer , · Integer }, ) => 145
+    token_quantifier: token_primary { Integer , · Integer }, | => 145
+    token_quantifier: token_primary { Integer , · Integer }, identifier => 145
+    token_quantifier: token_primary { Integer , · Integer }, char_string => 145
+    token_quantifier: token_primary { Integer , · Integer }, char_class => 145
+    token_quantifier: token_primary { Integer , · Integer }, string => 145
+    token_quantifier: token_primary { Integer , · Integer }, ( => 145
+    Integer: · integer, } => 100
+
+S129: (Transition = ;(8))
+    prod_def_list: prod_def_start prod_exprs ; ·, ＄
+    prod_def_list: prod_def_start prod_exprs ; ·, identifier
+
+S130: (Transition = |(19))
+    prod_def_start: prod_def_start prod_exprs | ·, ＄
+    prod_def_start: prod_def_start prod_exprs | ·, identifier
+    prod_def_start: prod_def_start prod_exprs | ·, string
+    prod_def_start: prod_def_start prod_exprs | ·, char_string
+    prod_def_start: prod_def_start prod_exprs | ·, ;
+    prod_def_start: prod_def_start prod_exprs | ·, {
+    prod_def_start: prod_def_start prod_exprs | ·, |
+
+S131: (Transition = prod_expr(67))
+    prod_exprs: prod_exprs prod_expr ·, ;
+    prod_exprs: prod_exprs prod_expr ·, |
+    prod_exprs: prod_exprs prod_expr ·, identifier
+    prod_exprs: prod_exprs prod_expr ·, string
+    prod_exprs: prod_exprs prod_expr ·, char_string
+    prod_exprs: prod_exprs prod_expr ·, {
+
+S132: (Transition = prod_action(66))
+    prod_def: prod_exprs prod_action ·, ＄
+    prod_def: prod_exprs prod_action ·, identifier
+    prod_def: prod_exprs prod_action ·, |
+
+S133: (Transition = prod_expr_primary(68))
+    prod_expr: prod_expr_primary · production_attr, ; => 146
+    prod_expr: prod_expr_primary · production_attr, | => 146
+    prod_expr: prod_expr_primary · production_attr, identifier => 146
+    prod_expr: prod_expr_primary · production_attr, string => 146
+    prod_expr: prod_expr_primary · production_attr, char_string => 146
+    prod_expr: prod_expr_primary · production_attr, { => 146
+    production_attr: ·, ;
+    production_attr: · < Identifier func_opt >, ; => 147
+    production_attr: ·, |
+    production_attr: · < Identifier func_opt >, | => 147
+    production_attr: ·, identifier
+    production_attr: · < Identifier func_opt >, identifier => 147
+    production_attr: ·, string
+    production_attr: · < Identifier func_opt >, string => 147
+    production_attr: ·, char_string
+    production_attr: · < Identifier func_opt >, char_string => 147
+    production_attr: ·, {
+    production_attr: · < Identifier func_opt >, { => 147
+
+S134: (Transition = {(22))
+    prod_action: { · action_stmt }, ＄ => 148
+    prod_action: { · action_stmt }, identifier => 148
+    prod_action: { · action_stmt }, | => 148
+    action_stmt: ·, }
+    action_stmt: · action_expr ;, } => 149
+    action_expr: · @new Identifier ( action_args ), ; => 150
+    action_expr: · Identifier ( action_args ), ; => 151
+    action_expr: · action_primary_expr, ; => 152
+    Identifier: · Identifier . identifier, ( => 151
+    Identifier: · identifier, ( => 153
+    action_primary_expr: · arg action_cast, ; => 154
+    action_primary_expr: · Identifier, ; => 151
+    Identifier: · Identifier . identifier, . => 151
+    Identifier: · identifier, . => 153
+    Identifier: · Identifier . identifier, ; => 151
+    Identifier: · identifier, ; => 153
+
+S135: (Transition = identifier(1))
+    prod_expr_primary: identifier ·, ＄
+    prod_expr_primary: identifier ·, <
+    prod_expr_primary: identifier ·, ;
+    prod_expr_primary: identifier ·, |
+    prod_expr_primary: identifier ·, identifier
+    prod_expr_primary: identifier ·, string
+    prod_expr_primary: identifier ·, char_string
+    prod_expr_primary: identifier ·, {
+
+S136: (Transition = String(42))
+    prod_expr_primary: String ·, ＄
+    prod_expr_primary: String ·, <
+    prod_expr_primary: String ·, ;
+    prod_expr_primary: String ·, |
+    prod_expr_primary: String ·, identifier
+    prod_expr_primary: String ·, string
+    prod_expr_primary: String ·, char_string
+    prod_expr_primary: String ·, {
+
+S137: (Transition = Char(49))
+    prod_expr_primary: Char ·, ＄
+    prod_expr_primary: Char ·, <
+    prod_expr_primary: Char ·, ;
+    prod_expr_primary: Char ·, |
+    prod_expr_primary: Char ·, identifier
+    prod_expr_primary: Char ·, string
+    prod_expr_primary: Char ·, char_string
+    prod_expr_primary: Char ·, {
+
+S138: (Transition = EscString(74))
+    String: EscString ·, ＄
+    String: EscString ·, <
+    String: EscString ·, ;
+    String: EscString ·, |
+    String: EscString ·, identifier
+    String: EscString ·, string
+    String: EscString ·, char_string
+    String: EscString ·, {
+
+S139: (Transition = char_string(4))
+    Char: char_string ·, ＄
+    Char: char_string ·, <
+    Char: char_string ·, ;
+    Char: char_string ·, |
+    Char: char_string ·, identifier
+    Char: char_string ·, string
+    Char: char_string ·, char_string
+    Char: char_string ·, {
+
+S140: (Transition = string(3))
+    EscString: string ·, ＄
+    EscString: string ·, <
+    EscString: string ·, ;
+    EscString: string ·, |
+    EscString: string ·, identifier
+    EscString: string ·, string
+    EscString: string ·, char_string
+    EscString: string ·, {
+
+S141: (Transition = |(19))
+    prod_def_start: prod_def_start prod_def | ·, ＄
+    prod_def_start: prod_def_start prod_def | ·, identifier
+    prod_def_start: prod_def_start prod_def | ·, string
+    prod_def_start: prod_def_start prod_def | ·, char_string
+    prod_def_start: prod_def_start prod_def | ·, ;
+    prod_def_start: prod_def_start prod_def | ·, {
+    prod_def_start: prod_def_start prod_def | ·, |
+
+S142: (Transition = )(26))
+    func_opt: ( func_opt_arg_type ) ·, >
+
+S143: (Transition = .(30))
+    Identifier: Identifier . · identifier, ) => 155
+    Identifier: Identifier . · identifier, . => 155
+
+S144: (Transition = }(23))
+    token_quantifier: token_primary { Integer , Integer } ·, ;
+    token_quantifier: token_primary { Integer , Integer } ·, |
+    token_quantifier: token_primary { Integer , Integer } ·, identifier
+    token_quantifier: token_primary { Integer , Integer } ·, char_string
+    token_quantifier: token_primary { Integer , Integer } ·, char_class
+    token_quantifier: token_primary { Integer , Integer } ·, string
+    token_quantifier: token_primary { Integer , Integer } ·, (
+
+S145: (Transition = Integer(56))
+    token_quantifier: token_primary { Integer , Integer · }, ) => 156
+    token_quantifier: token_primary { Integer , Integer · }, | => 156
+    token_quantifier: token_primary { Integer , Integer · }, identifier => 156
+    token_quantifier: token_primary { Integer , Integer · }, char_string => 156
+    token_quantifier: token_primary { Integer , Integer · }, char_class => 156
+    token_quantifier: token_primary { Integer , Integer · }, string => 156
+    token_quantifier: token_primary { Integer , Integer · }, ( => 156
+
+S146: (Transition = production_attr(59))
+    prod_expr: prod_expr_primary production_attr ·, ;
+    prod_expr: prod_expr_primary production_attr ·, |
+    prod_expr: prod_expr_primary production_attr ·, identifier
+    prod_expr: prod_expr_primary production_attr ·, string
+    prod_expr: prod_expr_primary production_attr ·, char_string
+    prod_expr: prod_expr_primary production_attr ·, {
+
+S147: (Transition = <(17))
+    production_attr: < · Identifier func_opt >, ; => 157
+    production_attr: < · Identifier func_opt >, | => 157
+    production_attr: < · Identifier func_opt >, identifier => 157
+    production_attr: < · Identifier func_opt >, string => 157
+    production_attr: < · Identifier func_opt >, char_string => 157
+    production_attr: < · Identifier func_opt >, { => 157
+    Identifier: · Identifier . identifier, ＄ => 157
+    Identifier: · Identifier . identifier, ( => 157
+    Identifier: · Identifier . identifier, > => 157
+    Identifier: · Identifier . identifier, ; => 157
+    Identifier: · identifier, ＄ => 158
+    Identifier: · identifier, ( => 158
+    Identifier: · identifier, > => 158
+    Identifier: · identifier, ; => 158
+    Identifier: · Identifier . identifier, | => 157
+    Identifier: · identifier, | => 158
+    Identifier: · Identifier . identifier, identifier => 157
+    Identifier: · identifier, identifier => 158
+    Identifier: · Identifier . identifier, string => 157
+    Identifier: · identifier, string => 158
+    Identifier: · Identifier . identifier, char_string => 157
+    Identifier: · identifier, char_string => 158
+    Identifier: · Identifier . identifier, { => 157
+    Identifier: · identifier, { => 158
+    Identifier: · Identifier . identifier, . => 157
+    Identifier: · identifier, . => 158
+
+S148: (Transition = action_stmt(69))
+    prod_action: { action_stmt · }, ＄ => 159
+    prod_action: { action_stmt · }, identifier => 159
+    prod_action: { action_stmt · }, | => 159
+
+S149: (Transition = action_expr(70))
+    action_stmt: action_expr · ;, } => 160
+
+S150: (Transition = @new(28))
+    action_expr: @new · Identifier ( action_args ), ; => 161
+    Identifier: · Identifier . identifier, ( => 161
+    Identifier: · identifier, ( => 97
+    Identifier: · Identifier . identifier, . => 161
+    Identifier: · identifier, . => 97
+
+S151: (Transition = Identifier(39))
+    action_expr: Identifier · ( action_args ), ; => 162
+    Identifier: Identifier · . identifier, ( => 163
+    action_primary_expr: Identifier ·, ;
+    Identifier: Identifier · . identifier, . => 163
+    Identifier: Identifier · . identifier, ; => 163
+
+S152: (Transition = action_primary_expr(72))
+    action_expr: action_primary_expr ·, ;
+
+S153: (Transition = identifier(1))
+    Identifier: identifier ·, (
+    Identifier: identifier ·, .
+    Identifier: identifier ·, ;
+
+S154: (Transition = arg(6))
+    action_primary_expr: arg · action_cast, ; => 164
+    action_cast: ·, ;
+    action_cast: · : Identifier, ; => 165
+
+S155: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, )
+    Identifier: Identifier . identifier ·, .
+
+S156: (Transition = }(23))
+    token_quantifier: token_primary { Integer , Integer } ·, )
+    token_quantifier: token_primary { Integer , Integer } ·, |
+    token_quantifier: token_primary { Integer , Integer } ·, identifier
+    token_quantifier: token_primary { Integer , Integer } ·, char_string
+    token_quantifier: token_primary { Integer , Integer } ·, char_class
+    token_quantifier: token_primary { Integer , Integer } ·, string
+    token_quantifier: token_primary { Integer , Integer } ·, (
+
+S157: (Transition = Identifier(39))
+    production_attr: < Identifier · func_opt >, ; => 166
+    production_attr: < Identifier · func_opt >, | => 166
+    production_attr: < Identifier · func_opt >, identifier => 166
+    production_attr: < Identifier · func_opt >, string => 166
+    production_attr: < Identifier · func_opt >, char_string => 166
+    production_attr: < Identifier · func_opt >, { => 166
+    Identifier: Identifier · . identifier, ＄ => 167
+    Identifier: Identifier · . identifier, ( => 167
+    Identifier: Identifier · . identifier, > => 167
+    Identifier: Identifier · . identifier, ; => 167
+    Identifier: Identifier · . identifier, | => 167
+    Identifier: Identifier · . identifier, identifier => 167
+    Identifier: Identifier · . identifier, string => 167
+    Identifier: Identifier · . identifier, char_string => 167
+    Identifier: Identifier · . identifier, { => 167
+    Identifier: Identifier · . identifier, . => 167
+    func_opt: ·, >
+    func_opt: · ( func_opt_arg_type ), > => 113
+
+S158: (Transition = identifier(1))
+    Identifier: identifier ·, ＄
+    Identifier: identifier ·, (
+    Identifier: identifier ·, >
+    Identifier: identifier ·, ;
+    Identifier: identifier ·, |
+    Identifier: identifier ·, identifier
+    Identifier: identifier ·, string
+    Identifier: identifier ·, char_string
+    Identifier: identifier ·, {
+    Identifier: identifier ·, .
+
+S159: (Transition = }(23))
+    prod_action: { action_stmt } ·, ＄
+    prod_action: { action_stmt } ·, identifier
+    prod_action: { action_stmt } ·, |
+
+S160: (Transition = ;(8))
+    action_stmt: action_expr ; ·, }
+
+S161: (Transition = Identifier(39))
+    action_expr: @new Identifier · ( action_args ), ; => 168
+    Identifier: Identifier · . identifier, ( => 112
+    Identifier: Identifier · . identifier, . => 112
+
+S162: (Transition = ((25))
+    action_expr: Identifier ( · action_args ), ; => 169
+    action_args: ·, )
+    action_args: · action_expr, ) => 170
+    action_args: · action_args , action_expr, ) => 169
+    action_expr: · @new Identifier ( action_args ), ) => 171
+    action_expr: · Identifier ( action_args ), ) => 172
+    action_expr: · action_primary_expr, ) => 173
+    action_args: ·, ,
+    action_args: · action_expr, , => 170
+    action_args: · action_args , action_expr, , => 169
+    Identifier: · Identifier . identifier, ( => 172
+    Identifier: · identifier, ( => 174
+    action_primary_expr: · arg action_cast, ) => 175
+    action_primary_expr: · Identifier, ) => 172
+    action_expr: · @new Identifier ( action_args ), , => 171
+    action_expr: · Identifier ( action_args ), , => 172
+    action_expr: · action_primary_expr, , => 173
+    Identifier: · Identifier . identifier, . => 172
+    Identifier: · identifier, . => 174
+    Identifier: · Identifier . identifier, ) => 172
+    Identifier: · identifier, ) => 174
+    action_primary_expr: · arg action_cast, , => 175
+    action_primary_expr: · Identifier, , => 172
+    Identifier: · Identifier . identifier, , => 172
+    Identifier: · identifier, , => 174
+
+S163: (Transition = .(30))
+    Identifier: Identifier . · identifier, ( => 176
+    Identifier: Identifier . · identifier, . => 176
+    Identifier: Identifier . · identifier, ; => 176
+
+S164: (Transition = action_cast(73))
+    action_primary_expr: arg action_cast ·, ;
+
+S165: (Transition = :(29))
+    action_cast: : · Identifier, ; => 177
+    Identifier: · Identifier . identifier, ; => 177
+    Identifier: · identifier, ; => 10
+    Identifier: · Identifier . identifier, . => 177
+    Identifier: · identifier, . => 10
+
+S166: (Transition = func_opt(61))
+    production_attr: < Identifier func_opt · >, ; => 178
+    production_attr: < Identifier func_opt · >, | => 178
+    production_attr: < Identifier func_opt · >, identifier => 178
+    production_attr: < Identifier func_opt · >, string => 178
+    production_attr: < Identifier func_opt · >, char_string => 178
+    production_attr: < Identifier func_opt · >, { => 178
+
+S167: (Transition = .(30))
+    Identifier: Identifier . · identifier, ＄ => 179
+    Identifier: Identifier . · identifier, ( => 179
+    Identifier: Identifier . · identifier, > => 179
+    Identifier: Identifier . · identifier, ; => 179
+    Identifier: Identifier . · identifier, | => 179
+    Identifier: Identifier . · identifier, identifier => 179
+    Identifier: Identifier . · identifier, string => 179
+    Identifier: Identifier . · identifier, char_string => 179
+    Identifier: Identifier . · identifier, { => 179
+    Identifier: Identifier . · identifier, . => 179
+
+S168: (Transition = ((25))
+    action_expr: @new Identifier ( · action_args ), ; => 180
+    action_args: ·, )
+    action_args: · action_expr, ) => 170
+    action_args: · action_args , action_expr, ) => 180
+    action_expr: · @new Identifier ( action_args ), ) => 171
+    action_expr: · Identifier ( action_args ), ) => 172
+    action_expr: · action_primary_expr, ) => 173
+    action_args: ·, ,
+    action_args: · action_expr, , => 170
+    action_args: · action_args , action_expr, , => 180
+    Identifier: · Identifier . identifier, ( => 172
+    Identifier: · identifier, ( => 174
+    action_primary_expr: · arg action_cast, ) => 175
+    action_primary_expr: · Identifier, ) => 172
+    action_expr: · @new Identifier ( action_args ), , => 171
+    action_expr: · Identifier ( action_args ), , => 172
+    action_expr: · action_primary_expr, , => 173
+    Identifier: · Identifier . identifier, . => 172
+    Identifier: · identifier, . => 174
+    Identifier: · Identifier . identifier, ) => 172
+    Identifier: · identifier, ) => 174
+    action_primary_expr: · arg action_cast, , => 175
+    action_primary_expr: · Identifier, , => 172
+    Identifier: · Identifier . identifier, , => 172
+    Identifier: · identifier, , => 174
+
+S169: (Transition = action_args(71))
+    action_expr: Identifier ( action_args · ), ; => 181
+    action_args: action_args · , action_expr, ) => 182
+    action_args: action_args · , action_expr, , => 182
+
+S170: (Transition = action_expr(70))
+    action_args: action_expr ·, )
+    action_args: action_expr ·, ,
+
+S171: (Transition = @new(28))
+    action_expr: @new · Identifier ( action_args ), ) => 183
+    action_expr: @new · Identifier ( action_args ), , => 183
+    Identifier: · Identifier . identifier, ( => 183
+    Identifier: · identifier, ( => 97
+    Identifier: · Identifier . identifier, . => 183
+    Identifier: · identifier, . => 97
+
+S172: (Transition = Identifier(39))
+    action_expr: Identifier · ( action_args ), ) => 184
+    Identifier: Identifier · . identifier, ( => 185
+    action_primary_expr: Identifier ·, )
+    action_expr: Identifier · ( action_args ), , => 184
+    Identifier: Identifier · . identifier, . => 185
+    Identifier: Identifier · . identifier, ) => 185
+    action_primary_expr: Identifier ·, ,
+    Identifier: Identifier · . identifier, , => 185
+
+S173: (Transition = action_primary_expr(72))
+    action_expr: action_primary_expr ·, )
+    action_expr: action_primary_expr ·, ,
+
+S174: (Transition = identifier(1))
+    Identifier: identifier ·, (
+    Identifier: identifier ·, .
+    Identifier: identifier ·, )
+    Identifier: identifier ·, ,
+
+S175: (Transition = arg(6))
+    action_primary_expr: arg · action_cast, ) => 186
+    action_primary_expr: arg · action_cast, , => 186
+    action_cast: ·, )
+    action_cast: · : Identifier, ) => 187
+    action_cast: ·, ,
+    action_cast: · : Identifier, , => 187
+
+S176: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, (
+    Identifier: Identifier . identifier ·, .
+    Identifier: Identifier . identifier ·, ;
+
+S177: (Transition = Identifier(39))
+    action_cast: : Identifier ·, ;
+    Identifier: Identifier · . identifier, ; => 18
+    Identifier: Identifier · . identifier, . => 18
+
+S178: (Transition = >(18))
+    production_attr: < Identifier func_opt > ·, ;
+    production_attr: < Identifier func_opt > ·, |
+    production_attr: < Identifier func_opt > ·, identifier
+    production_attr: < Identifier func_opt > ·, string
+    production_attr: < Identifier func_opt > ·, char_string
+    production_attr: < Identifier func_opt > ·, {
+
+S179: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, ＄
+    Identifier: Identifier . identifier ·, (
+    Identifier: Identifier . identifier ·, >
+    Identifier: Identifier . identifier ·, ;
+    Identifier: Identifier . identifier ·, |
+    Identifier: Identifier . identifier ·, identifier
+    Identifier: Identifier . identifier ·, string
+    Identifier: Identifier . identifier ·, char_string
+    Identifier: Identifier . identifier ·, {
+    Identifier: Identifier . identifier ·, .
+
+S180: (Transition = action_args(71))
+    action_expr: @new Identifier ( action_args · ), ; => 188
+    action_args: action_args · , action_expr, ) => 182
+    action_args: action_args · , action_expr, , => 182
+
+S181: (Transition = )(26))
+    action_expr: Identifier ( action_args ) ·, ;
+
+S182: (Transition = ,(24))
+    action_args: action_args , · action_expr, ) => 189
+    action_args: action_args , · action_expr, , => 189
+    action_expr: · @new Identifier ( action_args ), ) => 171
+    action_expr: · Identifier ( action_args ), ) => 172
+    action_expr: · action_primary_expr, ) => 173
+    action_expr: · @new Identifier ( action_args ), , => 171
+    action_expr: · Identifier ( action_args ), , => 172
+    action_expr: · action_primary_expr, , => 173
+    Identifier: · Identifier . identifier, ( => 172
+    Identifier: · identifier, ( => 174
+    action_primary_expr: · arg action_cast, ) => 175
+    action_primary_expr: · Identifier, ) => 172
+    action_primary_expr: · arg action_cast, , => 175
+    action_primary_expr: · Identifier, , => 172
+    Identifier: · Identifier . identifier, . => 172
+    Identifier: · identifier, . => 174
+    Identifier: · Identifier . identifier, ) => 172
+    Identifier: · identifier, ) => 174
+    Identifier: · Identifier . identifier, , => 172
+    Identifier: · identifier, , => 174
+
+S183: (Transition = Identifier(39))
+    action_expr: @new Identifier · ( action_args ), ) => 190
+    action_expr: @new Identifier · ( action_args ), , => 190
+    Identifier: Identifier · . identifier, ( => 112
+    Identifier: Identifier · . identifier, . => 112
+
+S184: (Transition = ((25))
+    action_expr: Identifier ( · action_args ), ) => 191
+    action_expr: Identifier ( · action_args ), , => 191
+    action_args: ·, )
+    action_args: · action_expr, ) => 170
+    action_args: · action_args , action_expr, ) => 191
+    action_expr: · @new Identifier ( action_args ), ) => 171
+    action_expr: · Identifier ( action_args ), ) => 172
+    action_expr: · action_primary_expr, ) => 173
+    action_args: ·, ,
+    action_args: · action_expr, , => 170
+    action_args: · action_args , action_expr, , => 191
+    Identifier: · Identifier . identifier, ( => 172
+    Identifier: · identifier, ( => 174
+    action_primary_expr: · arg action_cast, ) => 175
+    action_primary_expr: · Identifier, ) => 172
+    action_expr: · @new Identifier ( action_args ), , => 171
+    action_expr: · Identifier ( action_args ), , => 172
+    action_expr: · action_primary_expr, , => 173
+    Identifier: · Identifier . identifier, . => 172
+    Identifier: · identifier, . => 174
+    Identifier: · Identifier . identifier, ) => 172
+    Identifier: · identifier, ) => 174
+    action_primary_expr: · arg action_cast, , => 175
+    action_primary_expr: · Identifier, , => 172
+    Identifier: · Identifier . identifier, , => 172
+    Identifier: · identifier, , => 174
+
+S185: (Transition = .(30))
+    Identifier: Identifier . · identifier, ( => 192
+    Identifier: Identifier . · identifier, . => 192
+    Identifier: Identifier . · identifier, ) => 192
+    Identifier: Identifier . · identifier, , => 192
+
+S186: (Transition = action_cast(73))
+    action_primary_expr: arg action_cast ·, )
+    action_primary_expr: arg action_cast ·, ,
+
+S187: (Transition = :(29))
+    action_cast: : · Identifier, ) => 193
+    action_cast: : · Identifier, , => 193
+    Identifier: · Identifier . identifier, ) => 193
+    Identifier: · identifier, ) => 174
+    Identifier: · Identifier . identifier, , => 193
+    Identifier: · identifier, , => 174
+    Identifier: · Identifier . identifier, . => 193
+    Identifier: · identifier, . => 174
+
+S188: (Transition = )(26))
+    action_expr: @new Identifier ( action_args ) ·, ;
+
+S189: (Transition = action_expr(70))
+    action_args: action_args , action_expr ·, )
+    action_args: action_args , action_expr ·, ,
+
+S190: (Transition = ((25))
+    action_expr: @new Identifier ( · action_args ), ) => 194
+    action_expr: @new Identifier ( · action_args ), , => 194
+    action_args: ·, )
+    action_args: · action_expr, ) => 170
+    action_args: · action_args , action_expr, ) => 194
+    action_expr: · @new Identifier ( action_args ), ) => 171
+    action_expr: · Identifier ( action_args ), ) => 172
+    action_expr: · action_primary_expr, ) => 173
+    action_args: ·, ,
+    action_args: · action_expr, , => 170
+    action_args: · action_args , action_expr, , => 194
+    Identifier: · Identifier . identifier, ( => 172
+    Identifier: · identifier, ( => 174
+    action_primary_expr: · arg action_cast, ) => 175
+    action_primary_expr: · Identifier, ) => 172
+    action_expr: · @new Identifier ( action_args ), , => 171
+    action_expr: · Identifier ( action_args ), , => 172
+    action_expr: · action_primary_expr, , => 173
+    Identifier: · Identifier . identifier, . => 172
+    Identifier: · identifier, . => 174
+    Identifier: · Identifier . identifier, ) => 172
+    Identifier: · identifier, ) => 174
+    action_primary_expr: · arg action_cast, , => 175
+    action_primary_expr: · Identifier, , => 172
+    Identifier: · Identifier . identifier, , => 172
+    Identifier: · identifier, , => 174
+
+S191: (Transition = action_args(71))
+    action_expr: Identifier ( action_args · ), ) => 195
+    action_expr: Identifier ( action_args · ), , => 195
+    action_args: action_args · , action_expr, ) => 182
+    action_args: action_args · , action_expr, , => 182
+
+S192: (Transition = identifier(1))
+    Identifier: Identifier . identifier ·, (
+    Identifier: Identifier . identifier ·, .
+    Identifier: Identifier . identifier ·, )
+    Identifier: Identifier . identifier ·, ,
+
+S193: (Transition = Identifier(39))
+    action_cast: : Identifier ·, )
+    action_cast: : Identifier ·, ,
+    Identifier: Identifier · . identifier, ) => 185
+    Identifier: Identifier · . identifier, , => 185
+    Identifier: Identifier · . identifier, . => 185
+
+S194: (Transition = action_args(71))
+    action_expr: @new Identifier ( action_args · ), ) => 196
+    action_expr: @new Identifier ( action_args · ), , => 196
+    action_args: action_args · , action_expr, ) => 182
+    action_args: action_args · , action_expr, , => 182
+
+S195: (Transition = )(26))
+    action_expr: Identifier ( action_args ) ·, )
+    action_expr: Identifier ( action_args ) ·, ,
+
+S196: (Transition = )(26))
+    action_expr: @new Identifier ( action_args ) ·, )
+    action_expr: @new Identifier ( action_args ) ·, ,
+

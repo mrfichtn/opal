@@ -1,0 +1,21 @@
+Symbols:
+[0] = 
+[1] = Int
+[2] = identifier
+[3] = white_space
+[4] = *
+[5] = /
+[6] = +
+[7] = -
+[8] = expr
+[9] = primary
+[10] = op
+
+R0: @language(11) -> expr(8)
+R1: expr(8) -> primary(9)
+R2: expr(8) -> expr(8) op(10) primary(9)
+R3: op(10) -> *(4)
+R4: op(10) -> /(5)
+R5: op(10) -> +(6)
+R6: op(10) -> -(7)
+R7: primary(9) -> Int(1)

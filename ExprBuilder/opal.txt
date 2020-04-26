@@ -1,0 +1,92 @@
+using System.Linq.Expressions;
+using ExprBuilder.Tree;
+
+namespace ExprBuilder;
+
+Options
+	// no_action		= "null"
+	scanner				= "switch"
+
+Characters
+	plus_char   = [+]
+	white_space = [\t \n]
+	digit       = [0-9]
+	alpha       = [a-zA-Z]
+	id	        = [_]+alpha
+	id2         = id + digit 
+	quote       = ["] 
+
+Tokens 
+	Int = '0'|([1-9]digit*) ;
+	Double = ('0'|([1-9]digit*))? '.' digit* ;
+	DoubleInt = ('0'|([1-9]digit*))'D' ;
+	Identifier = id id2* ;
+	white_space<ignore> = white_space+ ;
+	true = "true";
+	false = "false";
+
+Productions expr
+
+	expr			
+		= assignable
+		| unassignable
+		;
+
+	assignable		
+		= sum;
+
+	unassignable	
+		= lambda;
+	
+	lambda			
+		= identifier "=>" sum		{ Lambda($0:Token, $2:Expression); }
+
+	lambda_parameters
+		= identifier
+		| '(' ')' ;
+	
+	sum			
+		= sum '+' term    			{ new AddBinary($0:Expr, $2:Expr); }
+		| sum '-' term				{ new SubtractBinary($0:Expr, $2:Expr); }
+		| term
+		;
+	
+	term
+		= term '*' unary 			{ new MultiplyBinary($0:Expr, $2:Expr); }
+		| term '/' unary 			{ new DivideBinary($0:Expr, $2:Expr); }
+		| unary
+		;
+	
+	unary
+		= primary
+		|  '-' primary 				{ new NegateUnary($0:Token, $1:Expr); }
+		|  '+' primary          
+		|  '!' primary				{ new NotUnary($0:Token, $1:Expr);  }
+		|  '~' primary				{ new OnesComplementUnary($0:Token, $1:Expr);  }
+
+	primary		
+		= '(' expr ')'				{ $1; }
+		| constant
+		| identifier				{ new VarExpr($0:Identifier); }
+		;
+	
+	identifier	
+		= Identifier				{ new Identifier($0:Token); }
+
+	constant	
+		= int
+		| double
+		| bool
+		;
+
+	int
+		= Int						{ new IntConstant($0:Token); }
+	
+	double		
+		= Double				{ new DoubleConstant($0:Token); }
+		| DoubleInt				{ DoubleConstant.ParseInt($0:Token); }
+
+	bool
+		= true					{ new Constant<bool>($0:Token, true); }
+		| false					{ new Constant<bool>($0:Token, false); }
+				

@@ -1,0 +1,10 @@
+namespace NoLex;
+
+Productions language
+	language = expr;
+	expr = expr "+" term    	{ new AddExr($1, $3); }
+	expr = term;
+	term = term "*" primary 	{ new MultiExpr($1 as Expr, $3 as Expr); }
+	term = term "/" primary 	{ new MultiExpr($1 as Expr, $3 as Expr); }
+	term = primary;
+	primary = id				{ new Constant($1 as Token); }

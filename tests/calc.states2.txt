@@ -1,0 +1,116 @@
+S0: (Transition = )
+    language: · expr, ＄ => 1
+    expr: · expr + term, ＄ => 1
+    expr: · term, ＄ => 2
+    expr: · expr + term, + => 1
+    expr: · term, + => 2
+    term: · term * primary, ＄ => 2
+    term: · term / primary, ＄ => 2
+    term: · primary, ＄ => 3
+    term: · term * primary, + => 2
+    term: · term / primary, + => 2
+    term: · primary, + => 3
+    term: · term * primary, * => 2
+    term: · term / primary, * => 2
+    term: · primary, * => 3
+    term: · term * primary, / => 2
+    term: · term / primary, / => 2
+    term: · primary, / => 3
+    primary: · Int, ＄ => 4
+    primary: · Int, + => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
+
+S1: (Transition = expr(8))
+    language: expr ·, ＄
+    expr: expr · + term, ＄ => 5
+    expr: expr · + term, + => 5
+
+S2: (Transition = term(9))
+    expr: term ·, ＄
+    expr: term ·, +
+    term: term · * primary, ＄ => 6
+    term: term · / primary, ＄ => 7
+    term: term · * primary, + => 6
+    term: term · / primary, + => 7
+    term: term · * primary, * => 6
+    term: term · / primary, * => 7
+    term: term · * primary, / => 6
+    term: term · / primary, / => 7
+
+S3: (Transition = primary(10))
+    term: primary ·, ＄
+    term: primary ·, +
+    term: primary ·, *
+    term: primary ·, /
+
+S4: (Transition = Int(1))
+    primary: Int ·, ＄
+    primary: Int ·, +
+    primary: Int ·, *
+    primary: Int ·, /
+
+S5: (Transition = +(4))
+    expr: expr + · term, ＄ => 8
+    expr: expr + · term, + => 8
+    term: · term * primary, ＄ => 8
+    term: · term / primary, ＄ => 8
+    term: · primary, ＄ => 3
+    term: · term * primary, + => 8
+    term: · term / primary, + => 8
+    term: · primary, + => 3
+    term: · term * primary, * => 8
+    term: · term / primary, * => 8
+    term: · primary, * => 3
+    term: · term * primary, / => 8
+    term: · term / primary, / => 8
+    term: · primary, / => 3
+    primary: · Int, ＄ => 4
+    primary: · Int, + => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
+
+S6: (Transition = *(5))
+    term: term * · primary, ＄ => 9
+    term: term * · primary, + => 9
+    term: term * · primary, * => 9
+    term: term * · primary, / => 9
+    primary: · Int, ＄ => 4
+    primary: · Int, + => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
+
+S7: (Transition = /(6))
+    term: term / · primary, ＄ => 10
+    term: term / · primary, + => 10
+    term: term / · primary, * => 10
+    term: term / · primary, / => 10
+    primary: · Int, ＄ => 4
+    primary: · Int, + => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
+
+S8: (Transition = term(9))
+    expr: expr + term ·, ＄
+    expr: expr + term ·, +
+    term: term · * primary, ＄ => 6
+    term: term · / primary, ＄ => 7
+    term: term · * primary, + => 6
+    term: term · / primary, + => 7
+    term: term · * primary, * => 6
+    term: term · / primary, * => 7
+    term: term · * primary, / => 6
+    term: term · / primary, / => 7
+
+S9: (Transition = primary(10))
+    term: term * primary ·, ＄
+    term: term * primary ·, +
+    term: term * primary ·, *
+    term: term * primary ·, /
+
+S10: (Transition = primary(10))
+    term: term / primary ·, ＄
+    term: term / primary ·, +
+    term: term / primary ·, *
+    term: term / primary ·, /
+

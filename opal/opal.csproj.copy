@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="build\version.prop" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BCB698BD-E894-42E1-8012-D95835B9108E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Opal</RootNamespace>
+    <AssemblyName>opal</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Build.Framework">
+      <PrivateAssets>build</PrivateAssets>
+    </Reference>
+    <Reference Include="Microsoft.Build.Utilities.v4.0">
+      <PrivateAssets>build</PrivateAssets>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Update="@(Reference)" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\CodeGenerators\GeneratorBase.cs">
+      <Link>CodeGenerators\GeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\BinaryExt.cs">
+      <Link>CodeGenerators\BinaryExt.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\Generator.cs">
+      <Link>CodeGenerators\Generator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\GeneratorExt.cs">
+      <Link>CodeGenerators\GeneratorExt.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\IGeneratable.cs">
+      <Link>CodeGenerators\IGeneratable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\IGenerator.cs">
+      <Link>CodeGenerators\IGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CodeGenerators\Strings.cs">
+      <Link>CodeGenerators\Strings.cs</Link>
+    </Compile>
+    <Compile Include="Containers\HashExt.cs" />
+    <Compile Include="Dfa\DfaStateWriter.cs" />
+    <Compile Include="Dfa\DfaSwitchWriter.cs" />
+    <Compile Include="Dfa\Identifier.cs" />
+    <Compile Include="Dfa\ScannerStateTable.cs" />
+    <Compile Include="Logging\BuildTaskLogger.cs" />
+    <Compile Include="Logging\Importance.cs" />
+    <Compile Include="OpalTask.cs" />
+    <Compile Include="ParseTree\ActionExprs.cs" />
+    <Compile Include="Containers\EnumExt.cs" />
+    <Compile Include="Containers\Index.cs" />
+    <Compile Include="Containers\IVarProvider.cs" />
+    <Compile Include="Containers\Pair.cs" />
+    <Compile Include="Containers\Strings.cs" />
+    <Compile Include="Containers\TemplateProcessor.cs" />
+    <Compile Include="Dfa\Dfa.cs" />
+    <Compile Include="Dfa\DfaBuilder.cs" />
+    <Compile Include="Dfa\DfaNode.cs" />
+    <Compile Include="Dfa\DfaState.cs" />
+    <Compile Include="Dfa\GraphExt.cs" />
+    <Compile Include="ParseTree\FuncOption.cs" />
+    <Compile Include="ParseTree\GenericArgs.cs" />
+    <Compile Include="ParseTree\Language.cs" />
+    <Compile Include="Logging\ILoggerExt.cs" />
+    <Compile Include="LR1\ActionBuilder.cs" />
+    <Compile Include="LR1\Actions.cs" />
+    <Compile Include="LR1\BuilderItem.cs" />
+    <Compile Include="LR1\Grammar.cs" />
+    <Compile Include="LR1\LR1Item.cs" />
+    <Compile Include="LR1\LR1Parser.cs" />
+    <Compile Include="LR1\Rule.cs" />
+    <Compile Include="LR1\State.cs" />
+    <Compile Include="LR1\States.cs" />
+    <Compile Include="LR1\Symbol.cs" />
+    <Compile Include="LR1\TerminalSets.cs" />
+    <Compile Include="ParseTree\NamedCharClass.cs" />
+    <Compile Include="Nfa\AcceptingStates.cs" />
+    <Compile Include="Nfa\SingleChar.cs" />
+    <Compile Include="Nfa\CharClass.cs" />
+    <Compile Include="Nfa\EdgeState.cs" />
+    <Compile Include="Nfa\EmptyMatch.cs" />
+    <Compile Include="Nfa\Graph.cs" />
+    <Compile Include="Nfa\IMatch.cs" />
+    <Compile Include="Nfa\Machine.cs" />
+    <Compile Include="Nfa\Matches.cs" />
+    <Compile Include="Nfa\NfaNode.cs" />
+    <Compile Include="Nfa\NfaNodes.cs" />
+    <Compile Include="Opal.Parser.cs" />
+    <Compile Include="Parser.cs" />
+    <Compile Include="Compiler.cs" />
+    <Compile Include="ParseTree\CharConst.cs" />
+    <Compile Include="ParseTree\Constant.cs" />
+    <Compile Include="ParseTree\Identifier.cs" />
+    <Compile Include="ParseTree\Integers.cs" />
+    <Compile Include="ParseTree\NoActionOption.cs" />
+    <Compile Include="ParseTree\ProdDef.cs" />
+    <Compile Include="ParseTree\ProdDefList.cs" />
+    <Compile Include="ParseTree\StringConst.cs" />
+    <Compile Include="ParseTree\Production.cs" />
+    <Compile Include="ParseTree\ProductionAttr.cs" />
+    <Compile Include="ParseTree\ProductionExprs.cs" />
+    <Compile Include="ParseTree\ProductionList.cs" />
+    <Compile Include="ParseTree\ProductionExpr.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ParseTree\Quantifier.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt">
+      <Pack>true</Pack>
+      <PackagePath>
+      </PackagePath>
+    </Content>
+    <None Include="App.config" />
+    <Content Include="opal.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+    <None Include="build\version.prop" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\Parser.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\SwitchScanner.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\StateScanner.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NuGet.Build.Tasks.Pack">
+      <Version>5.2.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+      <IsTool>False</IsTool>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PackageId>Opal</PackageId>
+    <Authors>Mark Fichtner</Authors>
+    <Company>Adage RCM</Company>
+    <PackageVersion>$(Version)</PackageVersion>
+    <PackageOutputPath>..\..\nuget\</PackageOutputPath>
+    <IsTool>True</IsTool>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+</Project>

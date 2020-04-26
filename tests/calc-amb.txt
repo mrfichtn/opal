@@ -1,0 +1,26 @@
+// potential for language
+namespace CalcAmbTest;
+
+Characters
+	white_space = [\t \n]
+	digit       = [0-9]
+	alpha       = [a-zA-Z]
+	id	        = [_]+alpha
+	id2         = id + digit 
+	quote       = ["] 
+
+Tokens
+	Int = '0'|([1-9]digit*) ;
+	identifier = id id2* ;
+	white_space = white_space+ ;
+
+Productions expr
+	expr	= primary
+			| expr op primary;
+
+	op		= '*'
+			| '/'
+			| '+'
+			| '-';
+	
+	primary = Int;

@@ -1,0 +1,75 @@
+S0: (Transition = )
+    @language: · expr, ＄ => 1
+    expr: · primary, ＄ => 2
+    expr: · expr op primary, ＄ => 1
+    primary: · Int, ＄ => 3
+    expr: · primary, * => 2
+    expr: · primary, / => 2
+    expr: · primary, + => 2
+    expr: · primary, - => 2
+    expr: · expr op primary, * => 1
+    expr: · expr op primary, / => 1
+    expr: · expr op primary, + => 1
+    expr: · expr op primary, - => 1
+    primary: · Int, * => 3
+    primary: · Int, / => 3
+    primary: · Int, + => 3
+    primary: · Int, - => 3
+
+S1: (Transition = expr(8))
+    @language: expr ·, ＄
+    expr: expr · op primary, ＄ => 4
+    expr: expr · op primary, * => 4
+    expr: expr · op primary, / => 4
+    expr: expr · op primary, + => 4
+    expr: expr · op primary, - => 4
+    op: · *, Int => 5
+    op: · /, Int => 6
+    op: · +, Int => 7
+    op: · -, Int => 8
+
+S2: (Transition = primary(9))
+    expr: primary ·, ＄
+    expr: primary ·, *
+    expr: primary ·, /
+    expr: primary ·, +
+    expr: primary ·, -
+
+S3: (Transition = Int(1))
+    primary: Int ·, ＄
+    primary: Int ·, *
+    primary: Int ·, /
+    primary: Int ·, +
+    primary: Int ·, -
+
+S4: (Transition = op(10))
+    expr: expr op · primary, ＄ => 9
+    expr: expr op · primary, * => 9
+    expr: expr op · primary, / => 9
+    expr: expr op · primary, + => 9
+    expr: expr op · primary, - => 9
+    primary: · Int, ＄ => 3
+    primary: · Int, * => 3
+    primary: · Int, / => 3
+    primary: · Int, + => 3
+    primary: · Int, - => 3
+
+S5: (Transition = *(4))
+    op: * ·, Int
+
+S6: (Transition = /(5))
+    op: / ·, Int
+
+S7: (Transition = +(6))
+    op: + ·, Int
+
+S8: (Transition = -(7))
+    op: - ·, Int
+
+S9: (Transition = primary(9))
+    expr: expr op primary ·, ＄
+    expr: expr op primary ·, *
+    expr: expr op primary ·, /
+    expr: expr op primary ·, +
+    expr: expr op primary ·, -
+

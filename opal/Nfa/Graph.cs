@@ -1,0 +1,444 @@
+﻿using Opal.Containers;
+using Opal.ParseTree;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Opal.Nfa
+{
+    public sealed class Graph
+    {
+        private int end;
+
+        /// <summary>
+        /// Creates graph from provided start and end nodes
+        /// </summary>
+        /// <param name="machine">Nfa nodes and accepting states</param>
+        /// <param name="start">Starting node</param>
+        /// <param name="end">Ending node</param>
+        private Graph(Machine machine, int start, int end)
+        {
+            this.Machine = machine;
+            Start = start;
+            this.end = end;
+        }
+
+        /// <summary>
+        /// Creates an empty, starting node
+        /// </summary>
+        /// <param name="machine"></param>
+        public Graph(Machine machine)
+        {
+            this.Machine = machine;
+            Start = end = machine.Nodes.CreateEnd();
+        }
+
+        /// <summary>
+        /// Creates NFA graph from a string
+        /// </summary>
+        public Graph(Machine machine, string text)
+        {
+            if (string.IsNullOrEmpty(text)) throw new ArgumentNullException(nameof(text));
+
+            this.Machine = machine;
+            var nodes = machine.Nodes;
+            var node = nodes.CreateEnd();
+            end = node;
+            for (var i = text.Length - 1; i >= 0; i--)
+                node = nodes.CreateMatch(machine.GetClassId(text[i]), node);
+            Start = node;
+        }
+
+        /// <summary>
+        /// Creates graph from a single match
+        /// </summary>
+        /// <param name="machine"></param>
+        /// <param name="match"></param>
+        public Graph(Machine machine, IMatch match)
+        {
+            if (match == null) throw new ArgumentNullException(nameof(match));
+
+            this.Machine = machine;
+            end = machine.Nodes.CreateEnd();
+            Start = machine.SetMatch(end, match);
+        }
+
+        #region Properties
+
+        /// <summary>
+        /// Returns starting node
+        /// </summary>
+        /// <returns></returns>
+        public int Start { get; internal set; }
+
+        public Machine Machine { get; }
+
+        #endregion
+
+        public Graph Create(string value) => new Graph(Machine, value);
+
+        public Graph Create(StringConst text) => Create(text.Value);
+
+        public int MarkEnd(string tokenName, Identifier attr = null)
+        {
+            var ignore = (attr?.Value == "ignore");
+
+            if (!Machine.AcceptingStates.TryAdd(tokenName, ignore, end, out var index))
+                throw new Exception(string.Format("Duplicate symbol {0}", tokenName));
+            return index;
+        }
+
+        public static Graph MarkEnd(Token id, Token attr, Graph g)
+        {
+            var ignore = (attr?.Value == "ignore");
+            if (!g.Machine.AcceptingStates.TryAdd(id.Value, ignore, g.end, out _))
+                throw new Exception(string.Format("Duplicate symbol {0}", id.Value));
+            return g;
+        }
+
+        #region Thompson construction
+
+        /// <summary>
+        /// Creates graph for addition of match
+        /// Match   abc d
+        /// New graph:                              match 
+        ///                 existing graph  { end } ----->  { graph g }
+        ///                                         right
+        /// </summary>
+        /// <param name="g"></param>
+        public Graph Concatenate(Graph g)
+        {
+            Machine.Nodes.SetRight(end, g.Start);
+            end = g.end;
+            return this;
+        }
+
+        public static Graph Concatenate(Graph g, Graph g2)
+            => g.Concatenate(g2);
+
+        
+        /// <summary>
+        /// Adds option to this graph
+        /// Match   abc d
+        /// New graph:                              
+        ///      {new-node} --(left) --> { existing } --(right)--> {new-end} 
+        ///                 --(right)--> { g } ---------(right)--------^
+        /// </summary>
+        /// <param name="g"></param>
+        public Graph Union(Graph g)
+        {
+            var nodes = Machine.Nodes;
+            Start = nodes.Create(Start, g.Start);
+            var end = nodes.CreateEnd();
+            nodes.SetRight(this.end, end);
+            nodes.SetRight(g.end, end);
+            this.end = end;
+            return this;
+        }
+
+        public static Graph Union(Graph g1, Graph g2)
+        {
+            g1.Union(g2);
+            return g1;
+        }
+
+
+        /// <summary>
+        /// Adds star closure (zero or more instances of graph)
+        /// { new node } --> {existing graph} -> {end}
+        ///              --------------------------^
+        /// </summary>
+        public void StarClosure()
+        {
+            var newEnd = Machine.Nodes.CreateEnd();
+            Start = Machine.Nodes.Create(Start, newEnd);
+            Machine.Nodes.Set(end, -1, Start, newEnd);
+            end = newEnd;
+        }
+
+        public static Graph StarClosure(Graph g)
+        {
+            g.StarClosure();
+            return g;
+        }
+
+        /// <summary>
+        /// Adds plus closure (1 or more instance)
+        /// { graph } --> { new node } -> end
+        ///     ^-----------------------
+        /// </summary>
+        public void PlusClosure()
+        {
+            var end = Machine.Nodes.CreateEnd();
+            Machine.Nodes.Set(this.end, -1, Start, end);
+            this.end = end;
+        }
+
+        public static Graph PlusClosure(Graph g)
+        {
+            g.PlusClosure();
+            return g;
+        }
+
+        /// <summary>
+        /// Adds question closure (0 / 1 instances)
+        /// </summary>
+        public void QuestionClosure()
+        {
+            var nodes = Machine.Nodes;
+            var end = nodes.CreateEnd();
+            Start = nodes.Create(Start, end);
+            nodes.SetRight(this.end, end);
+            this.end = end;
+        }
+
+        public static Graph QuestionClosure(Graph g)
+        {
+            g.QuestionClosure();
+            return g;
+        }
+
+        /// <summary>
+        /// Adds x-number of instances
+        /// </summary>
+        /// <param name="n"></param>
+        public Graph Quantifier(int n)
+        {
+            if (n == 1) return this;
+            var graphs = new Graph[n - 1];
+            for (var i = 1; i < n; i++)
+                graphs[i - 1] = Dup();
+            foreach (var g in graphs)
+                Concatenate(g);
+            return this;
+        }
+
+        public static Graph Quantifier(Graph g, Integer n) =>
+            g.Quantifier(n.Value);
+
+        /// <summary>
+        /// Adds min to max instances
+        /// </summary>
+        /// <param name="min">Minimum number of occurrences</param>
+        /// <param name="max">Maximum number of occurrences</param>
+        public Graph RangeQuantifier(int min, int max)
+        {
+            if (min > max)
+            {
+                var swap = min;
+                min = max;
+                max = swap;
+            }
+
+            max--;
+            var graphs = new Graph[max];
+            int i;
+            for (i = 0; i < max; i++)
+                graphs[i] = Dup();
+
+            i = 0;
+            if (min == 0)
+            {
+                StarClosure();
+            }
+            else if (min > 1)
+            {
+                for (; i < min; i++)
+                    Concatenate(graphs[i]);
+            }
+
+            var nodes = Machine.Nodes;
+            for (; i < max; i++)
+            {
+                nodes.Set(end, -1, graphs[i].Start, graphs[i].end);
+                end = graphs[i].end;
+            }
+            return this;
+        }
+
+        public static Graph RangeQuantifier(Graph g, Integer min, Integer max)
+            => g.RangeQuantifier(min.Value, max.Value);
+
+        public int FindState(string keyword)
+        {
+            var result = -1;
+            var startStates = new List<int>()
+            {
+                Start
+            };
+
+            var matches = Machine.Matches;
+            var nodes = Machine.Nodes;
+
+            foreach (var ch in keyword)
+            {
+                if (!matches.TryGet(ch, out var cls))
+                    return -1;
+                
+                var states = EpsilonEdges(startStates);
+                startStates.Clear();
+                foreach (var state in states)
+                {
+                    var node = nodes[state];
+                    if (node.Match == cls)
+                        startStates.Add(node.Left);
+                }
+                if (startStates.Count == 0)
+                    return -1;
+            }
+
+            foreach (var nodeId in startStates)
+            {
+                if (Machine.AcceptingStates.TryFind(nodeId, out var acceptingState))
+                {
+                    if (!Machine.Nodes.HasTransition(nodeId))
+                    {
+                        result = acceptingState;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Graph Dup()
+        {
+            var nodes = Machine.Nodes;
+            var stack = new Stack<int>();
+            stack.Push(Start);
+            var start = nodes.New();
+            var map = new Dictionary<int, int>() { { Start, start } };
+
+            while (stack.Count > 0)
+            {
+                var nextId = stack.Pop();
+                var next = nodes[nextId];
+                var newNodeId = map[nextId];
+
+                int left;
+                if (next.Left == -1)
+                {
+                    left = -1;
+                }
+                else if (!map.TryGetValue(next.Left, out left))
+                {
+                    left = nodes.New();
+                    map.Add(next.Left, left);
+                    stack.Push(next.Left);
+                }
+
+                int right;
+                if (next.Right == -1)
+                {
+                    right = -1;
+                }
+                else if (!map.TryGetValue(next.Right, out right))
+                {
+                    right = nodes.New();
+                    map.Add(next.Right, right);
+                    stack.Push(next.Right);
+                }
+                nodes.Set(newNodeId, next.Match, left, right);
+            }
+
+            return new Graph(Machine, start, map[end]);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Produces a list of nodes that can be reached from items in T by
+        /// a match of classId
+        /// </summary>
+        /// <param name="classId">Class or character id</param>
+        /// <param name="nfaStates">NFA state ids</param>
+        /// <param name="result">Ids of nodes that can be reached by classId</param>
+        public void Move(int classId, IEnumerable<int> nfaStates, IList<int> result) =>
+            result.SetFrom(
+                from nodeId in nfaStates
+                let node = Machine.Nodes[nodeId]
+                where node.Match == classId
+                select node.Left);
+
+        /// <summary>
+        /// Returns a list of all states reachable from starting state nfa
+        /// </summary>
+        /// <param name="nfa"></param>
+        /// <returns></returns>
+        public void EpsilonClosure(IEnumerable<int> nfa, HashSet<int> result)
+        {
+            result.Clear();
+            // Initialize result with T because each state
+            // has epsilon closure to itself
+            foreach (var item in nfa)
+                result.Add(item);
+
+            // Push all states onto the stack
+            var unprocessedStack = new Stack<int>(nfa);
+
+            var nodes = Machine.Nodes;
+            // While the unprocessed stack is not empty
+            while (unprocessedStack.Count > 0)
+            {
+                // Pop t, the top element from unprocessed stack
+                var node = nodes[unprocessedStack.Pop()];
+
+                // Get all epsilon transition for this state
+                if (node.Right != -1)
+                {
+                    if (result.Add(node.Right))
+                        unprocessedStack.Push(node.Right);
+
+                    if ((node.Left != -1) && (node.Match == -1) && result.Add(node.Left))
+                        unprocessedStack.Push(node.Left);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Looks for nodes that are transitional only and replaces them with other 
+        /// side of the link
+        /// Replaces:
+        /// { node } -- (left/right) -->  {transition-node} ---right--->  { other-node }
+        /// With:
+        /// { node } ---> { other-node }
+        /// </summary>
+        public void Reduce() =>
+            Start = Machine.Nodes.Reduce(Machine.AcceptingStates.Nodes, Start);
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            var visited = new HashSet<int>();
+            var queue = new Queue<int>();
+            if (Start != -1)
+            {
+                queue.Enqueue(Start);
+                visited.Add(Start);
+            }
+            var nodes = Machine.Nodes;
+            while (queue.Count > 0)
+            {
+                var nodeIndex = queue.Dequeue();
+                var node = nodes[nodeIndex];
+                result.AppendLine(node.ToString(Machine, nodeIndex));
+                if (node.Right != -1 && visited.Add(node.Right))
+                    queue.Enqueue(node.Right);
+                if (node.Left != -1 && visited.Add(node.Left))
+                    queue.Enqueue(node.Left);
+            }
+            return result.ToString();
+        }
+
+        private int[] EpsilonEdges(IEnumerable<int> nodes)
+        {
+            var result = new HashSet<int>();
+            EpsilonClosure(nodes, result);
+            return result
+                .Where(x => Machine.Nodes[x].Match != -1)
+                .ToArray();
+        }
+    }
+}

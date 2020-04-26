@@ -1,0 +1,176 @@
+Symbols:
+[0] = 
+[1] = identifier
+[2] = char_class
+[3] = string
+[4] = char_string
+[5] = integer
+[6] = arg
+[7] = @using
+[8] = ;
+[9] = @namespace
+[10] = @Options
+[11] = =
+[12] = @Characters
+[13] = +
+[14] = -
+[15] = !
+[16] = @Tokens
+[17] = <
+[18] = >
+[19] = |
+[20] = *
+[21] = ?
+[22] = {
+[23] = }
+[24] = ,
+[25] = (
+[26] = )
+[27] = @Productions
+[28] = @new
+[29] = :
+[30] = .
+[31] = language
+[32] = using_section
+[33] = namespace_section
+[34] = option_section
+[35] = characters_section
+[36] = token_section
+[37] = production_section
+[38] = using_decl
+[39] = Identifier
+[40] = option_list
+[41] = option
+[42] = String
+[43] = character_expr
+[44] = character_pair
+[45] = char_class_concat
+[46] = char_class_unary
+[47] = char_class_primary
+[48] = CharClass
+[49] = Char
+[50] = token_list
+[51] = token
+[52] = token_attr
+[53] = token_expr
+[54] = token_quantifier
+[55] = token_primary
+[56] = Integer
+[57] = prod_list
+[58] = production
+[59] = production_attr
+[60] = prod_def_list
+[61] = func_opt
+[62] = func_opt_arg_type
+[63] = prod_def_start
+[64] = prod_exprs
+[65] = prod_def
+[66] = prod_action
+[67] = optional_semicolon
+[68] = prod_expr
+[69] = prod_expr_primary
+[70] = action_stmt
+[71] = action_expr
+[72] = type
+[73] = action_args
+[74] = action_primary_expr
+[75] = action_cast
+[76] = generic_args
+[77] = EscString
+
+R0: @language(78) -> language(31)
+R1: language(31) -> using_section(32) namespace_section(33) option_section(34) characters_section(35) token_section(36) production_section(37)
+R2: using_section(32) ->
+R3: using_section(32) -> using_section(32) using_decl(38)
+R4: using_decl(38) -> @using(7) Identifier(39) ;(8)
+R5: namespace_section(33) ->
+R6: namespace_section(33) -> @namespace(9) Identifier(39) ;(8)
+R7: option_section(34) ->
+R8: option_section(34) -> @Options(10) option_list(40)
+R9: option_list(40) -> option(41)
+R10: option_list(40) -> option_list(40) option(41)
+R11: option(41) -> identifier(1) =(11) String(42)
+R12: characters_section(35) ->
+R13: characters_section(35) -> @Characters(12) character_expr(43)
+R14: character_expr(43) -> character_pair(44)
+R15: character_expr(43) -> character_expr(43) character_pair(44)
+R16: character_pair(44) -> identifier(1) =(11) char_class_concat(45)
+R17: char_class_concat(45) -> char_class_unary(46)
+R18: char_class_concat(45) -> char_class_concat(45) +(13) char_class_unary(46)
+R19: char_class_concat(45) -> char_class_concat(45) -(14) char_class_unary(46)
+R20: char_class_unary(46) -> char_class_primary(47)
+R21: char_class_unary(46) -> !(15) char_class_unary(46)
+R22: char_class_primary(47) -> CharClass(48)
+R23: char_class_primary(47) -> identifier(1)
+R24: char_class_primary(47) -> Char(49)
+R25: token_section(36) ->
+R26: token_section(36) -> @Tokens(16) token_list(50)
+R27: token_list(50) -> token(51)
+R28: token_list(50) -> token_list(50) token(51)
+R29: token(51) -> identifier(1) token_attr(52) =(11) token_expr(53) ;(8)
+R30: token_attr(52) ->
+R31: token_attr(52) -> <(17) identifier(1) >(18)
+R32: token_expr(53) -> token_quantifier(54)
+R33: token_expr(53) -> token_expr(53) |(19) token_quantifier(54)
+R34: token_expr(53) -> token_expr(53) token_quantifier(54)
+R35: token_quantifier(54) -> token_primary(55)
+R36: token_quantifier(54) -> token_primary(55) +(13)
+R37: token_quantifier(54) -> token_primary(55) *(20)
+R38: token_quantifier(54) -> token_primary(55) ?(21)
+R39: token_quantifier(54) -> token_primary(55) {(22) Integer(56) }(23)
+R40: token_quantifier(54) -> token_primary(55) {(22) Integer(56) ,(24) Integer(56) }(23)
+R41: token_primary(55) -> identifier(1)
+R42: token_primary(55) -> Char(49)
+R43: token_primary(55) -> CharClass(48)
+R44: token_primary(55) -> String(42)
+R45: token_primary(55) -> ((25) token_expr(53) )(26)
+R46: production_section(37) -> @Productions(27) identifier(1) prod_list(57)
+R47: prod_list(57) ->
+R48: prod_list(57) -> prod_list(57) production(58)
+R49: production(58) -> identifier(1) production_attr(59) =(11) prod_def_list(60)
+R50: production_attr(59) ->
+R51: production_attr(59) -> <(17) Identifier(39) func_opt(61) >(18)
+R52: func_opt(61) ->
+R53: func_opt(61) -> ((25) func_opt_arg_type(62) )(26)
+R54: func_opt_arg_type(62) ->
+R55: func_opt_arg_type(62) -> Identifier(39)
+R56: prod_def_list(60) -> prod_def_start(63) prod_exprs(64) ;(8)
+R57: prod_def_list(60) -> prod_def_start(63) prod_def(65)
+R58: prod_def_start(63) ->
+R59: prod_def_start(63) -> prod_def_start(63) prod_exprs(64) |(19)
+R60: prod_def_start(63) -> prod_def_start(63) prod_def(65) |(19)
+R61: prod_def(65) -> prod_exprs(64) prod_action(66) optional_semicolon(67)
+R62: optional_semicolon(67) ->
+R63: optional_semicolon(67) -> ;(8)
+R64: prod_exprs(64) ->
+R65: prod_exprs(64) -> prod_exprs(64) prod_expr(68)
+R66: prod_expr(68) -> prod_expr_primary(69) production_attr(59)
+R67: prod_expr_primary(69) -> identifier(1)
+R68: prod_expr_primary(69) -> String(42)
+R69: prod_expr_primary(69) -> Char(49)
+R70: prod_action(66) -> {(22) action_stmt(70) }(23)
+R71: action_stmt(70) ->
+R72: action_stmt(70) -> action_expr(71) ;(8)
+R73: action_expr(71) -> @new(28) type(72) ((25) action_args(73) )(26)
+R74: action_expr(71) -> Identifier(39) ((25) action_args(73) )(26)
+R75: action_expr(71) -> action_primary_expr(74)
+R76: action_args(73) ->
+R77: action_args(73) -> action_expr(71)
+R78: action_args(73) -> action_args(73) ,(24) action_expr(71)
+R79: action_primary_expr(74) -> arg(6) action_cast(75)
+R80: action_primary_expr(74) -> Identifier(39)
+R81: action_primary_expr(74) -> Integer(56)
+R82: action_primary_expr(74) -> String(42)
+R83: action_cast(75) ->
+R84: action_cast(75) -> :(29) Identifier(39)
+R85: type(72) -> Identifier(39)
+R86: type(72) -> Identifier(39) <(17) generic_args(76) >(18)
+R87: generic_args(76) -> type(72)
+R88: generic_args(76) -> generic_args(76) ,(24) type(72)
+R89: Identifier(39) -> Identifier(39) .(30) identifier(1)
+R90: Identifier(39) -> identifier(1)
+R91: CharClass(48) -> char_class(2)
+R92: Char(49) -> char_string(4)
+R93: String(42) -> EscString(77)
+R94: EscString(77) -> string(3)
+R95: Integer(56) -> integer(5)

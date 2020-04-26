@@ -1,0 +1,2355 @@
+S0: (Transition = )
+    @language: · expr, ＄ => 1
+    expr: · assignable, ＄ => 2
+    expr: · unassignable, ＄ => 3
+    assignable: · sum, ＄ => 4
+    unassignable: · lambda, ＄ => 5
+    sum: · sum + term, ＄ => 4
+    sum: · sum - term, ＄ => 4
+    sum: · term, ＄ => 6
+    lambda: · identifier => sum, ＄ => 7
+    sum: · sum + term, + => 4
+    sum: · sum - term, + => 4
+    sum: · term, + => 6
+    sum: · sum + term, - => 4
+    sum: · sum - term, - => 4
+    sum: · term, - => 6
+    term: · term * unary, ＄ => 6
+    term: · term / unary, ＄ => 6
+    term: · unary, ＄ => 8
+    identifier: · Identifier, => => 9
+    term: · term * unary, + => 6
+    term: · term / unary, + => 6
+    term: · unary, + => 8
+    term: · term * unary, - => 6
+    term: · term / unary, - => 6
+    term: · unary, - => 8
+    term: · term * unary, * => 6
+    term: · term / unary, * => 6
+    term: · unary, * => 8
+    term: · term * unary, / => 6
+    term: · term / unary, / => 6
+    term: · unary, / => 8
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S1: (Transition = expr(16))
+    @language: expr ·, ＄
+
+S2: (Transition = assignable(17))
+    expr: assignable ·, ＄
+
+S3: (Transition = unassignable(18))
+    expr: unassignable ·, ＄
+
+S4: (Transition = sum(19))
+    assignable: sum ·, ＄
+    sum: sum · + term, ＄ => 25
+    sum: sum · - term, ＄ => 26
+    sum: sum · + term, + => 25
+    sum: sum · - term, + => 26
+    sum: sum · + term, - => 25
+    sum: sum · - term, - => 26
+
+S5: (Transition = lambda(20))
+    unassignable: lambda ·, ＄
+
+S6: (Transition = term(22))
+    sum: term ·, ＄
+    sum: term ·, +
+    sum: term ·, -
+    term: term · * unary, ＄ => 27
+    term: term · / unary, ＄ => 28
+    term: term · * unary, + => 27
+    term: term · / unary, + => 28
+    term: term · * unary, - => 27
+    term: term · / unary, - => 28
+    term: term · * unary, * => 27
+    term: term · / unary, * => 28
+    term: term · * unary, / => 27
+    term: term · / unary, / => 28
+
+S7: (Transition = identifier(21))
+    lambda: identifier · => sum, ＄ => 29
+    primary: identifier ·, ＄
+    primary: identifier ·, +
+    primary: identifier ·, -
+    primary: identifier ·, *
+    primary: identifier ·, /
+
+S8: (Transition = unary(23))
+    term: unary ·, ＄
+    term: unary ·, +
+    term: unary ·, -
+    term: unary ·, *
+    term: unary ·, /
+
+S9: (Transition = Identifier(4))
+    identifier: Identifier ·, =>
+    identifier: Identifier ·, ＄
+    identifier: Identifier ·, +
+    identifier: Identifier ·, -
+    identifier: Identifier ·, *
+    identifier: Identifier ·, /
+
+S10: (Transition = primary(24))
+    unary: primary ·, ＄
+    unary: primary ·, +
+    unary: primary ·, -
+    unary: primary ·, *
+    unary: primary ·, /
+
+S11: (Transition = -(11))
+    unary: - · primary, ＄ => 30
+    unary: - · primary, + => 30
+    unary: - · primary, - => 30
+    unary: - · primary, * => 30
+    unary: - · primary, / => 30
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S12: (Transition = +(10))
+    unary: + · primary, ＄ => 31
+    unary: + · primary, + => 31
+    unary: + · primary, - => 31
+    unary: + · primary, * => 31
+    unary: + · primary, / => 31
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S13: (Transition = !(14))
+    unary: ! · primary, ＄ => 32
+    unary: ! · primary, + => 32
+    unary: ! · primary, - => 32
+    unary: ! · primary, * => 32
+    unary: ! · primary, / => 32
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S14: (Transition = ~(15))
+    unary: ~ · primary, ＄ => 33
+    unary: ~ · primary, + => 33
+    unary: ~ · primary, - => 33
+    unary: ~ · primary, * => 33
+    unary: ~ · primary, / => 33
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S15: (Transition = ((8))
+    primary: ( · expr ), ＄ => 34
+    primary: ( · expr ), + => 34
+    primary: ( · expr ), - => 34
+    primary: ( · expr ), * => 34
+    primary: ( · expr ), / => 34
+    expr: · assignable, ) => 35
+    expr: · unassignable, ) => 36
+    assignable: · sum, ) => 37
+    unassignable: · lambda, ) => 38
+    sum: · sum + term, ) => 37
+    sum: · sum - term, ) => 37
+    sum: · term, ) => 39
+    lambda: · identifier => sum, ) => 40
+    sum: · sum + term, + => 37
+    sum: · sum - term, + => 37
+    sum: · term, + => 39
+    sum: · sum + term, - => 37
+    sum: · sum - term, - => 37
+    sum: · term, - => 39
+    term: · term * unary, ) => 39
+    term: · term / unary, ) => 39
+    term: · unary, ) => 41
+    identifier: · Identifier, => => 42
+    term: · term * unary, + => 39
+    term: · term / unary, + => 39
+    term: · unary, + => 41
+    term: · term * unary, - => 39
+    term: · term / unary, - => 39
+    term: · unary, - => 41
+    term: · term * unary, * => 39
+    term: · term / unary, * => 39
+    term: · unary, * => 41
+    term: · term * unary, / => 39
+    term: · term / unary, / => 39
+    term: · unary, / => 41
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S16: (Transition = constant(25))
+    primary: constant ·, ＄
+    primary: constant ·, +
+    primary: constant ·, -
+    primary: constant ·, *
+    primary: constant ·, /
+
+S17: (Transition = int(26))
+    constant: int ·, ＄
+    constant: int ·, +
+    constant: int ·, -
+    constant: int ·, *
+    constant: int ·, /
+
+S18: (Transition = double(27))
+    constant: double ·, ＄
+    constant: double ·, +
+    constant: double ·, -
+    constant: double ·, *
+    constant: double ·, /
+
+S19: (Transition = bool(28))
+    constant: bool ·, ＄
+    constant: bool ·, +
+    constant: bool ·, -
+    constant: bool ·, *
+    constant: bool ·, /
+
+S20: (Transition = Int(1))
+    int: Int ·, ＄
+    int: Int ·, +
+    int: Int ·, -
+    int: Int ·, *
+    int: Int ·, /
+
+S21: (Transition = Double(2))
+    double: Double ·, ＄
+    double: Double ·, +
+    double: Double ·, -
+    double: Double ·, *
+    double: Double ·, /
+
+S22: (Transition = DoubleInt(3))
+    double: DoubleInt ·, ＄
+    double: DoubleInt ·, +
+    double: DoubleInt ·, -
+    double: DoubleInt ·, *
+    double: DoubleInt ·, /
+
+S23: (Transition = true(5))
+    bool: true ·, ＄
+    bool: true ·, +
+    bool: true ·, -
+    bool: true ·, *
+    bool: true ·, /
+
+S24: (Transition = false(6))
+    bool: false ·, ＄
+    bool: false ·, +
+    bool: false ·, -
+    bool: false ·, *
+    bool: false ·, /
+
+S25: (Transition = +(10))
+    sum: sum + · term, ＄ => 58
+    sum: sum + · term, + => 58
+    sum: sum + · term, - => 58
+    term: · term * unary, ＄ => 58
+    term: · term / unary, ＄ => 58
+    term: · unary, ＄ => 8
+    term: · term * unary, + => 58
+    term: · term / unary, + => 58
+    term: · unary, + => 8
+    term: · term * unary, - => 58
+    term: · term / unary, - => 58
+    term: · unary, - => 8
+    term: · term * unary, * => 58
+    term: · term / unary, * => 58
+    term: · unary, * => 8
+    term: · term * unary, / => 58
+    term: · term / unary, / => 58
+    term: · unary, / => 8
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S26: (Transition = -(11))
+    sum: sum - · term, ＄ => 59
+    sum: sum - · term, + => 59
+    sum: sum - · term, - => 59
+    term: · term * unary, ＄ => 59
+    term: · term / unary, ＄ => 59
+    term: · unary, ＄ => 8
+    term: · term * unary, + => 59
+    term: · term / unary, + => 59
+    term: · unary, + => 8
+    term: · term * unary, - => 59
+    term: · term / unary, - => 59
+    term: · unary, - => 8
+    term: · term * unary, * => 59
+    term: · term / unary, * => 59
+    term: · unary, * => 8
+    term: · term * unary, / => 59
+    term: · term / unary, / => 59
+    term: · unary, / => 8
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S27: (Transition = *(12))
+    term: term * · unary, ＄ => 60
+    term: term * · unary, + => 60
+    term: term * · unary, - => 60
+    term: term * · unary, * => 60
+    term: term * · unary, / => 60
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S28: (Transition = /(13))
+    term: term / · unary, ＄ => 61
+    term: term / · unary, + => 61
+    term: term / · unary, - => 61
+    term: term / · unary, * => 61
+    term: term / · unary, / => 61
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S29: (Transition = =>(7))
+    lambda: identifier => · sum, ＄ => 62
+    sum: · sum + term, ＄ => 62
+    sum: · sum - term, ＄ => 62
+    sum: · term, ＄ => 6
+    sum: · sum + term, + => 62
+    sum: · sum - term, + => 62
+    sum: · term, + => 6
+    sum: · sum + term, - => 62
+    sum: · sum - term, - => 62
+    sum: · term, - => 6
+    term: · term * unary, ＄ => 6
+    term: · term / unary, ＄ => 6
+    term: · unary, ＄ => 8
+    term: · term * unary, + => 6
+    term: · term / unary, + => 6
+    term: · unary, + => 8
+    term: · term * unary, - => 6
+    term: · term / unary, - => 6
+    term: · unary, - => 8
+    term: · term * unary, * => 6
+    term: · term / unary, * => 6
+    term: · unary, * => 8
+    term: · term * unary, / => 6
+    term: · term / unary, / => 6
+    term: · unary, / => 8
+    unary: · primary, ＄ => 10
+    unary: · - primary, ＄ => 11
+    unary: · + primary, ＄ => 12
+    unary: · ! primary, ＄ => 13
+    unary: · ~ primary, ＄ => 14
+    unary: · primary, + => 10
+    unary: · - primary, + => 11
+    unary: · + primary, + => 12
+    unary: · ! primary, + => 13
+    unary: · ~ primary, + => 14
+    unary: · primary, - => 10
+    unary: · - primary, - => 11
+    unary: · + primary, - => 12
+    unary: · ! primary, - => 13
+    unary: · ~ primary, - => 14
+    unary: · primary, * => 10
+    unary: · - primary, * => 11
+    unary: · + primary, * => 12
+    unary: · ! primary, * => 13
+    unary: · ~ primary, * => 14
+    unary: · primary, / => 10
+    unary: · - primary, / => 11
+    unary: · + primary, / => 12
+    unary: · ! primary, / => 13
+    unary: · ~ primary, / => 14
+    primary: · ( expr ), ＄ => 15
+    primary: · constant, ＄ => 16
+    primary: · identifier, ＄ => 7
+    primary: · ( expr ), + => 15
+    primary: · constant, + => 16
+    primary: · identifier, + => 7
+    primary: · ( expr ), - => 15
+    primary: · constant, - => 16
+    primary: · identifier, - => 7
+    primary: · ( expr ), * => 15
+    primary: · constant, * => 16
+    primary: · identifier, * => 7
+    primary: · ( expr ), / => 15
+    primary: · constant, / => 16
+    primary: · identifier, / => 7
+    constant: · int, ＄ => 17
+    constant: · double, ＄ => 18
+    constant: · bool, ＄ => 19
+    identifier: · Identifier, ＄ => 9
+    constant: · int, + => 17
+    constant: · double, + => 18
+    constant: · bool, + => 19
+    identifier: · Identifier, + => 9
+    constant: · int, - => 17
+    constant: · double, - => 18
+    constant: · bool, - => 19
+    identifier: · Identifier, - => 9
+    constant: · int, * => 17
+    constant: · double, * => 18
+    constant: · bool, * => 19
+    identifier: · Identifier, * => 9
+    constant: · int, / => 17
+    constant: · double, / => 18
+    constant: · bool, / => 19
+    identifier: · Identifier, / => 9
+    int: · Int, ＄ => 20
+    double: · Double, ＄ => 21
+    double: · DoubleInt, ＄ => 22
+    bool: · true, ＄ => 23
+    bool: · false, ＄ => 24
+    int: · Int, + => 20
+    double: · Double, + => 21
+    double: · DoubleInt, + => 22
+    bool: · true, + => 23
+    bool: · false, + => 24
+    int: · Int, - => 20
+    double: · Double, - => 21
+    double: · DoubleInt, - => 22
+    bool: · true, - => 23
+    bool: · false, - => 24
+    int: · Int, * => 20
+    double: · Double, * => 21
+    double: · DoubleInt, * => 22
+    bool: · true, * => 23
+    bool: · false, * => 24
+    int: · Int, / => 20
+    double: · Double, / => 21
+    double: · DoubleInt, / => 22
+    bool: · true, / => 23
+    bool: · false, / => 24
+
+S30: (Transition = primary(24))
+    unary: - primary ·, ＄
+    unary: - primary ·, +
+    unary: - primary ·, -
+    unary: - primary ·, *
+    unary: - primary ·, /
+
+S31: (Transition = primary(24))
+    unary: + primary ·, ＄
+    unary: + primary ·, +
+    unary: + primary ·, -
+    unary: + primary ·, *
+    unary: + primary ·, /
+
+S32: (Transition = primary(24))
+    unary: ! primary ·, ＄
+    unary: ! primary ·, +
+    unary: ! primary ·, -
+    unary: ! primary ·, *
+    unary: ! primary ·, /
+
+S33: (Transition = primary(24))
+    unary: ~ primary ·, ＄
+    unary: ~ primary ·, +
+    unary: ~ primary ·, -
+    unary: ~ primary ·, *
+    unary: ~ primary ·, /
+
+S34: (Transition = expr(16))
+    primary: ( expr · ), ＄ => 63
+    primary: ( expr · ), + => 63
+    primary: ( expr · ), - => 63
+    primary: ( expr · ), * => 63
+    primary: ( expr · ), / => 63
+
+S35: (Transition = assignable(17))
+    expr: assignable ·, )
+
+S36: (Transition = unassignable(18))
+    expr: unassignable ·, )
+
+S37: (Transition = sum(19))
+    assignable: sum ·, )
+    sum: sum · + term, ) => 64
+    sum: sum · - term, ) => 65
+    sum: sum · + term, + => 64
+    sum: sum · - term, + => 65
+    sum: sum · + term, - => 64
+    sum: sum · - term, - => 65
+
+S38: (Transition = lambda(20))
+    unassignable: lambda ·, )
+
+S39: (Transition = term(22))
+    sum: term ·, )
+    sum: term ·, +
+    sum: term ·, -
+    term: term · * unary, ) => 66
+    term: term · / unary, ) => 67
+    term: term · * unary, + => 66
+    term: term · / unary, + => 67
+    term: term · * unary, - => 66
+    term: term · / unary, - => 67
+    term: term · * unary, * => 66
+    term: term · / unary, * => 67
+    term: term · * unary, / => 66
+    term: term · / unary, / => 67
+
+S40: (Transition = identifier(21))
+    lambda: identifier · => sum, ) => 68
+    primary: identifier ·, )
+    primary: identifier ·, +
+    primary: identifier ·, -
+    primary: identifier ·, *
+    primary: identifier ·, /
+
+S41: (Transition = unary(23))
+    term: unary ·, )
+    term: unary ·, +
+    term: unary ·, -
+    term: unary ·, *
+    term: unary ·, /
+
+S42: (Transition = Identifier(4))
+    identifier: Identifier ·, =>
+    identifier: Identifier ·, )
+    identifier: Identifier ·, +
+    identifier: Identifier ·, -
+    identifier: Identifier ·, *
+    identifier: Identifier ·, /
+
+S43: (Transition = primary(24))
+    unary: primary ·, )
+    unary: primary ·, +
+    unary: primary ·, -
+    unary: primary ·, *
+    unary: primary ·, /
+
+S44: (Transition = -(11))
+    unary: - · primary, ) => 69
+    unary: - · primary, + => 69
+    unary: - · primary, - => 69
+    unary: - · primary, * => 69
+    unary: - · primary, / => 69
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S45: (Transition = +(10))
+    unary: + · primary, ) => 70
+    unary: + · primary, + => 70
+    unary: + · primary, - => 70
+    unary: + · primary, * => 70
+    unary: + · primary, / => 70
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S46: (Transition = !(14))
+    unary: ! · primary, ) => 71
+    unary: ! · primary, + => 71
+    unary: ! · primary, - => 71
+    unary: ! · primary, * => 71
+    unary: ! · primary, / => 71
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S47: (Transition = ~(15))
+    unary: ~ · primary, ) => 72
+    unary: ~ · primary, + => 72
+    unary: ~ · primary, - => 72
+    unary: ~ · primary, * => 72
+    unary: ~ · primary, / => 72
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S48: (Transition = ((8))
+    primary: ( · expr ), ) => 73
+    primary: ( · expr ), + => 73
+    primary: ( · expr ), - => 73
+    primary: ( · expr ), * => 73
+    primary: ( · expr ), / => 73
+    expr: · assignable, ) => 35
+    expr: · unassignable, ) => 36
+    assignable: · sum, ) => 37
+    unassignable: · lambda, ) => 38
+    sum: · sum + term, ) => 37
+    sum: · sum - term, ) => 37
+    sum: · term, ) => 39
+    lambda: · identifier => sum, ) => 40
+    sum: · sum + term, + => 37
+    sum: · sum - term, + => 37
+    sum: · term, + => 39
+    sum: · sum + term, - => 37
+    sum: · sum - term, - => 37
+    sum: · term, - => 39
+    term: · term * unary, ) => 39
+    term: · term / unary, ) => 39
+    term: · unary, ) => 41
+    identifier: · Identifier, => => 42
+    term: · term * unary, + => 39
+    term: · term / unary, + => 39
+    term: · unary, + => 41
+    term: · term * unary, - => 39
+    term: · term / unary, - => 39
+    term: · unary, - => 41
+    term: · term * unary, * => 39
+    term: · term / unary, * => 39
+    term: · unary, * => 41
+    term: · term * unary, / => 39
+    term: · term / unary, / => 39
+    term: · unary, / => 41
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S49: (Transition = constant(25))
+    primary: constant ·, )
+    primary: constant ·, +
+    primary: constant ·, -
+    primary: constant ·, *
+    primary: constant ·, /
+
+S50: (Transition = int(26))
+    constant: int ·, )
+    constant: int ·, +
+    constant: int ·, -
+    constant: int ·, *
+    constant: int ·, /
+
+S51: (Transition = double(27))
+    constant: double ·, )
+    constant: double ·, +
+    constant: double ·, -
+    constant: double ·, *
+    constant: double ·, /
+
+S52: (Transition = bool(28))
+    constant: bool ·, )
+    constant: bool ·, +
+    constant: bool ·, -
+    constant: bool ·, *
+    constant: bool ·, /
+
+S53: (Transition = Int(1))
+    int: Int ·, )
+    int: Int ·, +
+    int: Int ·, -
+    int: Int ·, *
+    int: Int ·, /
+
+S54: (Transition = Double(2))
+    double: Double ·, )
+    double: Double ·, +
+    double: Double ·, -
+    double: Double ·, *
+    double: Double ·, /
+
+S55: (Transition = DoubleInt(3))
+    double: DoubleInt ·, )
+    double: DoubleInt ·, +
+    double: DoubleInt ·, -
+    double: DoubleInt ·, *
+    double: DoubleInt ·, /
+
+S56: (Transition = true(5))
+    bool: true ·, )
+    bool: true ·, +
+    bool: true ·, -
+    bool: true ·, *
+    bool: true ·, /
+
+S57: (Transition = false(6))
+    bool: false ·, )
+    bool: false ·, +
+    bool: false ·, -
+    bool: false ·, *
+    bool: false ·, /
+
+S58: (Transition = term(22))
+    sum: sum + term ·, ＄
+    sum: sum + term ·, +
+    sum: sum + term ·, -
+    term: term · * unary, ＄ => 27
+    term: term · / unary, ＄ => 28
+    term: term · * unary, + => 27
+    term: term · / unary, + => 28
+    term: term · * unary, - => 27
+    term: term · / unary, - => 28
+    term: term · * unary, * => 27
+    term: term · / unary, * => 28
+    term: term · * unary, / => 27
+    term: term · / unary, / => 28
+
+S59: (Transition = term(22))
+    sum: sum - term ·, ＄
+    sum: sum - term ·, +
+    sum: sum - term ·, -
+    term: term · * unary, ＄ => 27
+    term: term · / unary, ＄ => 28
+    term: term · * unary, + => 27
+    term: term · / unary, + => 28
+    term: term · * unary, - => 27
+    term: term · / unary, - => 28
+    term: term · * unary, * => 27
+    term: term · / unary, * => 28
+    term: term · * unary, / => 27
+    term: term · / unary, / => 28
+
+S60: (Transition = unary(23))
+    term: term * unary ·, ＄
+    term: term * unary ·, +
+    term: term * unary ·, -
+    term: term * unary ·, *
+    term: term * unary ·, /
+
+S61: (Transition = unary(23))
+    term: term / unary ·, ＄
+    term: term / unary ·, +
+    term: term / unary ·, -
+    term: term / unary ·, *
+    term: term / unary ·, /
+
+S62: (Transition = sum(19))
+    lambda: identifier => sum ·, ＄
+    sum: sum · + term, ＄ => 25
+    sum: sum · - term, ＄ => 26
+    sum: sum · + term, + => 25
+    sum: sum · - term, + => 26
+    sum: sum · + term, - => 25
+    sum: sum · - term, - => 26
+
+S63: (Transition = )(9))
+    primary: ( expr ) ·, ＄
+    primary: ( expr ) ·, +
+    primary: ( expr ) ·, -
+    primary: ( expr ) ·, *
+    primary: ( expr ) ·, /
+
+S64: (Transition = +(10))
+    sum: sum + · term, ) => 74
+    sum: sum + · term, + => 74
+    sum: sum + · term, - => 74
+    term: · term * unary, ) => 74
+    term: · term / unary, ) => 74
+    term: · unary, ) => 41
+    term: · term * unary, + => 74
+    term: · term / unary, + => 74
+    term: · unary, + => 41
+    term: · term * unary, - => 74
+    term: · term / unary, - => 74
+    term: · unary, - => 41
+    term: · term * unary, * => 74
+    term: · term / unary, * => 74
+    term: · unary, * => 41
+    term: · term * unary, / => 74
+    term: · term / unary, / => 74
+    term: · unary, / => 41
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S65: (Transition = -(11))
+    sum: sum - · term, ) => 75
+    sum: sum - · term, + => 75
+    sum: sum - · term, - => 75
+    term: · term * unary, ) => 75
+    term: · term / unary, ) => 75
+    term: · unary, ) => 41
+    term: · term * unary, + => 75
+    term: · term / unary, + => 75
+    term: · unary, + => 41
+    term: · term * unary, - => 75
+    term: · term / unary, - => 75
+    term: · unary, - => 41
+    term: · term * unary, * => 75
+    term: · term / unary, * => 75
+    term: · unary, * => 41
+    term: · term * unary, / => 75
+    term: · term / unary, / => 75
+    term: · unary, / => 41
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S66: (Transition = *(12))
+    term: term * · unary, ) => 76
+    term: term * · unary, + => 76
+    term: term * · unary, - => 76
+    term: term * · unary, * => 76
+    term: term * · unary, / => 76
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S67: (Transition = /(13))
+    term: term / · unary, ) => 77
+    term: term / · unary, + => 77
+    term: term / · unary, - => 77
+    term: term / · unary, * => 77
+    term: term / · unary, / => 77
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S68: (Transition = =>(7))
+    lambda: identifier => · sum, ) => 78
+    sum: · sum + term, ) => 78
+    sum: · sum - term, ) => 78
+    sum: · term, ) => 39
+    sum: · sum + term, + => 78
+    sum: · sum - term, + => 78
+    sum: · term, + => 39
+    sum: · sum + term, - => 78
+    sum: · sum - term, - => 78
+    sum: · term, - => 39
+    term: · term * unary, ) => 39
+    term: · term / unary, ) => 39
+    term: · unary, ) => 41
+    term: · term * unary, + => 39
+    term: · term / unary, + => 39
+    term: · unary, + => 41
+    term: · term * unary, - => 39
+    term: · term / unary, - => 39
+    term: · unary, - => 41
+    term: · term * unary, * => 39
+    term: · term / unary, * => 39
+    term: · unary, * => 41
+    term: · term * unary, / => 39
+    term: · term / unary, / => 39
+    term: · unary, / => 41
+    unary: · primary, ) => 43
+    unary: · - primary, ) => 44
+    unary: · + primary, ) => 45
+    unary: · ! primary, ) => 46
+    unary: · ~ primary, ) => 47
+    unary: · primary, + => 43
+    unary: · - primary, + => 44
+    unary: · + primary, + => 45
+    unary: · ! primary, + => 46
+    unary: · ~ primary, + => 47
+    unary: · primary, - => 43
+    unary: · - primary, - => 44
+    unary: · + primary, - => 45
+    unary: · ! primary, - => 46
+    unary: · ~ primary, - => 47
+    unary: · primary, * => 43
+    unary: · - primary, * => 44
+    unary: · + primary, * => 45
+    unary: · ! primary, * => 46
+    unary: · ~ primary, * => 47
+    unary: · primary, / => 43
+    unary: · - primary, / => 44
+    unary: · + primary, / => 45
+    unary: · ! primary, / => 46
+    unary: · ~ primary, / => 47
+    primary: · ( expr ), ) => 48
+    primary: · constant, ) => 49
+    primary: · identifier, ) => 40
+    primary: · ( expr ), + => 48
+    primary: · constant, + => 49
+    primary: · identifier, + => 40
+    primary: · ( expr ), - => 48
+    primary: · constant, - => 49
+    primary: · identifier, - => 40
+    primary: · ( expr ), * => 48
+    primary: · constant, * => 49
+    primary: · identifier, * => 40
+    primary: · ( expr ), / => 48
+    primary: · constant, / => 49
+    primary: · identifier, / => 40
+    constant: · int, ) => 50
+    constant: · double, ) => 51
+    constant: · bool, ) => 52
+    identifier: · Identifier, ) => 42
+    constant: · int, + => 50
+    constant: · double, + => 51
+    constant: · bool, + => 52
+    identifier: · Identifier, + => 42
+    constant: · int, - => 50
+    constant: · double, - => 51
+    constant: · bool, - => 52
+    identifier: · Identifier, - => 42
+    constant: · int, * => 50
+    constant: · double, * => 51
+    constant: · bool, * => 52
+    identifier: · Identifier, * => 42
+    constant: · int, / => 50
+    constant: · double, / => 51
+    constant: · bool, / => 52
+    identifier: · Identifier, / => 42
+    int: · Int, ) => 53
+    double: · Double, ) => 54
+    double: · DoubleInt, ) => 55
+    bool: · true, ) => 56
+    bool: · false, ) => 57
+    int: · Int, + => 53
+    double: · Double, + => 54
+    double: · DoubleInt, + => 55
+    bool: · true, + => 56
+    bool: · false, + => 57
+    int: · Int, - => 53
+    double: · Double, - => 54
+    double: · DoubleInt, - => 55
+    bool: · true, - => 56
+    bool: · false, - => 57
+    int: · Int, * => 53
+    double: · Double, * => 54
+    double: · DoubleInt, * => 55
+    bool: · true, * => 56
+    bool: · false, * => 57
+    int: · Int, / => 53
+    double: · Double, / => 54
+    double: · DoubleInt, / => 55
+    bool: · true, / => 56
+    bool: · false, / => 57
+
+S69: (Transition = primary(24))
+    unary: - primary ·, )
+    unary: - primary ·, +
+    unary: - primary ·, -
+    unary: - primary ·, *
+    unary: - primary ·, /
+
+S70: (Transition = primary(24))
+    unary: + primary ·, )
+    unary: + primary ·, +
+    unary: + primary ·, -
+    unary: + primary ·, *
+    unary: + primary ·, /
+
+S71: (Transition = primary(24))
+    unary: ! primary ·, )
+    unary: ! primary ·, +
+    unary: ! primary ·, -
+    unary: ! primary ·, *
+    unary: ! primary ·, /
+
+S72: (Transition = primary(24))
+    unary: ~ primary ·, )
+    unary: ~ primary ·, +
+    unary: ~ primary ·, -
+    unary: ~ primary ·, *
+    unary: ~ primary ·, /
+
+S73: (Transition = expr(16))
+    primary: ( expr · ), ) => 79
+    primary: ( expr · ), + => 79
+    primary: ( expr · ), - => 79
+    primary: ( expr · ), * => 79
+    primary: ( expr · ), / => 79
+
+S74: (Transition = term(22))
+    sum: sum + term ·, )
+    sum: sum + term ·, +
+    sum: sum + term ·, -
+    term: term · * unary, ) => 66
+    term: term · / unary, ) => 67
+    term: term · * unary, + => 66
+    term: term · / unary, + => 67
+    term: term · * unary, - => 66
+    term: term · / unary, - => 67
+    term: term · * unary, * => 66
+    term: term · / unary, * => 67
+    term: term · * unary, / => 66
+    term: term · / unary, / => 67
+
+S75: (Transition = term(22))
+    sum: sum - term ·, )
+    sum: sum - term ·, +
+    sum: sum - term ·, -
+    term: term · * unary, ) => 66
+    term: term · / unary, ) => 67
+    term: term · * unary, + => 66
+    term: term · / unary, + => 67
+    term: term · * unary, - => 66
+    term: term · / unary, - => 67
+    term: term · * unary, * => 66
+    term: term · / unary, * => 67
+    term: term · * unary, / => 66
+    term: term · / unary, / => 67
+
+S76: (Transition = unary(23))
+    term: term * unary ·, )
+    term: term * unary ·, +
+    term: term * unary ·, -
+    term: term * unary ·, *
+    term: term * unary ·, /
+
+S77: (Transition = unary(23))
+    term: term / unary ·, )
+    term: term / unary ·, +
+    term: term / unary ·, -
+    term: term / unary ·, *
+    term: term / unary ·, /
+
+S78: (Transition = sum(19))
+    lambda: identifier => sum ·, )
+    sum: sum · + term, ) => 64
+    sum: sum · - term, ) => 65
+    sum: sum · + term, + => 64
+    sum: sum · - term, + => 65
+    sum: sum · + term, - => 64
+    sum: sum · - term, - => 65
+
+S79: (Transition = )(9))
+    primary: ( expr ) ·, )
+    primary: ( expr ) ·, +
+    primary: ( expr ) ·, -
+    primary: ( expr ) ·, *
+    primary: ( expr ) ·, /
+

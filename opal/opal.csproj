@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net471</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<Description>LR(1) compiler-compiler</Description>
+		<Version>1.0.12</Version>
+		<Copyright>Copyright ©  2018-2020</Copyright>
+		<RootNamespace>Opal</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Logging\ConsoleLogger.cs" />
+	  <Compile Remove="Logging\ILogger.cs" />
+	  <Compile Remove="Logging\Importance.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="FrameFiles\Parser.txt" />
+	  <None Remove="FrameFiles\StateScanner.txt" />
+	  <None Remove="FrameFiles\SwitchScanner.txt" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\Parser.txt" />
+    <EmbeddedResource Include="FrameFiles\SwitchScanner.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\StateScanner.txt" />
+  </ItemGroup>
+
+</Project>
