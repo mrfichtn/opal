@@ -18,7 +18,7 @@ namespace Opal.Containers
         /// <param name="list">Target list</param>
         /// <param name="items">Source collection</param>
         /// <returns>Target list</returns>
-        public static IList<T> SetFrom<T>(this IList<T> list, IEnumerable<T> items)
+        public static ICollection<T> SetFrom<T>(this ICollection<T> list, IEnumerable<T> items)
         {
             list.Clear();
             foreach (var item in items)

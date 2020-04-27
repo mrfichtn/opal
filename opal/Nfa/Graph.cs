@@ -19,7 +19,7 @@ namespace Opal.Nfa
         /// <param name="end">Ending node</param>
         private Graph(Machine machine, int start, int end)
         {
-            this.Machine = machine;
+            Machine = machine;
             Start = start;
             this.end = end;
         }
@@ -30,7 +30,7 @@ namespace Opal.Nfa
         /// <param name="machine"></param>
         public Graph(Machine machine)
         {
-            this.Machine = machine;
+            Machine = machine;
             Start = end = machine.Nodes.CreateEnd();
         }
 
@@ -41,7 +41,7 @@ namespace Opal.Nfa
         {
             if (string.IsNullOrEmpty(text)) throw new ArgumentNullException(nameof(text));
 
-            this.Machine = machine;
+            Machine = machine;
             var nodes = machine.Nodes;
             var node = nodes.CreateEnd();
             end = node;
@@ -362,52 +362,6 @@ namespace Opal.Nfa
                 where node.Match == classId
                 select node.Left);
 
-        /// <summary>
-        /// Returns a list of all states reachable from starting state nfa
-        /// </summary>
-        /// <param name="nfa"></param>
-        /// <returns></returns>
-        public void EpsilonClosure(IEnumerable<int> nfa, HashSet<int> result)
-        {
-            result.Clear();
-            // Initialize result with T because each state
-            // has epsilon closure to itself
-            foreach (var item in nfa)
-                result.Add(item);
-
-            // Push all states onto the stack
-            var unprocessedStack = new Stack<int>(nfa);
-
-            var nodes = Machine.Nodes;
-            // While the unprocessed stack is not empty
-            while (unprocessedStack.Count > 0)
-            {
-                // Pop t, the top element from unprocessed stack
-                var node = nodes[unprocessedStack.Pop()];
-
-                // Get all epsilon transition for this state
-                if (node.Right != -1)
-                {
-                    if (result.Add(node.Right))
-                        unprocessedStack.Push(node.Right);
-
-                    if ((node.Left != -1) && (node.Match == -1) && result.Add(node.Left))
-                        unprocessedStack.Push(node.Left);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Looks for nodes that are transitional only and replaces them with other 
-        /// side of the link
-        /// Replaces:
-        /// { node } -- (left/right) -->  {transition-node} ---right--->  { other-node }
-        /// With:
-        /// { node } ---> { other-node }
-        /// </summary>
-        public void Reduce() =>
-            Start = Machine.Nodes.Reduce(Machine.AcceptingStates.Nodes, Start);
-
         public override string ToString()
         {
             var result = new StringBuilder();
@@ -434,9 +388,7 @@ namespace Opal.Nfa
 
         private int[] EpsilonEdges(IEnumerable<int> nodes)
         {
-            var result = new HashSet<int>();
-            EpsilonClosure(nodes, result);
-            return result
+            return new EpsilonClosure(this).Find(nodes)
                 .Where(x => Machine.Nodes[x].Match != -1)
                 .ToArray();
         }

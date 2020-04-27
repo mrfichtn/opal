@@ -88,15 +88,21 @@ namespace OpalTests
             graph = graph.Union(g2);
 
             graph.Reduce();
-            var result = graph.ToString()
-                .Replace("[   ]", "[]")
-                .Replace("     ", " ")
-                .Replace("\r", string.Empty)
-                ;
-            Assert.AreEqual(
-                "008 [] 006 001\n001[] 000[h]\n006[] 005 003\n000[001]\n003[] 007[y]\n005[] 007[m]\n007[002]\n",
-                result
-                );
+
+            var expected = NfaArray.Create()
+                .Epsilon2(index: 8, left: 6, right: 1)
+                .Match(index: 1, left: 0, match: 1)
+                .Epsilon2(index: 6, left: 5, right: 3)
+                .Epsilon1(index: 0, state: 1, right: 9)
+                .Match(index: 3, left: 7, match: 2)
+                .Match(index: 5, left: 7, match: 3)
+                .None(index: 9)
+                .Epsilon1(index: 7, state: 2, right: 9)
+                .ToArray();
+
+            var actual = graph.ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]

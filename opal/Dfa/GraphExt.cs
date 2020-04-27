@@ -1,4 +1,5 @@
-﻿using Opal.Nfa;
+﻿using Opal.Containers;
+using Opal.Nfa;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,11 +15,13 @@ namespace Opal.Dfa
             var builder = new DfaBuilder(machine.Matches, machine.AcceptingStates);
 
             var nfaStartSet = new List<int> { graph.Start };
-            var dfaStartSet = new HashSet<int>();
-            graph.EpsilonClosure(nfaStartSet, dfaStartSet);
 
-            var dfaState = builder.NewNode(dfaStartSet);
+            var εClosureAlgo = new EpsilonClosure(graph);
+            var εNodeIds = εClosureAlgo.Find(nfaStartSet);
+
+            var dfaState = builder.NewNode(εNodeIds);
             var unmarkedStates = new List<DfaState> { dfaState };
+            var move = new Move(graph);
             var moveResult = new List<int>();
 
             while (unmarkedStates.Count > 0)
@@ -27,53 +30,32 @@ namespace Opal.Dfa
                 var processingDFAState = unmarkedStates[unmarkedStates.Count - 1];
                 unmarkedStates.RemoveAt(unmarkedStates.Count - 1);
 
-                var EpsilonClosureRes = new HashSet<int>();
-                
                 // for each input signal a
                 for (var a = 1; a <= signals; a++)
                 {
-                    graph.Move(a, processingDFAState.NfaStates, moveResult);
-                    if (moveResult.Count == 0)
+                    if (move.Find(a, processingDFAState.NfaStates, moveResult) == 0)
                         continue;
-
-                    graph.EpsilonClosure(moveResult, EpsilonClosureRes);
+                    
+                    εClosureAlgo.Find(moveResult, εNodeIds);
 
                     // Check if the resulting set (EpsilonClosureSet) in the
                     // set of DFA states (is any DFA state already constructed
                     // from this set of NFA states) or in pseudocode:
                     // is U in D-States already (U = EpsilonClosureSet)
-                    var s = builder.States.FirstOrDefault(x => Compare(x.NfaStates, EpsilonClosureRes));
-
+                    var s = builder.States
+                        .FirstOrDefault(x => x.NfaStates.Compare(εNodeIds));
                     if (s == null)
                     {
-                        var U = builder.NewNode(EpsilonClosureRes);
-                        unmarkedStates.Add(U);
-
-                        // Add transition from processingDFAState to new state on the current character
-                        processingDFAState.AddTransition(a, U);
+                        s = builder.NewNode(εNodeIds);
+                        unmarkedStates.Add(s);
                     }
-                    else
-                    {
-                        // This state already exists so add transition from 
-                        // processingState to already processed state
-                        processingDFAState.AddTransition(a, s);
-                    }
+                    processingDFAState.AddTransition(a, s);
                 }
             }
 
             return builder.ToDfa();
         }
 
-        public static bool Compare(ICollection<int> left, ICollection<int> right)
-        {
-            if (left.Count != right.Count)
-                return false;
-            foreach (var item in left)
-            {
-                if (!right.Contains(item))
-                    return false;
-            }
-            return true;
-        }
+
     }
 }

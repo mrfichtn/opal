@@ -5,6 +5,14 @@ namespace Opal.Nfa
 {
     public static class ReduceSingleEpsilons
     {
+        /// <summary>
+        /// Looks for nodes that are transitional only and replaces them with other 
+        /// side of the link
+        /// Replaces:
+        /// { node } -- (left/right) -->  {transition-node} ---right--->  { other-node }
+        /// With:
+        /// { node } ---> { other-node }
+        /// </summary>
         public static void RemoveSingleEpsilons(this Graph graph)
         {
             var singles = graph.FindSingleEpsilons();
@@ -12,41 +20,38 @@ namespace Opal.Nfa
             var count = nodes.Count;
 
             for (var i = 0; i < count; i++)
-            {
-                nodes[i].ReplaceSingleEpsilons(singles);
-                //ref var node = ref nodes[i];
+                singles.ReplaceSingleEpsilons(ref nodes[i]);
 
-                //if ((node.Left != -1) && singles.TryGetValue(node.Left, out var newLeft))
-                //    node.Left = newLeft;
-                //if ((node.Right != -1) && singles.TryGetValue(node.Right, out var newRight))
-                //    node.Right = newRight;
-            }
-
-            if (singles.TryGetValue(graph.Start, out var newStart))
-                graph.Start = newStart;
+            graph.Start = singles.Replace(graph.Start);
         }
 
-        private static void ReplaceSingleEpsilons(this ref NfaNode node, IDictionary<int, int> singles)
+        private static void ReplaceSingleEpsilons(this IDictionary<int, int> singles, ref NfaNode node)
         {
-            singles.ReplaceSingleEpsilon(ref node.Left);
-            singles.ReplaceSingleEpsilon(ref node.Right);
+            node.Left = singles.ReplaceSingleEpsilon(node.Left);
+            node.Right = singles.ReplaceSingleEpsilon(node.Right);
         }
 
-        private static void ReplaceSingleEpsilon(this IDictionary<int, int> singles, ref int next)
-        {
-            if ((next != -1) && singles.TryGetValue(next, out var newValue))
-                next = newValue;
-        }
+        private static int ReplaceSingleEpsilon(this IDictionary<int, int> singles, int next) =>
+            ((next != -1) && singles.TryGetValue(next, out var newValue)) ? newValue : next;
+
+        private static int Replace(this IDictionary<int, int> singles, int nodeId) =>
+            singles.TryGetValue(nodeId, out var newValue) ? newValue : nodeId;
 
         public static Dictionary<int, int> FindSingleEpsilons(this Graph graph)
         {
-            var nodes = graph.Machine.Nodes;
-            var nodeToAccepting = graph.Machine.AcceptingStates.Nodes;
-            var singles = nodes
+            var machine = graph.Machine;
+            var nodes = machine.Nodes;
+            var nodeToAccepting = machine.AcceptingStates.Nodes;
+            return nodes
                 .Select((node, index) => (node, index))
                 .Where(x => x.node.IsSingleEpsilon && !nodeToAccepting.ContainsKey(x.index))
-                .ToDictionary(x => x.index, x => x.node.Right);
+                .ToDictionary(x => x.index, x => x.node.Right)
+                .OptimizeEpsilonMap();
+        }
 
+        private static Dictionary<int, int> OptimizeEpsilonMap(this Dictionary<int, int> singles)
+        {
+            //Find end of chain
             var pairs = singles.ToArray();
             foreach (var pair in pairs)
             {
@@ -56,19 +61,6 @@ namespace Opal.Nfa
 
                 if (better != pair.Value)
                     singles[pair.Key] = better;
-            }
-
-            var count = nodes.Count;
-            for (var index = 0; index < count; index++)
-            {
-                if (!singles.ContainsKey(index))
-                {
-                    ref var node = ref nodes[index];
-                    if ((node.Left != -1) && singles.TryGetValue(node.Left, out int remap))
-                        node.Left = remap;
-                    if ((node.Right != -1) && singles.TryGetValue(node.Right, out remap))
-                        node.Right = remap;
-                }
             }
             return singles;
         }
