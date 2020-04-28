@@ -1,7 +1,6 @@
 ﻿using Generators;
 using Opal.Containers;
 using Opal.Dfa;
-using Opal.Logging;
 using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
@@ -69,7 +68,7 @@ namespace Opal
             }
 
             logger.LogMessage(Importance.Normal, "Building dfa");
-            dfa = parser.Machine.ToDfa(nfa);
+            dfa = nfa.ToDfa();
 
             scannerWriter = (!options.TryGetValue("scanner", out var scannerValue) ||
                     scannerValue.Equals("state", StringComparison.InvariantCultureIgnoreCase)) ?

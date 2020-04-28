@@ -262,45 +262,8 @@ namespace Opal.Nfa
 
         public int FindState(string keyword)
         {
-            var result = -1;
-            var startStates = new List<int>()
-            {
-                Start
-            };
-
-            var matches = Machine.Matches;
-            var nodes = Machine.Nodes;
-
-            foreach (var ch in keyword)
-            {
-                if (!matches.TryGet(ch, out var cls))
-                    return -1;
-                
-                var states = EpsilonEdges(startStates);
-                startStates.Clear();
-                foreach (var state in states)
-                {
-                    var node = nodes[state];
-                    if (node.Match == cls)
-                        startStates.Add(node.Left);
-                }
-                if (startStates.Count == 0)
-                    return -1;
-            }
-
-            foreach (var nodeId in startStates)
-            {
-                if (Machine.AcceptingStates.TryFind(nodeId, out var acceptingState))
-                {
-                    if (!Machine.Nodes.HasTransition(nodeId))
-                    {
-                        result = acceptingState;
-                        break;
-                    }
-                }
-            }
-
-            return result;
+            var search = new KeywordSearch(this);
+            return search.Search(keyword);
         }
 
         public Graph Dup()
@@ -348,20 +311,6 @@ namespace Opal.Nfa
 
         #endregion
 
-        /// <summary>
-        /// Produces a list of nodes that can be reached from items in T by
-        /// a match of classId
-        /// </summary>
-        /// <param name="classId">Class or character id</param>
-        /// <param name="nfaStates">NFA state ids</param>
-        /// <param name="result">Ids of nodes that can be reached by classId</param>
-        public void Move(int classId, IEnumerable<int> nfaStates, IList<int> result) =>
-            result.SetFrom(
-                from nodeId in nfaStates
-                let node = Machine.Nodes[nodeId]
-                where node.Match == classId
-                select node.Left);
-
         public override string ToString()
         {
             var result = new StringBuilder();
@@ -384,13 +333,6 @@ namespace Opal.Nfa
                     queue.Enqueue(node.Left);
             }
             return result.ToString();
-        }
-
-        private int[] EpsilonEdges(IEnumerable<int> nodes)
-        {
-            return new EpsilonClosure(this).Find(nodes)
-                .Where(x => Machine.Nodes[x].Match != -1)
-                .ToArray();
         }
     }
 }

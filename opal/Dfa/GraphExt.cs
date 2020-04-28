@@ -7,17 +7,18 @@ namespace Opal.Dfa
 {
     public static class GraphExt
     {
-        public static Dfa ToDfa(this Machine machine, Graph graph)
+        public static Dfa ToDfa(this Graph graph)
         {
             graph.Reduce();
 
+            var machine = graph.Machine;
             var signals = machine.Matches.NextId;
             var builder = new DfaBuilder(machine.Matches, machine.AcceptingStates);
 
             var nfaStartSet = new List<int> { graph.Start };
 
-            var εClosureAlgo = new EpsilonClosure(graph);
-            var εNodeIds = εClosureAlgo.Find(nfaStartSet);
+            var εClosure = new EpsilonClosure(graph);
+            var εNodeIds = εClosure.Find(nfaStartSet);
 
             var dfaState = builder.NewNode(εNodeIds);
             var unmarkedStates = new List<DfaState> { dfaState };
@@ -35,15 +36,14 @@ namespace Opal.Dfa
                 {
                     if (move.Find(a, processingDFAState.NfaStates, moveResult) == 0)
                         continue;
-                    
-                    εClosureAlgo.Find(moveResult, εNodeIds);
+
+                    εNodeIds = εClosure.Find(moveResult);
 
                     // Check if the resulting set (EpsilonClosureSet) in the
                     // set of DFA states (is any DFA state already constructed
                     // from this set of NFA states) or in pseudocode:
                     // is U in D-States already (U = EpsilonClosureSet)
-                    var s = builder.States
-                        .FirstOrDefault(x => x.NfaStates.Compare(εNodeIds));
+                    var s = builder.States.FirstOrDefault(x => x.NfaStates.Compare(εNodeIds));
                     if (s == null)
                     {
                         s = builder.NewNode(εNodeIds);
@@ -55,7 +55,5 @@ namespace Opal.Dfa
 
             return builder.ToDfa();
         }
-
-
     }
 }

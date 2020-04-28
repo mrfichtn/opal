@@ -44,7 +44,6 @@ namespace Opal.Containers
             return result;
         }
 
-
         public static bool TryFirst<T>(this IEnumerable<T> items, out T result)
         {
             var isFound = false;

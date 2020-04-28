@@ -18,7 +18,7 @@ namespace OpalTests
             g2.MarkEnd("kw_world");
             graph = graph.Union(g2);
 
-            var dfa = machine.ToDfa(graph);
+            var dfa = graph.ToDfa();
             var actual = new ScannerStateTable(dfa.States).Create();
 
             var expected = new[]
