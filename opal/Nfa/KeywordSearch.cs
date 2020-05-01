@@ -1,5 +1,8 @@
 ﻿namespace Opal.Nfa
 {
+    /// <summary>
+    /// Searches NFA for a keyword, returning accepting state if found
+    /// </summary>
     public class KeywordSearch
     {
         private readonly Graph graph;
@@ -8,33 +11,20 @@
         
         public int Search(string keyword)
         {
-            var result = -1;
-
+            var foundStates = new StringSearch(graph).Search(keyword);
+            
             var machine = graph.Machine;
-            var matches = machine.Matches;
             var nodes = machine.Nodes;
-
-            var nfaSearch = new NfaSearch(graph);
-            foreach (var ch in keyword)
-            {
-                //Find class for character
-                if (!matches.TryGet(ch, out var @class) ||
-                    (nfaSearch.Search(@class) == 0))
-                    return -1;
-            }
-
             var acceptingStates = machine.AcceptingStates.Nodes;
-            foreach (var nodeId in nfaSearch.States)
+            foreach (var nodeId in foundStates)
             {
                 if (acceptingStates.TryGetValue(nodeId, out var acceptingState)
                     && !nodes.HasTransition(nodeId))
                 {
-                    result = acceptingState;
-                    break;
+                    return acceptingState;
                 }
             }
-
-            return result;
+            return -1;
         }
     }
 }

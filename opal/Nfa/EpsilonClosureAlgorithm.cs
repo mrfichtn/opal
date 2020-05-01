@@ -3,32 +3,32 @@ using System.Collections.Generic;
 
 namespace Opal.Nfa
 {
+    /// <summary>
+    /// Calculates nodes reachable from a starting collection of nodes
+    /// </summary>
     public class EpsilonClosureAlgorithm
     {
         private readonly NfaNodes nodes;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="graph">NFA graph</param>
         public EpsilonClosureAlgorithm(Graph graph) =>
             nodes = graph.Machine.Nodes;
 
-
         /// <summary>
-        /// Returns a list of all states reachable from starting state nfa
+        /// Returns a node set reachable from a starting collection
         /// </summary>
-        /// <param name="startSet"></param>
-        /// <returns></returns>
+        /// <param name="startSet">Starting collection of node ids</param>
+        /// <param name="result">Set of reachable node ids</param>
         public void Find(IEnumerable<int> startSet, HashSet<int> result)
         {
-            // Initialize result with T because each state
-            // has epsilon closure to itself
+            // Initialize result with T because each state has ε-closure to itself
             result.SetFrom(startSet);
 
-            // Push all states onto the stack
-            var unprocessedStack = new Stack<int>(startSet);
-
-            // While the unprocessed stack is not empty
-            while (unprocessedStack.Count > 0)
+            for (var unprocessedStack = new Stack<int>(startSet); unprocessedStack.Count > 0; )
             {
-                // Pop t, the top element from unprocessed stack
                 var node = nodes[unprocessedStack.Pop()];
 
                 // Get all epsilon transition for this state

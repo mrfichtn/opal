@@ -88,7 +88,8 @@ namespace ExprBuilder
 							Root = _stack.PopValue();
 							return !_hasErrors;
 						}
-						GetAction(reducedState, _stack.PeekState(), out result);
+						if (GetAction(reducedState, _stack.PeekState(), out result) == ActionType.Error)
+							goto case ActionType.Error;
 						_stack.Replace((uint)result);
 						break;
 	
@@ -109,7 +110,6 @@ namespace ExprBuilder
 	                return token;
 	            _logger.LogError(token, "syntax error - {0}", token.Value);
 	            _hasErrors = true;
-	            token = _scanner.NextToken();
 	        }
 	    }
 	
@@ -402,8 +402,8 @@ namespace ExprBuilder
 	
 		#endregion
 		#region Symbols
-		private const int _maxTerminal = 15;
-		private string[] _symbols =
+		protected const int _maxTerminal = 15;
+		protected readonly string[] _symbols =
 		{
 			"",
 			"Int",
@@ -672,7 +672,7 @@ namespace ExprBuilder
 			if (_ch=='\t' || _ch=='\n' || _ch == ' ') goto State5;
 			if ((_ch>='1' && _ch<='9')) goto State2;
 			if ((_ch>='A' && _ch<='Z') || _ch == '_' || (_ch>='a' && _ch<='e') || (_ch>='g' && _ch<='s') || (_ch>='u' && _ch<='z')) goto State4;
-			goto EndState;
+			goto EndState2;
 		State1:
 			MarkAccepting(TokenStates.Int);
 			NextChar();
@@ -742,7 +742,7 @@ namespace ExprBuilder
 			NextChar();
 			goto EndState;
 		State15:
-			MarkAccepting(TokenStates.Exclaimation);
+			MarkAccepting(TokenStates.Exclamation);
 			NextChar();
 			goto EndState;
 		State16:
@@ -803,7 +803,6 @@ namespace ExprBuilder
 				_lastAcceptingPosition = _buffer.Position - 1;
 				_lastAcceptingState = -1;
 			}
-	
 			var value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
 			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
 			if (_buffer.Position != _lastAcceptingPosition)
@@ -813,6 +812,12 @@ namespace ExprBuilder
 				_column = _lastColumn;
 				NextChar();
 			}
+			return token;
+	
+	    EndState2:
+			value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
+			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+			NextChar();
 			return token;
 		}
 	
@@ -866,7 +871,7 @@ namespace ExprBuilder
 		public const int Minus = 11;
 		public const int Asterisk = 12;
 		public const int Slash = 13;
-		public const int Exclaimation = 14;
+		public const int Exclamation = 14;
 		public const int Tilde = 15;
 		public const int white_space = -2;
 	};
@@ -1040,7 +1045,7 @@ namespace ExprBuilder
 	public class FileBuffer : IBuffer, IDisposable
 	{
 	    private readonly StreamReader _reader;
-	    private StringBuilder _builder;
+	    private readonly StringBuilder _builder;
 	    private int _filePos;
 	    private int _remaining;
 	    private readonly long _fileLength;

@@ -57,7 +57,7 @@ namespace Opal
             prods = lang.Productions;
 
             var nfa = parser.Graph;
-            if (!prods.SetStates(logger, parser.Machine.AcceptingStates))
+            if (!prods.SetStates(logger, parser.Graph.Machine.AcceptingStates))
                 return false;
 
             if (options.TryGetValue("nfa", out var nfaPath))

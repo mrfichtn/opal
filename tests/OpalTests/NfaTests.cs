@@ -10,8 +10,7 @@ namespace OpalTests
         [TestMethod]
         public void NfaTest()
         {
-            var machine = new Machine();
-            var graph = new Graph(machine, "hello");
+            var graph = new Graph("hello");
             graph.MarkEnd("kw_hello");
 
             var g2 = graph.Create("world");
@@ -76,8 +75,7 @@ namespace OpalTests
         [TestMethod]
         public void NfaReduceTest()
         {
-            var machine = new Machine();
-            var graph = new Graph(machine, "h");
+            var graph = new Graph("h");
             graph.MarkEnd("kw_h");
 
             var g2 = graph.Create("y");
@@ -108,8 +106,7 @@ namespace OpalTests
         [TestMethod]
         public void NfaRemoveSingleEpsilonTest()
         {
-            var machine = new Machine();
-            var graph = new Graph(machine, "h");
+            var graph = new Graph("h");
             graph.MarkEnd("kw_h");
 
             var g2 = graph.Create("y");
@@ -133,6 +130,26 @@ namespace OpalTests
                 .ToArray();
 
             var actual = graph.ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void ConcatTest()
+        {
+            var graph = new Graph("c");
+            var h = graph.Create("h");
+            graph.Concatenate(h);
+
+            var actual = graph.ToArray();
+
+
+            var expected = NfaArray.Create()
+                .Match(index: 1, left: 0, match: 1)
+                .Epsilon1(index: 0, right: 3)
+                .Match(index: 3, left: 2, match: 2)
+                .None(index: 2)
+                .ToArray();
 
             CollectionAssert.AreEqual(expected, actual);
         }

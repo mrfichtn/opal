@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Opal.Nfa
 {
+    /// <summary>
+    /// Locates states reachable from starting state(s) through a match of @class
+    /// </summary>
     public class NfaSearchAlgorithm
     {
         private readonly EpsilonClosure εClosure;

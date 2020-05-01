@@ -4,7 +4,7 @@
 		<OutputType>Exe</OutputType>
 		<Description>LR(1) compiler-compiler</Description>
 		<Version>1.0.12</Version>
-		<Copyright>Copyright ©  2018-2020</Copyright>
+		<Copyright>Copyright© 2018-2020</Copyright>
 		<RootNamespace>Opal</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>

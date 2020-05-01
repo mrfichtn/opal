@@ -2,6 +2,9 @@
 
 namespace Opal.Nfa
 {
+    /// <summary>
+    /// An Epsilon closure algorithm that saves the found set in the Result member
+    /// </summary>
     public class EpsilonClosure: EpsilonClosureAlgorithm
     {
         public EpsilonClosure(Graph graph)

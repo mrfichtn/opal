@@ -18,7 +18,6 @@ namespace Opal.Nfa
         public readonly NfaNodes Nodes;
         public Matches Matches { get; }
         public AcceptingStates AcceptingStates { get; }
-
         #endregion
 
         /// <summary>

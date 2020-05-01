@@ -83,8 +83,8 @@ namespace Opal.LR1
 
             var maxTerminal = symbols.Where(x => x.IsTerminal).Max(x => x.Id);
             generator.Indent(1)
-                .WriteLine($"private const int _maxTerminal = {maxTerminal};")
-                .WriteLine("private readonly string[] _symbols =")
+                .WriteLine($"protected const int _maxTerminal = {maxTerminal};")
+                .WriteLine("protected readonly string[] _symbols =")
                 .StartBlock();
 
             for (var i = 0; i < symbols.Count; i++)

@@ -9,14 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{57D0DC39
 		tests\calc.txt = tests\calc.txt
 		tests\no-lex.txt = tests\no-lex.txt
 		tests\opal.frame.txt = tests\opal.frame.txt
+		tests\opal.Parser.cs = tests\opal.Parser.cs
 		tests\opal.txt = tests\opal.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpalTests", "tests\OpalTests\OpalTests.csproj", "{323AFF7D-3B38-45FE-985F-ED42DB5D9977}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "opal", "opal\opal.csproj", "{BCB698BD-E894-42E1-8012-D95835B9108E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "opal", "opal\opal.csproj", "{BCB698BD-E894-42E1-8012-D95835B9108E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExprBuilder", "ExprBuilder\ExprBuilder.csproj", "{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExprBuilder", "ExprBuilder\ExprBuilder.csproj", "{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

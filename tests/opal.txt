@@ -188,7 +188,7 @@ Productions language
 	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
 						| Identifier							{ new ActionMember($0); }
 						| Integer                               { new ActionIntConstant($0); }
-						| String                                { new ActionStringConstant($0); }
+						| String                                { new ActionStringConstant($0: StringConst); }
 
 	action_cast = 
 				| ':' Identifier								{ $1; }

@@ -11,18 +11,18 @@ namespace Opal
         private Dictionary<string, string> _options;
         private StringBuilder _usings;
         private ProductionList _productions;
+        private Machine _machine;
 
         partial void Init()
         {
             _charClasses = new Dictionary<string, IMatch>();
             _usings = new StringBuilder();
             _productions = new ProductionList();
-            Machine = new Machine();
+            _machine = new Machine();
         }
 
         #region Properties
 
-        public Machine Machine { get; private set; }
         public Language Language => Root as Language;
         public string Usings => _usings.ToString();
         public Graph Graph { get; private set; }
@@ -47,15 +47,8 @@ namespace Opal
                 .AppendLine();
         }
 
-        private Graph CreateGraph(IMatch match)
-        {
-            return new Graph(Machine, match);
-        }
-
-        private Graph CreateGraph(EscChar value)
-        {
-            return new Graph(Machine, new SingleChar(value));
-        }
+        private Graph CreateGraph(IMatch match) => new Graph(_machine, match);
+        private Graph CreateGraph(EscChar value) => CreateGraph(new SingleChar(value));
 
         private Graph SetGraph(Graph graph)
         {
@@ -63,11 +56,7 @@ namespace Opal
             return graph;
         }
 
-        private Graph SetGraph()
-        {
-            Graph = new Graph(Machine);
-            return Graph;
-        }
+        private Graph SetGraph() => new Graph(_machine);
 
         private IMatch FindCharClass(Token identifier)
         {
@@ -86,7 +75,10 @@ namespace Opal
             
             if (_charClasses.TryGetValue(charClass.Name.Value, out var oldClass))
             {
-                _logger.LogError(charClass.Name, "Duplicate character definition '{0}'", charClass.Name);
+                _logger.LogError(charClass.Name,
+                    "Duplicate character definition '{0}' (old={1})", 
+                    charClass.Name,
+                    oldClass);
                 //_logger.LogError(oldClass.Name, "  previous definition of '{0}'", charClass.Name);
             }
             else
@@ -106,7 +98,7 @@ namespace Opal
             var state = Graph.FindState(text);
             if (state == -1)
             {
-                var g = new Graph(Machine, text);
+                var g = Graph.Create(text);
                 state = g.MarkEnd(CreateName(text));
                 Graph.Union(g);
             }
@@ -119,7 +111,7 @@ namespace Opal
             var state = Graph.FindState(text);
             if (state == -1)
             {
-                var g = new Graph(Machine, text);
+                var g = Graph.Create(text);
                 state = g.MarkEnd(CreateName(text));
                 Graph.Union(g);
             }

@@ -593,7 +593,7 @@ namespace Opal
 				case 82: // action_primary_expr = String;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(74, new ActionStringConstant(_stack[0]));
+					    .Reduce(74, new ActionStringConstant((StringConst) _stack[0]));
 					break;
 				}
 				case 83: // action_cast = ;
@@ -932,8 +932,8 @@ namespace Opal
 	
 		#endregion
 		#region Symbols
-		private const int _maxTerminal = 30;
-		private readonly string[] _symbols =
+		protected const int _maxTerminal = 30;
+		protected readonly string[] _symbols =
 		{
 			"",
 			"identifier",

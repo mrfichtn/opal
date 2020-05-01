@@ -28,6 +28,10 @@ namespace Opal.Nfa
         /// Creates an empty, starting node
         /// </summary>
         /// <param name="machine"></param>
+        public Graph(): this(new Machine())
+        {
+        }
+
         public Graph(Machine machine)
         {
             Machine = machine;
@@ -48,6 +52,11 @@ namespace Opal.Nfa
             for (var i = text.Length - 1; i >= 0; i--)
                 node = nodes.CreateMatch(machine.GetClassId(text[i]), node);
             Start = node;
+        }
+
+        public Graph(string text)
+            : this(new Machine(), text)
+        {
         }
 
         /// <summary>
@@ -76,9 +85,13 @@ namespace Opal.Nfa
 
         #endregion
 
+        public Graph Create() => new Graph(Machine);
+
         public Graph Create(string value) => new Graph(Machine, value);
 
         public Graph Create(StringConst text) => Create(text.Value);
+
+        public Graph Create(IMatch match) => new Graph(Machine, match);
 
         public int MarkEnd(string tokenName, Identifier attr = null)
         {
@@ -109,7 +122,7 @@ namespace Opal.Nfa
         /// <param name="g"></param>
         public Graph Concatenate(Graph g)
         {
-            Machine.Nodes.SetRight(end, g.Start);
+            Node(end).Right = g.Start;
             end = g.end;
             return this;
         }
@@ -130,10 +143,11 @@ namespace Opal.Nfa
         {
             var nodes = Machine.Nodes;
             Start = nodes.Create(Start, g.Start);
-            var end = nodes.CreateEnd();
-            nodes.SetRight(this.end, end);
-            nodes.SetRight(g.end, end);
-            this.end = end;
+            var newEnd = nodes.CreateEnd();
+
+            Node(end).Right = newEnd;
+            Node(g.end).Right = newEnd;
+            end = newEnd;
             return this;
         }
 
@@ -334,5 +348,8 @@ namespace Opal.Nfa
             }
             return result.ToString();
         }
+
+        private ref NfaNode Node(int index) =>
+            ref Machine.Nodes[index];
     }
 }
