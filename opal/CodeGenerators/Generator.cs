@@ -69,7 +69,7 @@ namespace Generators
             return this;
         }
 
-        public IGenerator Write(char value)
+        public Generator Write(char value)
         {
             if ((value == '\r') || (value == '\n'))
             {
@@ -82,6 +82,8 @@ namespace Generators
             _stream.Write(value);
             return this;
         }
+
+        IGenerator IGenerator.Write(char value) => Write(value);
 
         public IGenerator Write(string format, params object[] args)
         {

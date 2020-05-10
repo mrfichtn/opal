@@ -1,8 +1,5 @@
 ﻿using Generators;
-using Opal.ParseTree;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Opal.ParseTree
@@ -131,7 +128,7 @@ namespace Opal.ParseTree
                 generator.Write("state = _stack.Push({0}, ", Id);
 
             if (Action != null)
-                Action.Write(generator, parent, this, true);
+                Action.Write(new ActionWriteContext(generator, parent, this, true));
             else
                 WriteAttributed(generator, parent, option);
 

@@ -62,7 +62,7 @@ namespace Generators
                 result = '\0';
                 isOk = false;
             }
-            if (text.Length == 2)
+            else if (text.Length == 2)
             {
                 result = '\0';
             }
@@ -81,13 +81,14 @@ namespace Generators
                     }
                     else
                     {
+                        result = '\0';
                         for (var i = 3; i < text.Length - 2; i++)
                         {
                             var ch = text[i];
                             isOk = FromHexDigit(ch, out int value);
                             if (isOk)
                                 break;
-                            ch = (char)((ch << 4) + value);
+                            result = (char)((ch << 4) + value);
                         }
                     }
                 }
@@ -106,7 +107,7 @@ namespace Generators
                             isOk = FromHexDigit(ch, out int value);
                             if (isOk)
                                 break;
-                            ch = (char)((ch << 4) + value);
+                            result = (char)((ch << 4) + value);
                         }
                     }
                 }
@@ -184,6 +185,12 @@ namespace Generators
 			foreach (var ch in text)
                 result.AppendEsc(ch);
 		}
+
+        public static StringBuilder AppendEsc(this StringBuilder builder, string text)
+        {
+            text.ToEsc(builder);
+            return builder;
+        }
 
         public static bool FromHexDigit(char ch, out int value)
         {

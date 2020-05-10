@@ -41,25 +41,5 @@ namespace Generators
             return generator.Write(value.ToString());
         }
 
-        public static Generator WriteEsc(this Generator generator, string value)
-        {
-            if (value == null)
-            {
-                generator.Write("null");
-            }
-            else if (value.Length == 0)
-            {
-                generator.Write("\"\"");
-            }
-            else
-            {
-                var builder = new StringBuilder();
-                builder.Append('\"');
-                value.ToEsc(builder);
-                builder.Append('\"');
-                generator.Write(builder.ToString());
-            }
-            return generator;
-        }
     }
 }
