@@ -32,7 +32,7 @@ namespace Generators
                 return text;
 
             var builder = new StringBuilder();
-            for (int i = 1; i < text.Length - 1; i++)
+            for (var i = 1; i < text.Length - 1; i++)
             {
                 var ch = text[i];
                 if (ch == '\\')
@@ -126,12 +126,8 @@ namespace Generators
             return isOk;
         }
 
-		public static string ToEsc(this string text)
-		{
-			var builder = new StringBuilder();
-			ToEsc(text, builder);
-			return builder.ToString();
-		}
+		public static string ToEsc(this string text) =>
+            new StringBuilder().AppendEsc(text).ToString();
 
         public static StringBuilder AppendEsc(this StringBuilder builder, char ch)
         {
@@ -180,30 +176,25 @@ namespace Generators
             return generator;
         }
 
-        public static void ToEsc(this string text, StringBuilder result)
-		{
-			foreach (var ch in text)
-                result.AppendEsc(ch);
-		}
-
         public static StringBuilder AppendEsc(this StringBuilder builder, string text)
         {
-            text.ToEsc(builder);
+            foreach (var ch in text)
+                builder.AppendEsc(ch);
             return builder;
         }
 
         public static bool FromHexDigit(char ch, out int value)
         {
             var result = true;
-            if (ch >= '0' || ch <= '9')
+            if (ch >= '0' && ch <= '9')
             {
-                value = ch;
+                value = ch - '0';
             }
-            else if (ch >= 'a' || ch <= 'f')
+            else if (ch >= 'a' && ch <= 'f')
             {
                 value = ch - 'a' + 0xA;
             }
-            else if (ch >= 'A' || ch <= 'F')
+            else if (ch >= 'A' && ch <= 'F')
             {
                 value = ch - 'A' + 0xA;
             }

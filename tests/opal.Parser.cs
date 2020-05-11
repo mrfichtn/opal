@@ -139,7 +139,7 @@ namespace Opal
 				case 4: // using_decl = "using" Identifier ";";
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(38, AddNamespace((Identifier)_stack[1]));
+					    .Reduce(38, AddNamespace(_stack[1]));
 					break;
 				}
 				case 5: // namespace_section = ;
@@ -179,7 +179,7 @@ namespace Opal
 				case 11: // option = identifier "=" String;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(41, AddOption((Token)_stack[0],(StringConst) _stack[2]));
+					    .Reduce(41, AddOption(_stack[0],(StringConst) _stack[2]));
 					break;
 				}
 				case 12: // characters_section = ;
@@ -196,19 +196,19 @@ namespace Opal
 				case 14: // character_expr = character_pair;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(43, Add((NamedCharClass)_stack[0]));
+					    .Reduce(43, Add(_stack[0]));
 					break;
 				}
 				case 15: // character_expr = character_expr character_pair;
 				{
 					state = _stack.SetItems(2)
-					    .Reduce(43, Add((NamedCharClass)_stack[1]));
+					    .Reduce(43, Add(_stack[1]));
 					break;
 				}
 				case 16: // character_pair = identifier "=" char_class_concat;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(44, new NamedCharClass((Token)_stack[0],(IMatch) _stack[2]));
+					    .Reduce(44, new NamedCharClass(_stack[0],(IMatch) _stack[2]));
 					break;
 				}
 				case 17: // char_class_concat = char_class_unary;
@@ -220,13 +220,13 @@ namespace Opal
 				case 18: // char_class_concat = char_class_concat "+" char_class_unary;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(45, Match.Union((IMatch) _stack[0],(Token)_stack[1],(IMatch) _stack[2]));
+					    .Reduce(45, Match.Union((IMatch) _stack[0],_stack[1],(IMatch) _stack[2]));
 					break;
 				}
 				case 19: // char_class_concat = char_class_concat "-" char_class_unary;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(45, Match.Difference((IMatch) _stack[0],(Token)_stack[1],(IMatch) _stack[2]));
+					    .Reduce(45, Match.Difference((IMatch) _stack[0],_stack[1],(IMatch) _stack[2]));
 					break;
 				}
 				case 20: // char_class_unary = char_class_primary;
@@ -238,7 +238,7 @@ namespace Opal
 				case 21: // char_class_unary = "!" char_class_unary;
 				{
 					state = _stack.SetItems(2)
-					    .Reduce(46, Match.Invert((Token)_stack[0],(IMatch) _stack[1]));
+					    .Reduce(46, Match.Invert(_stack[0],(IMatch) _stack[1]));
 					break;
 				}
 				case 22: // char_class_primary = CharClass;
@@ -250,7 +250,7 @@ namespace Opal
 				case 23: // char_class_primary = identifier;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(47, FindCharClass((Token)_stack[0]));
+					    .Reduce(47, FindCharClass(_stack[0]));
 					break;
 				}
 				case 24: // char_class_primary = Char;
@@ -285,7 +285,7 @@ namespace Opal
 				case 29: // token = identifier token_attr "=" token_expr ";";
 				{
 					state = _stack.SetItems(5)
-					    .Reduce(51, Graph.MarkEnd((Token)_stack[0],(Token) _stack[1],(Graph) _stack[3]));
+					    .Reduce(51, Graph.MarkEnd(_stack[0],(Token) _stack[1],(Graph) _stack[3]));
 					break;
 				}
 				case 30: // token_attr = ;
@@ -356,7 +356,7 @@ namespace Opal
 				case 41: // token_primary = identifier;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(55, CreateGraph(FindCharClass((Token)_stack[0])));
+					    .Reduce(55, CreateGraph(FindCharClass(_stack[0])));
 					break;
 				}
 				case 42: // token_primary = Char;
@@ -386,7 +386,7 @@ namespace Opal
 				case 46: // production_section = "Productions" identifier prod_list;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(37, _productions.SetLanguage((Token)_stack[1]));
+					    .Reduce(37, _productions.SetLanguage(_stack[1]));
 					break;
 				}
 				case 47: // prod_list = ;
@@ -403,7 +403,7 @@ namespace Opal
 				case 49: // production = identifier production_attr "=" prod_def_list;
 				{
 					state = _stack.SetItems(4)
-					    .Reduce(58, _productions.Add((Token)_stack[0],(ProductionAttr)_stack[1],(ProdDefList) _stack[3]));
+					    .Reduce(58, _productions.Add(_stack[0],_stack[1],(ProdDefList) _stack[3]));
 					break;
 				}
 				case 50: // production_attr = ;
@@ -414,7 +414,7 @@ namespace Opal
 				case 51: // production_attr = "<" Identifier func_opt ">";
 				{
 					state = _stack.SetItems(4)
-					    .Reduce(59, new ProductionAttr((Identifier)_stack[1],(FuncOption)_stack[2]));
+					    .Reduce(59, new ProductionAttr(_stack[1],_stack[2]));
 					break;
 				}
 				case 52: // func_opt = ;
@@ -442,13 +442,13 @@ namespace Opal
 				case 56: // prod_def_list = prod_def_start prod_exprs ";";
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(60, ProdDefList.Add((ProdDefList)_stack[0],(ProductionExprs)_stack[1]));
+					    .Reduce(60, ProdDefList.Add(_stack[0],_stack[1]));
 					break;
 				}
 				case 57: // prod_def_list = prod_def_start prod_def;
 				{
 					state = _stack.SetItems(2)
-					    .Reduce(60, ProdDefList.Add((ProdDefList)_stack[0],(ProdDef)_stack[1]));
+					    .Reduce(60, ProdDefList.Add(_stack[0],_stack[1]));
 					break;
 				}
 				case 58: // prod_def_start = ;
@@ -459,19 +459,19 @@ namespace Opal
 				case 59: // prod_def_start = prod_def_start prod_exprs "|";
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(63, ProdDefList.Add((ProdDefList)_stack[0],(ProductionExprs)_stack[1]));
+					    .Reduce(63, ProdDefList.Add(_stack[0],_stack[1]));
 					break;
 				}
 				case 60: // prod_def_start = prod_def_start prod_def "|";
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(63, ProdDefList.Add((ProdDefList)_stack[0],(ProdDef)_stack[1]));
+					    .Reduce(63, ProdDefList.Add(_stack[0],_stack[1]));
 					break;
 				}
 				case 61: // prod_def = prod_exprs prod_action optional_semicolon;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(65, new ProdDef((ProductionExprs)_stack[0],(ActionExpr) _stack[1]));
+					    .Reduce(65, new ProdDef(_stack[0],(ActionExpr) _stack[1]));
 					break;
 				}
 				case 62: // optional_semicolon = ;
@@ -493,7 +493,7 @@ namespace Opal
 				case 65: // prod_exprs = prod_exprs prod_expr;
 				{
 					state = _stack.SetItems(2)
-					    .Reduce(64, ProductionExprs.Add((ProductionExprs)_stack[0],(ProductionExpr) _stack[1]));
+					    .Reduce(64, ProductionExprs.Add(_stack[0],(ProductionExpr) _stack[1]));
 					break;
 				}
 				case 66: // prod_expr = prod_expr_primary production_attr;
@@ -505,7 +505,7 @@ namespace Opal
 				case 67: // prod_expr_primary = identifier;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(69, new SymbolProd((Token)_stack[0]));
+					    .Reduce(69, new SymbolProd(_stack[0]));
 					break;
 				}
 				case 68: // prod_expr_primary = String;
@@ -540,13 +540,13 @@ namespace Opal
 				case 73: // action_expr = "new" type "(" action_args ")";
 				{
 					state = _stack.SetItems(5)
-					    .Reduce(71, new ActionNewExpr((Identifier) _stack[1],(ActionArgs)_stack[3]));
+					    .Reduce(71, new ActionNewExpr((Identifier) _stack[1],_stack[3]));
 					break;
 				}
 				case 74: // action_expr = Identifier "(" action_args ")";
 				{
 					state = _stack.SetItems(4)
-					    .Reduce(71, new ActionFuncExpr((Identifier)_stack[0],(ActionArgs)_stack[2]));
+					    .Reduce(71, new ActionFuncExpr(_stack[0],_stack[2]));
 					break;
 				}
 				case 75: // action_expr = action_primary_expr;
@@ -569,25 +569,25 @@ namespace Opal
 				case 78: // action_args = action_args "," action_expr;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(73, ActionArgs.Add((ActionArgs)_stack[0],(ActionExpr) _stack[2]));
+					    .Reduce(73, ActionArgs.Add(_stack[0],(ActionExpr) _stack[2]));
 					break;
 				}
 				case 79: // action_primary_expr = arg action_cast;
 				{
 					state = _stack.SetItems(2)
-					    .Reduce(74, new ActionArg((Token)_stack[0],(Identifier) _stack[1]));
+					    .Reduce(74, new ActionArg(_stack[0],(Identifier) _stack[1]));
 					break;
 				}
 				case 80: // action_primary_expr = Identifier;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(74, new ActionMember((Identifier)_stack[0]));
+					    .Reduce(74, new ActionMember(_stack[0]));
 					break;
 				}
 				case 81: // action_primary_expr = Integer;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(74, new ActionIntConstant((DecInteger)_stack[0]));
+					    .Reduce(74, new ActionIntConstant(_stack[0]));
 					break;
 				}
 				case 82: // action_primary_expr = String;
@@ -628,31 +628,31 @@ namespace Opal
 				case 88: // generic_args = generic_args "," type;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(76, GenericArgs.Add((GenericArgs)_stack[0],(Identifier) _stack[2]));
+					    .Reduce(76, GenericArgs.Add(_stack[0],(Identifier) _stack[2]));
 					break;
 				}
 				case 89: // Identifier = Identifier "." identifier;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(39, Identifier.Add((Identifier)_stack[0],(Token)_stack[2]));
+					    .Reduce(39, Identifier.Add(_stack[0],_stack[2]));
 					break;
 				}
 				case 90: // Identifier = identifier;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(39, new Identifier((Token)_stack[0]));
+					    .Reduce(39, new Identifier(_stack[0]));
 					break;
 				}
 				case 91: // CharClass = char_class;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(48, new CharClass((Token)_stack[0]));
+					    .Reduce(48, new CharClass(_stack[0]));
 					break;
 				}
 				case 92: // Char = char_string;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(49, new EscChar((Token)_stack[0]));
+					    .Reduce(49, new EscChar(_stack[0]));
 					break;
 				}
 				case 93: // String = EscString;
@@ -664,13 +664,13 @@ namespace Opal
 				case 94: // EscString = string;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(77, new EscString((Token)_stack[0]));
+					    .Reduce(77, new EscString(_stack[0]));
 					break;
 				}
 				case 95: // Integer = integer;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(56, new DecInteger((Token)_stack[0]));
+					    .Reduce(56, new DecInteger(_stack[0]));
 					break;
 				}
 	
@@ -1017,17 +1017,6 @@ namespace Opal
 	
 		#endregion
 		
-	    /// <summary>
-	    /// Called by reduction for an invalid, extra token
-	    /// </summary>
-	    /// <param name="t">Invalid token</param>
-	    /// <param name="result">Value to return</param>
-	    /// <returns>Result that allows parser to correctly</returns>
-	    private object InvalidToken(Token t, object result)
-	    {
-	        _logger.LogError(t, "unexpected token {0}", t.Value);
-	        return result;
-	    }
 	
 	    private bool TryRecover(ref Token token, bool suppress)
 	    {
