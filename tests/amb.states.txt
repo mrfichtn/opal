@@ -1,0 +1,180 @@
+S0
+    S': · language, ＄ => 1
+    language: · statements, ＄ => 2
+    statements: ·, ＄
+    statements: ·, @print
+    statements: ·, @if
+    statements: · statements statement, ＄ => 2
+    statements: · statements statement, @print => 2
+    statements: · statements statement, @if => 2
+
+S1: (Transition = language)
+    S': language ·, ＄
+
+S2: (Transition = statements)
+    language: statements ·, ＄
+    statements: statements · statement, ＄ => 3
+    statements: statements · statement, @print => 3
+    statements: statements · statement, @if => 3
+    statement: · @print, ＄ => 4
+    statement: · @print, @print => 4
+    statement: · @print, @if => 4
+    statement: · @if expr statement, ＄ => 5
+    statement: · @if expr statement, @print => 5
+    statement: · @if expr statement, @if => 5
+    statement: · @if expr statement @else statement, ＄ => 5
+    statement: · @if expr statement @else statement, @print => 5
+    statement: · @if expr statement @else statement, @if => 5
+
+S3: (Transition = statement)
+    statements: statements statement ·, ＄
+    statements: statements statement ·, @print
+    statements: statements statement ·, @if
+
+S4: (Transition = @print)
+    statement: @print ·, ＄
+    statement: @print ·, @print
+    statement: @print ·, @if
+
+S5: (Transition = @if)
+    statement: @if · expr statement, ＄ => 6
+    statement: @if · expr statement, @print => 6
+    statement: @if · expr statement, @if => 6
+    statement: @if · expr statement @else statement, ＄ => 6
+    statement: @if · expr statement @else statement, @print => 6
+    statement: @if · expr statement @else statement, @if => 6
+    expr: · 1, @print => 7
+    expr: · 1, @if => 7
+    expr: · 0, @print => 8
+    expr: · 0, @if => 8
+
+S6: (Transition = expr)
+    statement: · @print, ＄ => 10
+    statement: · @print, @print => 10
+    statement: · @print, @if => 10
+    statement: · @print, @else => 10
+    statement: · @if expr statement, ＄ => 11
+    statement: · @if expr statement, @print => 11
+    statement: · @if expr statement, @if => 11
+    statement: · @if expr statement, @else => 11
+    statement: @if expr · statement, ＄ => 9
+    statement: @if expr · statement, @print => 9
+    statement: @if expr · statement, @if => 9
+    statement: · @if expr statement @else statement, ＄ => 11
+    statement: · @if expr statement @else statement, @print => 11
+    statement: · @if expr statement @else statement, @if => 11
+    statement: · @if expr statement @else statement, @else => 11
+    statement: @if expr · statement @else statement, ＄ => 9
+    statement: @if expr · statement @else statement, @print => 9
+    statement: @if expr · statement @else statement, @if => 9
+
+S7: (Transition = 1)
+    expr: 1 ·, @print
+    expr: 1 ·, @if
+
+S8: (Transition = 0)
+    expr: 0 ·, @print
+    expr: 0 ·, @if
+
+S9: (Transition = statement)
+    statement: @if expr statement ·, ＄
+    statement: @if expr statement ·, @print
+    statement: @if expr statement ·, @if
+    statement: @if expr statement · @else statement, ＄ => 12
+    statement: @if expr statement · @else statement, @print => 12
+    statement: @if expr statement · @else statement, @if => 12
+
+S10: (Transition = @print)
+    statement: @print ·, ＄
+    statement: @print ·, @print
+    statement: @print ·, @if
+    statement: @print ·, @else
+
+S11: (Transition = @if)
+    statement: @if · expr statement, ＄ => 13
+    statement: @if · expr statement, @print => 13
+    statement: @if · expr statement, @if => 13
+    statement: @if · expr statement, @else => 13
+    statement: @if · expr statement @else statement, ＄ => 13
+    statement: @if · expr statement @else statement, @print => 13
+    statement: @if · expr statement @else statement, @if => 13
+    statement: @if · expr statement @else statement, @else => 13
+    expr: · 1, @print => 7
+    expr: · 1, @if => 7
+    expr: · 0, @print => 8
+    expr: · 0, @if => 8
+
+S12: (Transition = @else)
+    statement: · @print, ＄ => 4
+    statement: · @print, @print => 4
+    statement: · @print, @if => 4
+    statement: · @if expr statement, ＄ => 5
+    statement: · @if expr statement, @print => 5
+    statement: · @if expr statement, @if => 5
+    statement: · @if expr statement @else statement, ＄ => 5
+    statement: · @if expr statement @else statement, @print => 5
+    statement: · @if expr statement @else statement, @if => 5
+    statement: @if expr statement @else · statement, ＄ => 14
+    statement: @if expr statement @else · statement, @print => 14
+    statement: @if expr statement @else · statement, @if => 14
+
+S13: (Transition = expr)
+    statement: · @print, ＄ => 10
+    statement: · @print, @print => 10
+    statement: · @print, @if => 10
+    statement: · @print, @else => 10
+    statement: · @if expr statement, ＄ => 11
+    statement: · @if expr statement, @print => 11
+    statement: · @if expr statement, @if => 11
+    statement: · @if expr statement, @else => 11
+    statement: @if expr · statement, ＄ => 15
+    statement: @if expr · statement, @print => 15
+    statement: @if expr · statement, @if => 15
+    statement: @if expr · statement, @else => 15
+    statement: · @if expr statement @else statement, ＄ => 11
+    statement: · @if expr statement @else statement, @print => 11
+    statement: · @if expr statement @else statement, @if => 11
+    statement: · @if expr statement @else statement, @else => 11
+    statement: @if expr · statement @else statement, ＄ => 15
+    statement: @if expr · statement @else statement, @print => 15
+    statement: @if expr · statement @else statement, @if => 15
+    statement: @if expr · statement @else statement, @else => 15
+
+S14: (Transition = statement)
+    statement: @if expr statement @else statement ·, ＄
+    statement: @if expr statement @else statement ·, @print
+    statement: @if expr statement @else statement ·, @if
+
+S15: (Transition = statement)
+    statement: @if expr statement ·, ＄
+    statement: @if expr statement ·, @print
+    statement: @if expr statement ·, @if
+    statement: @if expr statement ·, @else
+    statement: @if expr statement · @else statement, ＄ => 16
+    statement: @if expr statement · @else statement, @print => 16
+    statement: @if expr statement · @else statement, @if => 16
+    statement: @if expr statement · @else statement, @else => 16
+
+S16: (Transition = @else)
+    statement: · @print, ＄ => 10
+    statement: · @print, @print => 10
+    statement: · @print, @if => 10
+    statement: · @print, @else => 10
+    statement: · @if expr statement, ＄ => 11
+    statement: · @if expr statement, @print => 11
+    statement: · @if expr statement, @if => 11
+    statement: · @if expr statement, @else => 11
+    statement: · @if expr statement @else statement, ＄ => 11
+    statement: · @if expr statement @else statement, @print => 11
+    statement: · @if expr statement @else statement, @if => 11
+    statement: · @if expr statement @else statement, @else => 11
+    statement: @if expr statement @else · statement, ＄ => 17
+    statement: @if expr statement @else · statement, @print => 17
+    statement: @if expr statement @else · statement, @if => 17
+    statement: @if expr statement @else · statement, @else => 17
+
+S17: (Transition = statement)
+    statement: @if expr statement @else statement ·, ＄
+    statement: @if expr statement @else statement ·, @print
+    statement: @if expr statement @else statement ·, @if
+    statement: @if expr statement @else statement ·, @else

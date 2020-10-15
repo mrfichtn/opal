@@ -16,7 +16,7 @@ namespace Opal.Nfa
         IMatch Invert(Token t);
         IMatch Reduce();
         bool IsMatch(char ch);
-        IMatch Intersect(IMatch match);
+        IMatch? Intersect(IMatch match);
         IMatch Difference(IMatch match);
         IMatch Union(IMatch match);
         void Write(IGenerator generator, string varName);

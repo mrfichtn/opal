@@ -22,6 +22,6 @@ namespace Opal.ParseTree
 
         public Identifier Option { get; }
         public bool IsMethod { get; }
-        public Identifier ArgType { get; }
+        public Identifier? ArgType { get; }
     }
 }

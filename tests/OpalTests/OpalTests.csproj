@@ -58,7 +58,9 @@
     <Compile Include="Expr.cs" />
     <Compile Include="FileBuffer.cs" />
     <Compile Include="CalcTests.cs" />
+    <Compile Include="GeneratorTests.cs" />
     <Compile Include="GraphTestExt.cs" />
+    <Compile Include="LRTests.cs" />
     <Compile Include="Mocks\LoggerMock.cs" />
     <Compile Include="NfaArray.cs" />
     <Compile Include="NfaTests.cs" />

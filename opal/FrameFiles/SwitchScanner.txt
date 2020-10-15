@@ -1,15 +1,16 @@
 ﻿public class Scanner: IDisposable
 {
-    private readonly IBuffer _buffer;
     public const int Eof = -1;
-    private int _ch;
-    private int _line;
-	private int _column;
 
-	private int _lastAcceptingState;
-    private int _lastAcceptingPosition;
-    private int _lastLine;
-    private int _lastColumn;
+    private readonly IBuffer buffer;
+    private int ch;
+    private int line;
+	private int column;
+
+	private int lastAcceptingState;
+    private int lastAcceptingPosition;
+    private int lastLine;
+    private int lastColumn;
 
     public Scanner(string source, int line = 1, int column = 0)
 		: this(new StringBuffer(source), line, column) 
@@ -17,9 +18,9 @@
 
     public Scanner(IBuffer buffer, int line = 1, int column = 0)
     {
-        _buffer = buffer;
-        _line = line;
-        _column = column;
+        this.buffer = buffer;
+        this.line = line;
+        this.column = column;
         NextChar();
     }
 
@@ -29,10 +30,7 @@
 		return new Scanner(text, line, column);
 	}
 
-	public void Dispose()
-	{
-		_buffer.Dispose();
-	}
+	public void Dispose() => buffer.Dispose();
 
     public string FilePath { get; private set; }
 
@@ -40,57 +38,54 @@
     public Token NextToken()
     {
         Token token;
-        do
-        {
-            token = RawNextToken();
-        } while (token.State < TokenStates.SyntaxError);
-
+        do { token = RawNextToken(); } 
+        while (token.State < TokenStates.SyntaxError);
         return token;
     }
        
 	Token RawNextToken()
 	{
         Token token;
-		if (_ch == Eof)
+		if (ch == Eof)
 		{
-            token = new Token(_line, _column, _buffer.Position);
+            token = new Token(line, column, buffer.Position);
             MarkAccepting(TokenStates.Empty);
 			goto EndState;
 		}
-        token = new Token(_line, _column, _buffer.Position - 1);
+        token = new Token(line, column, buffer.Position - 1);
 		MarkAccepting(TokenStates.SyntaxError);
 
 (. dfa.states .)
 	EndState:
-		if (_lastAcceptingState == TokenStates.SyntaxError)
+		if (lastAcceptingState == TokenStates.SyntaxError)
 		{
-			_lastAcceptingPosition = _buffer.Position - 1;
-			_lastAcceptingState = -1;
+			lastAcceptingPosition = buffer.Position - 1;
+			lastAcceptingState = -1;
 		}
-		var value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
-		token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
-		if (_buffer.Position != _lastAcceptingPosition)
+		var value = buffer.GetString(token.Beg, lastAcceptingPosition);
+		token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
+		if (buffer.Position != lastAcceptingPosition)
 		{
-			_buffer.Position = _lastAcceptingPosition;
-			_line = _lastLine;
-			_column = _lastColumn;
+			buffer.Position = lastAcceptingPosition;
+			line = lastLine;
+			column = lastColumn;
 			NextChar();
 		}
 		return token;
 
     EndState2:
-		value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
-		token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+		value = buffer.GetString(token.Beg, lastAcceptingPosition);
+		token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
 		NextChar();
 		return token;
 	}
 
     void MarkAccepting(int type)
     {
-        _lastAcceptingState = type;
-        _lastAcceptingPosition = _buffer.Position;
-        _lastLine = _line;
-        _lastColumn = _column;
+        lastAcceptingState = type;
+        lastAcceptingPosition = buffer.Position;
+        lastLine = line;
+        lastColumn = column;
     }
 
     /// <summary>
@@ -98,22 +93,22 @@
     /// </summary>
     private void NextChar()
     {
-        _ch = _buffer.Read();
-        if (_ch == '\n')
+        ch = buffer.Read();
+        if (ch == '\n')
         {
-            ++_line;
-            _column = 0;
+            ++line;
+            column = 0;
         }
         //Normalize \r\n -> \n
-        else if (_ch == '\r' && _buffer.Peek() == '\n')
+        else if (ch == '\r' && buffer.Peek() == '\n')
         {
-            _ch = _buffer.Read();
-            ++_line;
-            _column = 0;
+            ch = buffer.Read();
+            ++line;
+            column = 0;
         }
         else
         { 
-            ++_column;
+            ++column;
         }
     }
 }

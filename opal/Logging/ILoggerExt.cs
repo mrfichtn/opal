@@ -4,7 +4,9 @@
     {
         public static void LogMessage(this ILogger logger, string message, params object[] messageArgs)
         {
-            logger.LogMessage((Opal.Importance) Importance.Normal, message, messageArgs);
+            logger.LogMessage(Importance.Normal, 
+                message, 
+                messageArgs);
         }
         
         /// <summary>
@@ -18,9 +20,23 @@
         /// <param name="message">The message.</param>
         /// <param name="messageArgs">Optional arguments for formatting the message string.</param>
         /// <exception cref="System.ArgumentNullException">message is null</exception>
-        public static void LogError(this ILogger logger, int lineNumber, int columnNumber, int endLineNumber, int endColumnNumber, string message, params object[] messageArgs)
+        public static void LogError(this ILogger logger, 
+            int lineNumber, 
+            int columnNumber, 
+            int endLineNumber, 
+            int endColumnNumber, 
+            string message, 
+            params object[] messageArgs)
         {
-            logger.LogError(null, null, null, lineNumber, columnNumber, endLineNumber, endColumnNumber, message, messageArgs);
+            logger.LogError(null, 
+                null, 
+                null, 
+                lineNumber, 
+                columnNumber, 
+                endLineNumber, 
+                endColumnNumber, 
+                message, 
+                messageArgs);
         }
 
         /// <summary>
@@ -31,7 +47,10 @@
         /// <param name="message">The message.</param>
         /// <param name="messageArgs">Optional arguments for formatting the message string.</param>
         /// <exception cref="System.ArgumentNullException">message is null</exception>
-        public static void LogError(this ILogger logger, Segment segment, string message, params object[] messageArgs)
+        public static void LogError(this ILogger logger, 
+            Segment segment, 
+            string message, 
+            params object[] messageArgs)
         {
             logger.LogError(segment.Start.Ln, segment.Start.Col, segment.End.Ln, segment.End.Col, message, messageArgs);
         }
@@ -47,9 +66,23 @@
         /// <param name="message">The message.</param>
         /// <param name="messageArgs">Optional arguments for formatting the message string.</param>
         /// <exception cref="System.ArgumentNullException">message is null</exception>
-        public static void LogWarning(this ILogger logger, int lineNumber, int columnNumber, int endLineNumber, int endColumnNumber, string message, params object[] messageArgs)
+        public static void LogWarning(this ILogger logger, 
+            int lineNumber, 
+            int columnNumber, 
+            int endLineNumber, 
+            int endColumnNumber, 
+            string message, 
+            params object[] messageArgs)
         {
-            logger.LogWarning(null, null, null, lineNumber, columnNumber, endLineNumber, endColumnNumber, message, messageArgs);
+            logger.LogWarning(null, 
+                null, 
+                null, 
+                lineNumber, 
+                columnNumber, 
+                endLineNumber, 
+                endColumnNumber, 
+                message, 
+                messageArgs);
         }
 
         /// <summary>
@@ -59,11 +92,17 @@
         /// <param name="message">The message.</param>
         /// <param name="messageArgs">Optional arguments for formatting the message string.</param>
         /// <exception cref="System.ArgumentNullException">message is null</exception>
-        public static void LogWarning(this ILogger logger, Segment segment, string message, params object[] messageArgs)
+        public static void LogWarning(this ILogger logger, 
+            Segment segment, 
+            string message, 
+            params object[] messageArgs)
         {
-            logger.LogWarning(segment.Start.Ln, segment.Start.Col, segment.End.Ln, segment.End.Col, message, messageArgs);
+            logger.LogWarning(segment.Start.Ln, 
+                segment.Start.Col, 
+                segment.End.Ln, 
+                segment.End.Col, 
+                message, 
+                messageArgs);
         }
-
-
     }
 }

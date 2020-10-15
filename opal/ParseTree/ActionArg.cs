@@ -24,7 +24,7 @@ namespace Opal.ParseTree
             Cast = cast;
         }
 
-        public Identifier Cast { get; private set; }
+        public Identifier? Cast { get; private set; }
 
         /// <summary>
         /// True if written from production
@@ -41,6 +41,9 @@ namespace Opal.ParseTree
             //If true, appends .Value to token to access token value
             //  (production type is token and the user specified a 'string' cast)
             var tokenValue = false;
+
+            context.Write("At");
+
             if (Cast == null)
                 NoCast(context, productionType);
             else if (Cast.Value == "string")
@@ -48,34 +51,34 @@ namespace Opal.ParseTree
             else if (Cast.Value != "object")
                 ObjectCast(context);
             
-            context.Write("_stack[{0}]", position)
-                .WriteIf(tokenValue, ").Value");
+            context.Write($"({position})")
+                .WriteIf(tokenValue, ".Value");
         }
 
-        public void NoCast(ActionWriteContext context, string productionType)
+        public void NoCast(ActionWriteContext context, string? productionType)
         {
             if ((productionType != null) && !context.Root)
-                context.Write("({0})", productionType);
+                context.Write("<{0}>", productionType);
         }
-        public bool StringCast(ActionWriteContext context, string productionType)
+        public bool StringCast(ActionWriteContext context, string? productionType)
         {
-            context.Write('(');
+            context.Write('<');
             var tokenValue = (productionType == "Token");
             if (tokenValue)
-                context.Write('(').Write(productionType);
+                context.Write(productionType!);
             else
-                context.Write(Cast);
-            context.Write(')');
+                context.Write(Cast!);
+            context.Write('>');
             return tokenValue;
         }
 
         public void ObjectCast(ActionWriteContext context) =>
-            context.Write('(').Write(Cast).Write(") ");
+            context.Write('<').Write(Cast!).Write(">");
 
         public override string ToString() =>
             new StringBuilder('$')
                 .Append(position)
-                .AppendIf(Cast != null, Cast.Value)
+                .AppendIf(Cast != null, Cast!.Value)
                 .ToString();
     }
 }

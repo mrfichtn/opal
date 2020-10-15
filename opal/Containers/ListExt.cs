@@ -7,7 +7,7 @@ namespace Opal.Containers
         public static bool TryGetValue<T>(this IList<T> list, int index, out T item)
         {
             var isOk = ((index >= 0) && (index < list.Count));
-            item = isOk ? list[index] : default;
+            item = isOk ? list[index] : default!;
             return isOk;
         }
 

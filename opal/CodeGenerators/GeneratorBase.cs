@@ -29,7 +29,7 @@ namespace Generators
         }
 
         public GeneratorBase(GeneratorBase generator)
-            : this(generator?._stream, false)
+            : this(generator._stream, false)
         {
             _indent = generator._indent;
             _indented = generator._indented;
@@ -65,7 +65,7 @@ namespace Generators
             return _stream.ToString();
         }
 
-        protected void WriteIndent()
+        public void WriteIndent()
         {
             if (_indented == false)
             {

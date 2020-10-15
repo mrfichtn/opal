@@ -45,7 +45,7 @@ namespace Opal.ParseTree
         }
 
 		#region Properties
-        public Identifier Language { get; private set; }
+        public Identifier? Language { get; private set; }
         public int TerminalCount { get; private set; }
         public int SymbolCount => Symbols.Count;
         public Index<string> Symbols { get; }
@@ -216,9 +216,12 @@ namespace Opal.ParseTree
 
         private void Reduce(ILogger logger)
 		{
+            if (Language == null)
+                return;
+
+            var start = Language.Value;
             var notFound = new HashSet<string>(this.Select(x => x.Left.Value));
             var prods = new HashSet<int>(Enumerable.Range(0, Count));
-            var start = Language.Value;
             notFound.Remove(start);
             var stack = new Stack<Production>(this.Where(x => x.Left.Value == start));
             while (stack.Count > 0)

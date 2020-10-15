@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{57D0DC39-872C-487D-81A5-33F97D599D20}"
 	ProjectSection(SolutionItems) = preProject
+		tests\amb.txt = tests\amb.txt
 		tests\calc-amb.txt = tests\calc-amb.txt
 		tests\calc.txt = tests\calc.txt
 		tests\no-lex.txt = tests\no-lex.txt

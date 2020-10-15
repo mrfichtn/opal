@@ -6,16 +6,24 @@
 
   <ItemGroup>
     <Opal Include="opal.txt" />
+    <Opal Include="..\tests\amb.txt" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="amb.cs">
+      <DependentUpon>..\tests\amb.txt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <UsingTask TaskName="Opal.OpalTask" AssemblyFile="..\opal\pub\opal.exe" />
+  <UsingTask TaskName="Opal.OpalTask" AssemblyFile="d:\src\opal\opal\bin\debug\net471\opal.exe" />
   <Target Name="OpalCompile" BeforeTargets="CoreBuild">
-    <OpalTask Input="@(Opal)" Namespace="$(RootNamespace)"  Outputs="%(Opal.Filename).cs" />
+    <OpalTask Input="@(Opal)" Outputs="%(Opal.Filename).cs" />
   </Target>
 
+  
   <!--<Import Project="..\opal\opal\pub\opal.targets" />-->
 </Project>

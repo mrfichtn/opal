@@ -1,0 +1,21 @@
+Symbols:
+[0] = (T)
+[1] = @print(T)
+[2] = @if(T)
+[3] = @else(T)
+[4] = 1(T)
+[5] = 0(T)
+[6] = language
+[7] = statements
+[8] = statement
+[9] = expr
+
+R0: S' -> language
+R1: language -> statements
+R2: statements ->
+R3: statements -> statements statement
+R4: statement -> @print
+R5: statement -> @if expr statement
+R6: statement -> @if expr statement @else statement
+R7: expr -> 1
+R8: expr -> 0

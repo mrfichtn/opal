@@ -11,7 +11,7 @@ namespace Generators
         void EndNamespace(string name);
         
         void StartClass(string name, AccessSpecifier specifier, ClassFlags flags = ClassFlags.None, 
-            IList<string> superClasses = null);
+            IList<string>? superClasses = null);
         void EndClass();
 
         void WriteInterfaceProp(string type, string name, PropertyAccess access = PropertyAccess.Both);
@@ -24,7 +24,7 @@ namespace Generators
         void StartMethod(string retType, string name, AccessSpecifier specifier, bool isStatic, params string[] methodParams);
         void StartConstructor(string name, AccessSpecifier specifier, params string[] methodParams);
 
-        void DeclareScalar(string type, string name, string init = null);
+        void DeclareScalar(string type, string name, string? init = null);
 
         void InlineComment(string comment);
     }

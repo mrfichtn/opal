@@ -19,14 +19,18 @@ namespace Opal.ParseTree
             Root = root;
         }
 
+        public ActionWriteContext(ActionWriteContext context)
+            : this(context, context.productions, context.production, false)
+        { }
+
         public bool Root { get; }
 
         /// <summary>
         /// Examine production at position to see if we can determine its type
         /// </summary>
-        public string FindProductionType(int position)
+        public string? FindProductionType(int position)
         {
-            string productionType;
+            string? productionType;
             if (position < production.Right.Count)
             {
                 var prodExpr = production.Right[position];

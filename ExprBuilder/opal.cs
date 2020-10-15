@@ -438,17 +438,6 @@ namespace ExprBuilder
 	
 		#endregion
 		
-	    /// <summary>
-	    /// Called by reduction for an invalid, extra token
-	    /// </summary>
-	    /// <param name="t">Invalid token</param>
-	    /// <param name="result">Value to return</param>
-	    /// <returns>Result that allows parser to correctly</returns>
-	    private object InvalidToken(Token t, object result)
-	    {
-	        _logger.LogError(t, "unexpected token {0}", t.Value);
-	        return result;
-	    }
 	
 	    private bool TryRecover(ref Token token, bool suppress)
 	    {

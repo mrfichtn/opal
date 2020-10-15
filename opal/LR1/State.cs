@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Opal.LR1
 {
-    internal class State : HashSet<LR1Item>
+    public class State : HashSet<LR1Item>
     {
         public State(int index, Symbol symbol)
         {
@@ -14,18 +14,12 @@ namespace Opal.LR1
             Symbol = symbol;
         }
 
-        public State(int index, IEnumerable<LR1Item> items)
-            : base(items)
-        {
-            Index = index;
-        }
-
         public State(int index)
         {
             Index = index;
         }
 
-        public Symbol Symbol { get; set; }
+        public Symbol? Symbol { get; set; }
         public int Index { get; }
 
         public LR1Item Add(Rule production, uint position, Symbol lookahead)
@@ -71,18 +65,6 @@ namespace Opal.LR1
             return this;
         }
 
-        public void AppendTo(StringBuilder builder)
-        {
-            builder.AppendFormat("S{0}: (Transition = {1})\n", Index, Symbol);
-
-            foreach (var item in this)
-            {
-                builder.Append("    ");
-                item.AppendTo(builder);
-                builder.AppendLine();
-            }
-        }
-
         public bool TryFindNextSymbol(Symbol symbol, out LR1Item item)
         {
             return this
@@ -96,7 +78,7 @@ namespace Opal.LR1
             var symbols = new List<Symbol>();
             foreach (var item in this)
             {
-                if (item.NextSymbol(out Symbol symbol) && seq.Add(symbol.Id))
+                if (item.NextSymbol(out Symbol? symbol) && seq.Add(symbol!.Id))
                     symbols.Add(symbol);
             }
             return symbols;
@@ -107,6 +89,50 @@ namespace Opal.LR1
             var builder = new StringBuilder();
             AppendTo(builder);
             return builder.ToString();
+        }
+
+        public void AppendTo(StringBuilder builder)
+        {
+            builder.Append('S')
+                .Append(Index);
+            if (Symbol != null)
+                builder.Append(": (Transition = ")
+                    .Append(Symbol)
+                    .Append(')');
+            builder.AppendLine();
+
+            foreach (var item in this)
+            {
+                builder.Append("    ");
+                item.AppendTo(builder);
+                builder.AppendLine();
+            }
+        }
+    }
+
+    public static class StateExt
+    {
+        public static StringBuilder Append(this StringBuilder builder, 
+            State state, 
+            bool showTransition)
+        {
+            builder.Append('S')
+                .Append(state.Index);
+            if (showTransition && (state.Symbol != null))
+            {
+                builder.Append(": (Transition = ")
+                    .Append(state.Symbol)
+                    .Append(')');
+            }
+            builder.AppendLine();
+
+            foreach (var item in state.OrderBy(x=>x))
+            {
+                builder.Append("    ")
+                    .Append(item, showTransition)
+                    .AppendLine();
+            }
+            return builder;
         }
     }
 

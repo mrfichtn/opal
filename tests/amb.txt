@@ -1,0 +1,39 @@
+using ExprBuilder.Tree;
+namespace Ambiguity;
+
+Characters
+	plus_char   = [+]
+	white_space = [\t \n]
+	digit       = [0-9]
+	alpha       = [a-zA-Z]
+	id	        = [_]+alpha
+	id2         = id + digit 
+	quote       = ["] 
+
+Tokens 
+	white_space<ignore> = white_space+ ;
+
+Productions language
+	language = statements;
+
+	statements  =									{ new Stmts(); }
+				| statements statement				{ Stmts.Add($0: Stmts, $1: Stmt); }
+
+	statement	= "print"							{ new PrintStmt(); }
+				| "if" expr statement       	    { new IfStmt($1: int, $2: Stmt, $3: ElseClause); }
+				| "if" expr statement "else" statement { new IfStmt($1: int, $2: Stmt, $4: Stmt); }
+				;
+
+
+//else_phrase	=
+//			 "else" statement					{ new ElseClause($1: Stmt); }
+//			 |
+//			;
+
+	expr		= "1"						{ 1; }
+				| "0"						{ 0; }
+			
+			
+Conflicts
+	S15, @else: shift S16;
+

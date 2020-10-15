@@ -11,7 +11,6 @@ namespace OpalTests
         private StringBuilder _builder;
         private int _filePos;
         private int _remaining;
-        private readonly long _fileLength;
 
         public FileBuffer(string filePath)
             : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -20,10 +19,12 @@ namespace OpalTests
 
         public FileBuffer(Stream stream)
         {
-            _fileLength = stream.Length;
+            Length = stream.Length;
             _reader = new StreamReader(stream);
             _builder = new StringBuilder();
         }
+
+        public long Length { get; }
 
         public int Position
         {
@@ -58,7 +59,7 @@ namespace OpalTests
             {
                 result = _builder[_builder.Length - _remaining];
             }
-            else if (_filePos < _fileLength)
+            else if (_filePos < Length)
             {
                 result = _reader.Read();
                 _builder.Append(result);
@@ -79,7 +80,7 @@ namespace OpalTests
             {
                 result = _builder[_builder.Length - _remaining--];
             }
-            else if (_filePos < _fileLength)
+            else if (_filePos < Length)
             {
                 result = _reader.Read();
                 _builder.Append((char)result);

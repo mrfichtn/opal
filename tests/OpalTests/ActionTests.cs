@@ -21,11 +21,10 @@ Tokens
 	Int = '0'|([1-9][0-9]*);
 
 Productions expr
-    expr =  '1' a  { Add($1); }
-    a    =       { 1; }
-         | Int   { int.Parse($0:string); }
+    expr       =  ""1"" a  { Add($0:string, $1); }
+    a          = Int   { new Integer($0); }
+         ;
 ";
-
             var logger = new LoggerMock();
             var inPath = "tmp.txt";
             File.WriteAllText(inPath, source);

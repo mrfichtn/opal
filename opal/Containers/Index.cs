@@ -63,7 +63,7 @@ namespace Opal.Index
 		public bool TryGetValue(int index, out T value)
 		{
 			var result = (index < _items.Count);
-			value = result ? _items[index] : default(T);
+			value = result ? _items[index] : default!;
 			return result;
 		}
 

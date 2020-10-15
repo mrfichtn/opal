@@ -116,9 +116,9 @@ namespace Opal.Nfa
             return result;
         }
 
-        public IMatch Intersect(IMatch other)
+        public IMatch? Intersect(IMatch other)
         {
-            IMatch result;
+            IMatch? result;
             if (other is CharClass cc)
             {
                 if (cc.IsMatch(Ch))

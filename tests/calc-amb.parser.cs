@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CalcAmbTest
 {
-	public partial class Parser
+	public partial class Parser: IDisposable
 	{
 		private readonly ILogger _logger;
 		private readonly Scanner _scanner;
@@ -24,13 +24,14 @@ namespace CalcAmbTest
 		}
 	
 		public Parser(Scanner scanner)
-			: this(new ConsoleLogger(scanner.FilePath), scanner) 
-		{}
+			: this(new ConsoleLogger(scanner.FilePath), scanner) {}
 	
-		public static Parser FromFile(string filePath)
+		public Parser(ILogger logger, string filePath)
+			: this(logger, Scanner.FromFile(filePath)) {}
+	
+		public Parser(string filePath)
+			: this(Scanner.FromFile(filePath))
 		{
-			var scanner = Scanner.FromFile(filePath);
-			return new Parser(scanner);
 		}
 	
 		public static Parser FromString(string text)
@@ -39,9 +40,14 @@ namespace CalcAmbTest
 			return new Parser(scanner);
 		}
 	
-		partial void Init();
+		public void Dispose()
+		{
+			_scanner.Dispose();
+		}
 	
 		public object Root { get; private set; }
+	
+		partial void Init();
 	
 		public bool Parse()
 		{
@@ -80,13 +86,14 @@ namespace CalcAmbTest
 							Root = _stack.PopValue();
 							return !_hasErrors;
 						}
-						GetAction(reducedState, _stack.PeekState(), out result);
+						if (GetAction(reducedState, _stack.PeekState(), out result) == ActionType.Error)
+							goto case ActionType.Error;
 						_stack.Replace((uint)result);
 						break;
 	
 					case ActionType.Shift:
-						_stack.Push(result, token);
-						token = _scanner.NextToken();
+						_stack.Shift(result, token);
+						token = NextToken();
 						break;
 				}
 			}
@@ -101,7 +108,6 @@ namespace CalcAmbTest
 	                return token;
 	            _logger.LogError(token, "syntax error - {0}", token.Value);
 	            _hasErrors = true;
-	            token = _scanner.NextToken();
 	        }
 	    }
 	
@@ -120,37 +126,37 @@ namespace CalcAmbTest
 				case 2: // expr = expr op primary;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(8, Tuple.Create(_stack[0],_stack[1],_stack[2]));
+					    .Reduce(8, _stack[0]);
 					break;
 				}
 				case 3: // op = "*";
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(10, (Token)_stack[0]);
+					    .Reduce(10, _stack[0]);
 					break;
 				}
 				case 4: // op = "/";
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(10, (Token)_stack[0]);
+					    .Reduce(10, _stack[0]);
 					break;
 				}
 				case 5: // op = "+";
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(10, (Token)_stack[0]);
+					    .Reduce(10, _stack[0]);
 					break;
 				}
 				case 6: // op = "-";
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(10, (Token)_stack[0]);
+					    .Reduce(10, _stack[0]);
 					break;
 				}
 				case 7: // primary = Int;
 				{
 					state = _stack.SetItems(1)
-					    .Reduce(9, (Token)_stack[0]);
+					    .Reduce(9, _stack[0]);
 					break;
 				}
 	
@@ -180,6 +186,7 @@ namespace CalcAmbTest
 			arg = (uint)action;
 			return actionType;
 		}
+	
 		#region Actions Table
 		private readonly int[,] _actions = 
 		{
@@ -197,8 +204,8 @@ namespace CalcAmbTest
 	
 		#endregion
 		#region Symbols
-		private const int _maxTerminal = 7;
-		private string[] _symbols =
+		protected const int _maxTerminal = 7;
+		protected readonly string[] _symbols =
 		{
 			"",
 			"Int",
@@ -215,17 +222,6 @@ namespace CalcAmbTest
 	
 		#endregion
 		
-	    /// <summary>
-	    /// Called by reduction for an invalid, extra token
-	    /// </summary>
-	    /// <param name="t">Invalid token</param>
-	    /// <param name="result">Value to return</param>
-	    /// <returns>Result that allows parser to correctly</returns>
-	    private object InvalidToken(Token t, object result)
-	    {
-	        _logger.LogError(t, "unexpected token {0}", t.Value);
-	        return result;
-	    }
 	
 	    private bool TryRecover(ref Token token, bool suppress)
 	    {
@@ -252,7 +248,6 @@ namespace CalcAmbTest
 	        }
 	        return isOk;
 	    }
-	
 	
 		#region LRStack
 		[DebuggerDisplay("Count = {_count}"), DebuggerTypeProxy(typeof(LRStackProxy))]
@@ -372,11 +367,14 @@ namespace CalcAmbTest
 		#endregion
 	}
 	
-	public class Scanner
+	public class Scanner: IDisposable
 	{
+	    public const int Eof = -1;
+	
 	    private readonly IBuffer _buffer;
 	    private int _ch;
-	    public const int Eof = -1;
+		private int _line;
+		private int _column;
 	
 	    private static readonly int[] _charToClass;
 	    private static readonly int[,] _states;
@@ -386,18 +384,13 @@ namespace CalcAmbTest
 	        _charToClass = new int[char.MaxValue + 1];
 	        using (var outStream = new MemoryStream())
 			{
-	            using (var inStream = new MemoryStream(_charToClassCompressed))
-	            using (var s = new GZipStream(inStream, CompressionMode.Decompress, false))
-	                s.CopyTo(outStream);
-	
+	            Decompress(_charToClassCompressed, outStream);
 	            outStream.Seek(0, SeekOrigin.Begin);
 	            for (var i = 0; i < _charToClass.Length; i++)
 	                _charToClass[i] = Read8(outStream) + 1;
 	                
 	            outStream.SetLength(0);
-	            using (var inStream = new MemoryStream(_compressedStates))
-	            using (var s = new GZipStream(inStream, CompressionMode.Decompress, false))
-	                s.CopyTo(outStream);
+				Decompress(_compressedStates, outStream);
 	            outStream.Seek(0, SeekOrigin.Begin);
 	
 				var maxClasses = 10 + 1;
@@ -429,31 +422,31 @@ namespace CalcAmbTest
 		public Scanner(IBuffer buffer, int line = 1, int column = 0)
 		{
 			_buffer = buffer;
-			Line = line;
-			Column = column;
+			_line = line;
+			_column = column;
 	        NextChar();
 		}
 	
 		public static Scanner FromFile(string filePath, int line = 1, int column = 0)
 		{
-			var text = File.ReadAllText(filePath);
-			return new Scanner(text, line, column);
+			return new Scanner(new FileBuffer(filePath), line, column);
 		}
 	
-		#region Properties
-		public string FilePath { get; private set; }
-		public int Line { get; private set; }
-		public int Column { get; private set; }
-		#endregion
+		public void Dispose()
+		{
+			_buffer.Dispose();
+		}
 	
-	    /// <summary>Skipping ignore, returns next token</summary>
+		public string FilePath { get; private set; }
+	
+	    /// <summary>Skips ingore-tokens</summary>
 	    public Token NextToken()
 	    {
 	        Token token;
 	        do
 	        {
 	            token = RawNextToken();
-	        } while (token.State < -1);
+	        } while (token.State < TokenStates.SyntaxError);
 	
 	        return token;
 	    }
@@ -464,19 +457,19 @@ namespace CalcAmbTest
 	        Token token;
 	        if (_ch == Eof)
 	        {
-	            token = new Token(Line, Column, _buffer.Position)
+	            token = new Token(_line, _column, _buffer.Position)
 	            {
-	                End = new Position(Line, Column, _buffer.Position)
+	                End = new Position(_line, _column, _buffer.Position)
 	            };
 	            return token;
 	        }
 	            
 			var startPosition = _buffer.Position - 1;
-	        token = new Token(Line, Column, startPosition);
+	        token = new Token(_line, _column, startPosition);
 	
-	        var lastLine = Line;
-	        var lastColumn = Column;
-	        var lastAcceptingState = int.MinValue;
+	        var lastLine = _line;
+	        var lastColumn = _column;
+	        var lastAcceptingState = TokenStates.SyntaxError;
 	        var lastAcceptingPosition = -1;
 	        var stateIndex = 0;
 	
@@ -485,19 +478,16 @@ namespace CalcAmbTest
 	            var nextState = GetNextState(stateIndex);
 	            if (nextState <= 0)
 	            {
-	                if (lastAcceptingState == int.MinValue)
-	                {
+	                if (lastAcceptingState == TokenStates.SyntaxError)
 	                    lastAcceptingPosition = _buffer.Position - 1;
-	                    lastAcceptingState = -1;
-	                }
 	
 	                var value = _buffer.GetString(startPosition, lastAcceptingPosition);
 	                token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
 					if (_buffer.Position > lastAcceptingPosition + 1)
 					{
 						_buffer.Position = lastAcceptingPosition;
-						Line = lastLine;
-						Column = lastColumn;
+						_line = lastLine;
+						_column = lastColumn;
 						NextChar();
 					}
 	                return token;
@@ -509,8 +499,8 @@ namespace CalcAmbTest
 	                {
 	                    lastAcceptingState = acceptingState;
 	                    lastAcceptingPosition = _buffer.Position;
-	                    lastLine = Line;
-	                    lastColumn = Column;
+	                    lastLine = _line;
+	                    lastColumn = _column;
 	                }
 	            }
 	            stateIndex = nextState;
@@ -541,54 +531,51 @@ namespace CalcAmbTest
 	        _ch = _buffer.Read();
 	        if (_ch == '\n')
 	        {
-	            ++Line;
-	            Column = 0;
+	            ++_line;
+	            _column = 0;
 	        }
 	        //Normalize \r\n -> \n
 	        else if (_ch == '\r' && _buffer.Peek() == '\n')
 	        {
 	            _ch = _buffer.Read();
-	            ++Line;
-	            Column = 0;
+	            ++_line;
+	            _column = 0;
 	        }
 	        else
 	        { 
-	            ++Column;
+	            ++_column;
 	        }
 	    }
 	
-		public class TokenTypes
-		{
-			public const int Empty = 0;
-			public const int Int = 1;
-			public const int identifier = 2;
-			public const int white_space = 3;
-			public const int Asterisk = 4;
-			public const int Slash = 5;
-			public const int Plus = 6;
-			public const int Minus = 7;
-		};
-
-		private static readonly byte[] _charToClassCompressed = 
-		{
-			0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0xED, 0xC9, 0x31, 0x0E, 0x80, 0x20, 
-			0x00, 0x04, 0xC1, 0x43, 0x50, 0xF8, 0xFF, 0x8B, 0x4D, 0x0C, 0xC4, 0x46, 0x63, 0x6B, 0x31, 0x53, 
-			0xEE, 0x26, 0x53, 0x6B, 0x79, 0x72, 0xD7, 0xBD, 0x67, 0xE4, 0x28, 0xDB, 0x32, 0x73, 0x7D, 0x75, 
-			0xDD, 0x8F, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-			0x00, 0xC0, 0x4F, 0x9C, 0xC1, 0xFD, 0xF5, 0x34, 0x00, 0x00, 0x01, 0x00, 
-		};
-
-		private static readonly byte[] _compressedStates = 
-		{
-			0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x45, 0xC6, 0x41, 0x0E, 0x00, 0x20, 
-			0x0C, 0x02, 0x41, 0x0A, 0xAD, 0xF5, 0xFF, 0x2F, 0x36, 0xA9, 0x46, 0xF6, 0x00, 0x03, 0x04, 0x95, 
-			0xB5, 0x7A, 0x23, 0xF0, 0x0B, 0x90, 0x8F, 0x84, 0xA4, 0xCB, 0xB9, 0x84, 0x77, 0x2A, 0x73, 0x99, 
-			0x6D, 0x1E, 0x36, 0x0F, 0x4D, 0x07, 0x63, 0x00, 0x00, 0x00, 
-		};
+	private static readonly byte[] _charToClassCompressed = 
+	{
+		0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0xED, 0xC9, 0x31, 0x0E, 0x80, 0x20, 
+		0x00, 0x04, 0xC1, 0x43, 0x50, 0xF8, 0xFF, 0x8B, 0x4D, 0x0C, 0xC4, 0x46, 0x63, 0x6B, 0x31, 0x53, 
+		0xEE, 0x26, 0x53, 0x6B, 0x79, 0x72, 0xD7, 0xBD, 0x67, 0xE4, 0x28, 0xDB, 0x32, 0x73, 0x7D, 0x75, 
+		0xDD, 0x8F, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0xC0, 0x4F, 0x9C, 0xC1, 0xFD, 0xF5, 0x34, 0x00, 0x00, 0x01, 0x00, 
+	};
 	
+	private static readonly byte[] _compressedStates = 
+	{
+		0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x45, 0xC6, 0x41, 0x0E, 0x00, 0x20, 
+		0x0C, 0x02, 0x41, 0x0A, 0xAD, 0xF5, 0xFF, 0x2F, 0x36, 0xA9, 0x46, 0xF6, 0x00, 0x03, 0x04, 0x95, 
+		0xB5, 0x7A, 0x23, 0xF0, 0x0B, 0x90, 0x8F, 0x84, 0xA4, 0xCB, 0xB9, 0x84, 0x77, 0x2A, 0x73, 0x99, 
+		0x6D, 0x1E, 0x36, 0x0F, 0x4D, 0x07, 0x63, 0x00, 0x00, 0x00, 
+	};
+	
+	
+	    private static void Decompress(byte[] data, Stream outStream)
+	    {
+	        using (var inStream = new MemoryStream(data))
+	        {
+	            var s = new GZipStream(inStream, CompressionMode.Decompress, false);
+	                s.CopyTo(outStream);
+	        }
+	    }
 	
 		#region Read Methods
 	
@@ -622,6 +609,47 @@ namespace CalcAmbTest
 	    }
 	
 		#endregion
+	}
+	public class TokenStates
+	{
+		public const int SyntaxError = -1;
+		public const int Empty = 0;
+		public const int Int = 1;
+		public const int identifier = 2;
+		public const int white_space = 3;
+		public const int Asterisk = 4;
+		public const int Slash = 5;
+		public const int Plus = 6;
+		public const int Minus = 7;
+	};
+	
+	public class Token: Segment
+	{
+		public int State;
+		public string Value;
+	
+		public Token() {}
+			
+		public Token(int line, int column, int ch)
+			: base(new Position(line, column, ch)) {}
+	
+		public Token Set(int state, string value, int ln, int col, int ch)
+		{
+			State = state;
+			Value = value;
+			End = new Position(ln, col, ch);
+			return this;
+		}
+	
+	    public static implicit operator string(Token t)
+	    {
+	        return t.Value;
+	    }
+	
+		public override string ToString()
+		{
+			return string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
+		}
 	}
 	
 	///<summary>Location of a character within a file</summary>
@@ -678,8 +706,7 @@ namespace CalcAmbTest
 		public Position Start;
 		public Position End;
 	
-		public Segment()
-		{}
+		public Segment() {}
 	
 		public Segment(Segment cpy)
 		{
@@ -731,36 +758,10 @@ namespace CalcAmbTest
 		}
 	}
 	
-	public class Token: Segment
-	{
-		public int State;
-		public string Value;
-	
-		public Token()
-		{}
-			
-		public Token(int line, int column, int ch)
-			: base(new Position(line, column, ch))
-		{}
-	
-		public Token Set(int state, string value, int ln, int col, int ch)
-		{
-			State = state;
-			Value = value;
-			End = new Position(ln, col, ch);
-			return this;
-		}
-	
-		public override string ToString()
-		{
-			return string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
-		}
-	}
-	
 	/// <summary>
 	/// Buffer between text/file object and scanner
 	/// </summary>
-	public interface IBuffer
+	public interface IBuffer: IDisposable
 	{
 	    /// <summary>
 	    /// Returns the index within the buffer
@@ -788,6 +789,90 @@ namespace CalcAmbTest
 	    string GetString(int beg, int end);
 	}
 	
+	public class FileBuffer : IBuffer, IDisposable
+	{
+	    private readonly StreamReader _reader;
+	    private readonly StringBuilder _builder;
+	    private int _filePos;
+	    private int _remaining;
+	    private readonly long _fileLength;
+	
+	    public FileBuffer(string filePath)
+	        : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+	    {
+	    }
+	
+	    public FileBuffer(Stream stream)
+	    {
+	        _fileLength = stream.Length;
+	        _reader = new StreamReader(stream);
+	        _builder = new StringBuilder();
+	    }
+	
+	    public int Position
+	    {
+	        get { return _filePos - _remaining; }
+	        set { _remaining = _filePos - value; }
+	    }
+	
+	    public void Dispose()
+	    {
+	        _reader.Dispose();
+	    }
+	
+	    public string GetString(int beg, int end)
+	    {
+	        var length = end - beg;
+	        var pos = _filePos - _remaining;
+	        var start = pos - beg;
+	        var shift = _builder.Length - start;
+	        var result = _builder.ToString(shift, length);
+	        _builder.Remove(shift, length);
+	        return result;
+	    }
+	
+	    public int Peek()
+	    {
+	        int result;
+	        if (_remaining > 0)
+	        {
+	            result = _builder[_builder.Length - _remaining];
+	        }
+	        else if (_filePos < _fileLength)
+	        {
+	            result = _reader.Read();
+	            _builder.Append((char)result);
+	            _filePos++;
+	            _remaining++;
+	        }
+	        else
+	        {
+	            result = -1;
+	        }
+	        return result;
+	    }
+	
+	    public int Read()
+	    {
+	        int result;
+	        if (_remaining > 0)
+	        {
+	            result = _builder[_builder.Length - _remaining--];
+	        }
+	        else if (_filePos < _fileLength)
+	        {
+	            result = _reader.Read();
+	            _builder.Append((char)result);
+	            _filePos++;
+	        }
+	        else
+	        {
+	            result = -1;
+	        }
+	        return result;
+	    }
+	}
+	
 	public class StringBuffer: IBuffer
 	{
 	    private readonly string _text;
@@ -796,6 +881,8 @@ namespace CalcAmbTest
 	    {
 	        _text = text;
 	    }
+	
+		public void Dispose() {}
 	
 	    public int Position { get; set;}
 	

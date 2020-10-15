@@ -1,2 +1,2 @@
-copy ..\opal.parser.cs ..\opal.parser.cs.bak2
-copy ..\opal.parser.bak ..\opal.parser.cs
+copy ..\opal\opal.parser.cs ..\opal\opal.parser.cs.bak2
+copy ..\opal\opal.parser.bak ..\opal\opal.parser.cs

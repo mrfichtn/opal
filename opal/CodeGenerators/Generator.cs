@@ -83,6 +83,11 @@ namespace Generators
             return this;
         }
 
+        public void WriteChar(char value)
+        {
+            _stream.Write(value);
+        }
+
         IGenerator IGenerator.Write(char value) => Write(value);
 
         public IGenerator Write(string format, params object[] args)

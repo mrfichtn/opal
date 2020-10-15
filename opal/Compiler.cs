@@ -13,32 +13,44 @@ namespace Opal
     {
         private readonly ILogger logger;
         private readonly string inPath;
-        private Parser parser;
-        private Dfa.Dfa dfa;
-        private ProductionList prods;
-        private LR1.LR1Parser lr1Parser;
+        private Parser? parser;
+        private Dfa.Dfa? dfa;
+        private ProductionList? prods;
+        private LR1.LR1Parser? lr1Parser;
         private readonly Dictionary<string, string> options;
 
-        private IGeneratable scannerWriter;
+        private IGeneratable? scannerWriter;
 
         public Compiler(ILogger logger, string inPath)
         {
             options = new Dictionary<string, string>();
             this.logger = logger;
             this.inPath = inPath;
-            OutPath = Path.ChangeExtension(this.inPath, ".Parser.cs");
+            outPath = Path.ChangeExtension(this.inPath, ".Parser.cs");
         }
 
-        public string OutPath { get; set; }
-        public string Namespace { get; set; }
-        public string ParserFrame
+        public string OutPath
+        {
+            get => outPath;
+            set => outPath = value ?? throw new ArgumentNullException(nameof(OutPath));
+        }
+        private string outPath;
+
+        public string? Namespace { get; set; }
+        public string? ParserFrame
         {
             get
             {
                 options.TryGetValue("frame", out var value);
                 return value;
             }
-            set { options["frame"] = value; }
+            set 
+            {
+                if (value == null)
+                    options.Remove("frame");
+                else
+                    options["frame"] = value; 
+            }
         }
 
         public bool Compile()
@@ -54,6 +66,11 @@ namespace Opal
                 return isOk;
 
             var lang = parser.Language;
+            if (lang == null)
+            {
+                logger.LogError("Failed to return language element from root");
+                return false;
+            }
             prods = lang.Productions;
 
             var nfa = parser.Graph;
@@ -82,17 +99,15 @@ namespace Opal
             var grammarText = grammar.ToString();
             File.WriteAllText(grammarPath, grammarText);
 
-            lr1Parser = new LR1.LR1Parser(logger, grammar);
+            lr1Parser = new LR1.LR1Parser(logger, grammar, lang.Conflicts);
 
             var statesPath = Path.ChangeExtension(inPath, ".states.txt");
             File.WriteAllText(statesPath, lr1Parser.States.ToString());
 
-
-
             using (var csharp = new Generator(OutPath))
             {
                 if (!string.IsNullOrEmpty(Namespace))
-                    lang.Namespace = new ParseTree.Identifier(Namespace);
+                    lang.Namespace = new ParseTree.Identifier(Namespace!);
 
                 var frameSpecified = false;
                 if (options.TryGetValue("frame", out var frameFile) && !string.IsNullOrEmpty(frameFile))
@@ -128,9 +143,9 @@ namespace Opal
             bool result = true;
             switch (varName)
             {
-                case "usings":              generator.Write(parser.Usings);    break;
+                case "usings":              generator.Write(parser!.Usings);    break;
                 case "namespace.start":
-                    if (parser.Language.Namespace != null)
+                    if (parser!.Language!.Namespace != null)
                     {
                         generator.WriteLine("namespace {0}", parser.Language.Namespace)
                             .Write("{")
@@ -140,18 +155,19 @@ namespace Opal
                 case "productions":
                     generator.Indent(2);
                     options.TryGetValue("no_action", out var noAction);
-                    prods.Write(generator, noAction);
+                    if (prods != null)
+                        prods.Write(generator, noAction);
                     generator.UnIndent(2);
                     break;
-                case "actions":                 lr1Parser.Actions.Write(generator); break;
-                case "parser.symbols":          lr1Parser.WriteSymbols(generator); break;
-                case "scanner":                 scannerWriter.Write(generator); break;
-                case "scanner.states":          dfa.WriteTokenEnum(generator); break;
+                case "actions":                 lr1Parser!.Actions.Write(generator); break;
+                case "parser.symbols":          lr1Parser!.WriteSymbols(generator); break;
+                case "scanner":                 scannerWriter!.Write(generator); break;
+                case "scanner.states":          dfa!.WriteTokenEnum(generator); break;
                 case "namespace.end":
-                    if (parser.Language.Namespace != null)
+                    if (parser!.Language!.Namespace != null)
                         generator.EndBlock();
                     break;
-                case "namespace":               generator.Write(parser.Language.Namespace); break;
+                case "namespace":               generator.Write(parser!.Language!.Namespace); break;
                 default:
                     if (options.TryGetValue(varName, out var value))
                         generator.Write(value);

@@ -1,4 +1,5 @@
 ﻿using Generators;
+using Opal.Containers;
 using Opal.ParseTree;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,57 +10,46 @@ namespace Opal.LR1
 {
     public class Grammar: IEnumerable<Rule>, IGeneratable
 	{
-        private readonly List<Rule> _rules;
-		private readonly Dictionary<string, Symbol> _byName;
-
-        static Grammar()
-		{
-			EndOfLine = new Symbol(string.Empty, 0, true);
-		}
+        private readonly List<Rule> rules;
 
 		public Grammar(ProductionList productions)
 		{
-			_byName = new Dictionary<string, Symbol>()
-			{
-				{ EndOfLine.Value, EndOfLine }
-			};
-			Symbols = new List<Symbol> { EndOfLine };
+			Symbols = new Symbols();
 
 			foreach (var state in productions.Symbols.Skip(1))
-				GetSymbol(state, true);
+				Symbols.Create(state, true);
 
-            if (!_byName.TryGetValue(productions.Language.Value, out var startSym))
-                startSym = _byName[productions[0].Left.Value];
+			if (!Symbols.TryFind(productions.Language!.Value, out var startSym))
+				startSym = Symbols[productions[0].Left.Value];
 
             //Create kernal rule
-            var languageSymbol = new Symbol("@language", (uint)Symbols.Count, false);
+            var languageSymbol = new Symbol("S'", (uint)Symbols.Count, terminal:false);
             var rule = new Rule(this, 0, languageSymbol, new[] { startSym });
-            _rules = new List<Rule> { rule };
+            rules = new List<Rule> { rule };
 
             foreach (var prod in productions)
 			{
-				var left = GetSymbol(prod.Left.Value, false);
+				var left = Symbols.Create(prod.Left.Value, false);
 				var right = prod.Right
 					.Select(x => Symbols[x.Id])
 					.ToArray();
-                prod.RuleId = _rules.Count;
-				_rules.Add(new Rule(this, _rules.Count, left, right));
+                prod.RuleId = rules.Count;
+				rules.Add(new Rule(this, rules.Count, left, right));
 			}
 			TerminalSets = new TerminalSets(this);
 		}
 
 		public Grammar(params string[] symbols)
 		{
-			_rules = new List<Rule>();
-			_byName = new Dictionary<string, Symbol>()
-			{
-				{ EndOfLine.Value, EndOfLine }
-			};
+			rules = new List<Rule>();
+			Symbols = new Symbols();
 
-			Symbols = new List<Symbol>()
-			{  EndOfLine };
+			var startSym = Symbols.Create(symbols[0], false);
+			var languageSymbol = new Symbol("S'", (uint)Symbols.Count, terminal: false);
+			var rule = new Rule(this, 0, languageSymbol, new[] { startSym });
+			rules.Add(rule);
 
-			Symbol left = null;
+			Symbol? left = null;
 			var right = new List<Symbol>();
 			foreach (var symValue in symbols)
 			{
@@ -69,18 +59,18 @@ namespace Opal.LR1
 				{
 					if (itemIsEmpty)
 						continue;
-					left = GetSymbol(symValue, false);
+					left = Symbols.Create(symValue, false);
 				}
 				else if (itemIsEmpty)
 				{
-					var production = new Rule(this, _rules.Count, left, right.ToArray());
-					_rules.Add(production);
+					var production = new Rule(this, rules.Count, left, right.ToArray());
+					rules.Add(production);
 					left = null;
 					right.Clear();
 				}
 				else
 				{
-					right.Add(GetSymbol(symValue, true));
+					right.Add(Symbols.Create(symValue, true));
 				}
 			}
 
@@ -89,65 +79,75 @@ namespace Opal.LR1
 
         #region Properties
 
-        public Rule this[uint index] => _rules[(int)index];
-        public int Count => _rules.Count;
-        public List<Symbol> Symbols { get; }
-        public static Symbol EndOfLine { get; private set; }
+        public Rule this[uint index] => rules[(int)index];
+        public int Count => rules.Count;
+        public Symbols Symbols { get; }
+		public static Symbol EndOfLine => Symbols.EndOfLine;
         public TerminalSets TerminalSets { get; }
 
         #endregion
 
-        public void Add(Rule rule)
-        {
-            _rules.Add(rule);
-        }
-
         public void AppendTo(StringBuilder builder)
         {
-            builder.AppendLine("Symbols:");
-            foreach (var symbol in Symbols)
-                builder.AppendFormat("[{0}] = {1}", symbol.Id, symbol.Value)
-                    .AppendLine();
-            builder.AppendLine();
-            for (int i = 0; i < _rules.Count; i++)
+			builder.AppendLine("Symbols:")
+				.AppendTo(Symbols)
+				.AppendLine();
+            
+			for (int i = 0; i < rules.Count; i++)
             {
                 builder.Append("R")
                     .Append(i)
                     .Append(": ");
-                _rules[i].AppendTo(builder);
+                rules[i].AppendTo(builder);
                 builder.AppendLine();
             }
         }
 
-        public override string ToString()
+		public override string ToString() => ToString(true);
+
+		public string ToString(bool showSymbols)
         {
-            var builder = new StringBuilder();
-            AppendTo(builder);
-            return builder.ToString();
+			return new StringBuilder()
+				.AppendTo(this, showSymbols)
+				.ToString();
         }
 
-        public IEnumerator<Rule> GetEnumerator() => _rules.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => _rules.GetEnumerator();
-
-		private Symbol GetSymbol(string symbolValue, bool isTerminal)
-		{
-            if (!_byName.TryGetValue(symbolValue, out Symbol symbol))
-            {
-                symbol = new Symbol(symbolValue, (uint)Symbols.Count, isTerminal);
-                _byName.Add(symbolValue, symbol);
-                Symbols.Add(symbol);
-            }
-            else if (!isTerminal && symbol.IsTerminal)
-            {
-                symbol.IsTerminal = isTerminal;
-            }
-            return symbol;
-		}
+        public IEnumerator<Rule> GetEnumerator() => rules.GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => rules.GetEnumerator();
 
 		public void Write(Generator generator)
 		{
-			foreach (var prod in _rules)
+			foreach (var prod in rules)
 				prod.Write(generator);
+		}
+	}
+
+	public static class GrammarExt
+    {
+		public static StringBuilder AppendTo(this StringBuilder builder, 
+			Grammar grammar,
+			bool showSymbols)
+		{
+			if (showSymbols)
+			{
+				builder.AppendLine("Symbols:");
+				foreach (var symbol in grammar.Symbols)
+				{
+					builder.AppendFormat("[{0}] = {1}", symbol.Id, symbol.Value)
+						.AppendIf(symbol.IsTerminal, "(T)")
+						.AppendLine();
+				}
+				builder.AppendLine();
+			}
+			for (uint i = 0; i < grammar.Count; i++)
+			{
+				builder.Append("R")
+					.Append(i)
+					.Append(": ");
+				grammar[i].AppendTo(builder);
+				builder.AppendLine();
+			}
+			return builder;
 		}
 	}
 }

@@ -1,20 +1,20 @@
 Symbols:
-[0] = 
-[1] = Int
-[2] = Double
-[3] = DoubleInt
-[4] = Identifier
-[5] = true
-[6] = false
-[7] = =>
-[8] = (
-[9] = )
-[10] = +
-[11] = -
-[12] = *
-[13] = /
-[14] = !
-[15] = ~
+[0] = (T)
+[1] = Int(T)
+[2] = Double(T)
+[3] = DoubleInt(T)
+[4] = Identifier(T)
+[5] = true(T)
+[6] = false(T)
+[7] = =>(T)
+[8] = ((T)
+[9] = )(T)
+[10] = +(T)
+[11] = -(T)
+[12] = *(T)
+[13] = /(T)
+[14] = !(T)
+[15] = ~(T)
 [16] = expr
 [17] = assignable
 [18] = unassignable
@@ -29,32 +29,32 @@ Symbols:
 [27] = double
 [28] = bool
 
-R0: @language(29) -> expr(16)
-R1: expr(16) -> assignable(17)
-R2: expr(16) -> unassignable(18)
-R3: assignable(17) -> sum(19)
-R4: unassignable(18) -> lambda(20)
-R5: lambda(20) -> identifier(21) =>(7) sum(19)
-R6: sum(19) -> sum(19) +(10) term(22)
-R7: sum(19) -> sum(19) -(11) term(22)
-R8: sum(19) -> term(22)
-R9: term(22) -> term(22) *(12) unary(23)
-R10: term(22) -> term(22) /(13) unary(23)
-R11: term(22) -> unary(23)
-R12: unary(23) -> primary(24)
-R13: unary(23) -> -(11) primary(24)
-R14: unary(23) -> +(10) primary(24)
-R15: unary(23) -> !(14) primary(24)
-R16: unary(23) -> ~(15) primary(24)
-R17: primary(24) -> ((8) expr(16) )(9)
-R18: primary(24) -> constant(25)
-R19: primary(24) -> identifier(21)
-R20: identifier(21) -> Identifier(4)
-R21: constant(25) -> int(26)
-R22: constant(25) -> double(27)
-R23: constant(25) -> bool(28)
-R24: int(26) -> Int(1)
-R25: double(27) -> Double(2)
-R26: double(27) -> DoubleInt(3)
-R27: bool(28) -> true(5)
-R28: bool(28) -> false(6)
+R0: S' -> expr
+R1: expr -> assignable
+R2: expr -> unassignable
+R3: assignable -> sum
+R4: unassignable -> lambda
+R5: lambda -> identifier => sum
+R6: sum -> sum + term
+R7: sum -> sum - term
+R8: sum -> term
+R9: term -> term * unary
+R10: term -> term / unary
+R11: term -> unary
+R12: unary -> primary
+R13: unary -> - primary
+R14: unary -> + primary
+R15: unary -> ! primary
+R16: unary -> ~ primary
+R17: primary -> ( expr )
+R18: primary -> constant
+R19: primary -> identifier
+R20: identifier -> Identifier
+R21: constant -> int
+R22: constant -> double
+R23: constant -> bool
+R24: int -> Int
+R25: double -> Double
+R26: double -> DoubleInt
+R27: bool -> true
+R28: bool -> false

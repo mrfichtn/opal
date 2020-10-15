@@ -29,7 +29,7 @@ namespace Generators
         public static string FromEsc(this string text)
         {
             if (text == null)
-                return text;
+                return string.Empty;
 
             var builder = new StringBuilder();
             for (var i = 1; i < text.Length - 1; i++)
@@ -144,7 +144,7 @@ namespace Generators
                 case '\'': builder.Append("\\\'"); break;
                 case '\"': builder.Append("\\\""); break;
                 case '\\': builder.Append("\\\\"); break;
-                default: builder.Append(ch); break;
+                default:   builder.Append(ch); break;
             }
             return builder;
         }

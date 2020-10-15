@@ -1,5 +1,5 @@
 ﻿using Opal.Containers;
-using Opal.Logging;
+using Opal.ParseTree;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,18 +7,21 @@ namespace Opal.LR1
 {
     public class ActionBuilder
 	{
-		private readonly Dictionary<int, IDictionary<uint, IList<int>>> _actions;
-        private readonly Grammar _grammar;
+		private readonly Dictionary<int, IDictionary<uint, IList<int>>> actions;
+        private readonly Grammar grammar;
 
 		public ActionBuilder(Grammar grammar)
 		{
-            _grammar = grammar;
-            _actions = new Dictionary<int, IDictionary<uint, IList<int>>>();
+            this.grammar = grammar;
+            actions = new Dictionary<int, IDictionary<uint, IList<int>>>();
 		}
 
-		public Actions Build(ILogger logger, int states, IList<Symbol> symbols)
+		public Actions Build(ILogger logger, 
+			States states, 
+			Symbols symbols,
+			ConflictResolvers resolvers)
 		{
-			var data = new int[states, symbols.Count];
+			var data = new int[states.Count, symbols.Count];
 
 			for (var j = 0; j < data.GetLength(0); j++)
 			{
@@ -26,34 +29,49 @@ namespace Opal.LR1
 					data[j, i] = -1;
 			}
 
-			foreach (var p in _actions)
+			foreach (var stateAction in actions)
 			{
-				foreach (var q in p.Value)
+				foreach (var q in stateAction.Value)
 				{
                     var items = q.Value;
-                    if (items.Count == 1)
-                    {
-                        data[p.Key, q.Key] = items[0];
-                    }
-                    else if (items.Count > 1)
-                    {
-                        data[p.Key, q.Key] = q.Value.First(items[0], x => x >= 0);
-                        var symbol = symbols[(int)q.Key];
+					if (items.Count == 0)
+						continue;
 
-                        logger.LogWarning("Conflicted state = {0}, Lookahead = {1}", p.Key, symbol);
+					if (items.Count == 1)
+					{
+						data[stateAction.Key, q.Key] = items[0];
+					}
+					else if (resolvers.TryFind(
+							state: stateAction.Key,
+							symbol: q.Key,
+							action: out var resolveAction) &&
+							items.Contains(resolveAction))
+					{
+						data[stateAction.Key, q.Key] = resolveAction;
+					}
+					else
+                    {
+						logger.LogWarning(resolvers.ToString());
+						data[stateAction.Key, q.Key] = q.Value.First(items[0], x => x >= 0);
+						var symbol = symbols[(int)q.Key];
+						var state = states[stateAction.Key];
 
-                        foreach (var action in q.Value)
-                        {
-                            if (action < 0)
-                            {
-                                var rule = -2 - action;
-                                logger.LogWarning("  Reduce rule {0}: {1}", rule, _grammar[(uint)rule]);
-                            }
-                            else
-                            {
-                                logger.LogWarning("  Shift {0}", action);
-                            }
-                        }
+						logger.LogWarning("Conflicted state S{0}, Lookahead = {1}", stateAction.Key, symbol);
+						if (state.Symbol != null)
+							logger.LogWarning($"  (transition: {state.Symbol.Value})");
+
+						foreach (var action in q.Value)
+						{
+							if (action < 0)
+							{
+								var rule = -2 - action;
+								logger.LogWarning("  Reduce rule {0}: {1}", rule, grammar[(uint)rule]);
+							}
+							else
+							{
+								logger.LogWarning("  Shift S{0}", action);
+							}
+						}
                     }
 				}
 			}
@@ -63,11 +81,11 @@ namespace Opal.LR1
 
 		public void Add(int state, uint lookahead, int action)
 		{
-			if (!_actions.TryGetValue(state, out var map))
+			if (!actions.TryGetValue(state, out var map))
 			{
                 var list = new List<int> { action };
                 map = new Dictionary<uint, IList<int>> { { lookahead, list } };
-                _actions.Add(state, map);
+                actions.Add(state, map);
 			}
 			else if (!map.TryGetValue(lookahead, out var list))
 			{

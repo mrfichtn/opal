@@ -35,17 +35,15 @@ namespace Opal.ParseTree
         public bool Ignore { get; protected set; }
         #endregion
 
-        #region IsToken
         public bool IsTerminal { get; set; }
-        #endregion
 
         #region CallMethod Property
         public bool CallMethod { get; set; }
         #endregion
 
-        public string PropName { get; set; }
+        public string? PropName { get; set; }
 
-        public Identifier Type { get; set; }
+        public Identifier? Type { get; set; }
 
         #endregion
 
@@ -86,15 +84,11 @@ namespace Opal.ParseTree
             return text;
         }
 
-        public virtual bool WriteSignature(IGenerator generator, bool wroteArg)
-        {
-            return wroteArg;
-        }
+        public virtual bool WriteSignature(IGenerator generator, bool wroteArg) =>
+            wroteArg;
 
-        public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
-        {
-            return wroteArg;
-        }
+        public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type) =>
+            wroteArg;
 
         public virtual void WriteType(StringBuilder builder, string @default)
         {
@@ -128,9 +122,7 @@ namespace Opal.ParseTree
             Id = id;
         }
 
-        #region Name Property
         public string Name { get; }
-        #endregion
 
         public void SetTerminal(int state)
         {
@@ -142,7 +134,7 @@ namespace Opal.ParseTree
         {
             if (wroteArg)
                 generator.Write(", ");
-            generator.Write("{0} {1}", Name, PropName);
+            generator.Write($"{Name} {PropName}");
             return true;
         }
 
@@ -158,17 +150,14 @@ namespace Opal.ParseTree
         public override void WriteType(StringBuilder builder, string @default)
         {
             if (!string.IsNullOrEmpty(PropName))
-                builder.Append('(').Append(PropName).Append(')');
+                builder.Append('<').Append(PropName).Append('>');
             else if (!string.IsNullOrEmpty(@default))
-                builder.Append('(').Append(@default).Append(')');
+                builder.Append('<').Append(@default).Append('>');
             else if (IsTerminal)
-                builder.Append("(Token)");
+                builder.Append("<Token>");
         }
 
-        public override string ToString()
-        {
-            return Name + base.ToString();
-        }
+        public override string ToString() => Name + base.ToString();
     }
 
     public class StringTokenProd : ProductionExpr
@@ -210,7 +199,7 @@ namespace Opal.ParseTree
         {
             if (!Ignore)
             {
-                generator.Write("Token {0}", PropName);
+                generator.Write($"Token {PropName}");
                 wroteArg = true;
             }
             return wroteArg;
@@ -232,9 +221,9 @@ namespace Opal.ParseTree
         public override void WriteType(StringBuilder builder, string @default)
         {
             if (!string.IsNullOrEmpty(@default))
-                builder.Append('(').Append(@default).Append(')');
+                builder.Append('<').Append(@default).Append('>');
             else
-                builder.Append("(Token)");
+                builder.Append("<Token>");
         }
     }
 }

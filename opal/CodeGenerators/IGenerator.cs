@@ -18,5 +18,13 @@ namespace Generators
 
         IGenerator WriteLine();
         IGenerator WriteLine(string value);
+
+        /// <summary>
+        /// Writes character, not checking for indent position
+        /// </summary>
+        /// <param name="ch"></param>
+        void WriteChar(char ch);
+        
+        void WriteIndent();
     }
 }

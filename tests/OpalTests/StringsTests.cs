@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,12 +33,6 @@ namespace OpalTests
 
             Assert.IsTrue(Strings.FromHexDigit('F', out value));
             Assert.AreEqual(0xf, value);
-        }
-
-        [TestMethod]
-        public void AppendEscTests()
-        {
-
         }
     }
 }

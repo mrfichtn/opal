@@ -29,7 +29,7 @@ namespace Opal.Containers
         public static string FromEsc(this string text)
         {
             if (text == null)
-                return text;
+                return string.Empty;
 
             var builder = new StringBuilder();
             for (int i = 1; i < text.Length - 1; i++)

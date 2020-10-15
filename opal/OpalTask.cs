@@ -11,22 +11,24 @@ namespace Opal
     /// </summary>
     public class OpalTask : Task
     {
-        private bool _isOk;
+        private bool isOk;
 
         #region Properties
 
-        public string Namespace { get; set; }
-        public string Input { get; set; }
-        public string Outputs { get; set; }
+        public string? Namespace { get; set; }
+
+        [Required]
+        public string Input { get; set; } = string.Empty;
+        public string? Outputs { get; set; }
         public bool WriteTimeStamp { get; set; }
 
         #region ParserFrame Property
-        public string ParserFrame
+        public string? ParserFrame
         {
             get { return _parserFrame; }
             set { _parserFrame = value; }
         }
-        private string _parserFrame;
+        private string? _parserFrame;
         #endregion
 
         #endregion
@@ -54,10 +56,10 @@ namespace Opal
             var ns = Namespace;
             GenerateCode(ns);
 
-            return _isOk;
+            return isOk;
         }
 
-        private void GenerateCode(string ns)
+        private void GenerateCode(string? ns)
         {
             try
             {
@@ -68,12 +70,13 @@ namespace Opal
                 var logger = new BuildTaskLogger(Log, Input);
                 var compiler = new Compiler(logger, Input)
                 {
-                    OutPath = Outputs,
                     Namespace = ns,
                     ParserFrame = ParserFrame
                 };
+                if (Outputs != null)
+                    compiler.OutPath = Outputs;
 
-                _isOk = compiler.Compile();
+                isOk = compiler.Compile();
             }
             catch (Exception ex)
             {
@@ -81,7 +84,7 @@ namespace Opal
             }
         }
 
-        private bool TryGetFramePath(ref string filePath)
+        private bool TryGetFramePath(ref string? filePath)
         {
             bool isFound = true;
             if (string.IsNullOrEmpty(filePath))

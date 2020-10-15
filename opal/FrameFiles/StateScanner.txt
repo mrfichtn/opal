@@ -1,14 +1,13 @@
 ﻿public class Scanner: IDisposable
 {
     public const int Eof = -1;
+    private static readonly int[] _charToClass;
+    private static readonly int[,] _states;
 
     private readonly IBuffer _buffer;
     private int _ch;
 	private int _line;
 	private int _column;
-
-    private static readonly int[] _charToClass;
-    private static readonly int[,] _states;
 
 	static Scanner()
 	{
@@ -58,15 +57,10 @@
         NextChar();
 	}
 
-	public static Scanner FromFile(string filePath, int line = 1, int column = 0)
-	{
-		return new Scanner(new FileBuffer(filePath), line, column);
-	}
+	public static Scanner FromFile(string filePath, int line = 1, int column = 0) =>
+		new Scanner(new FileBuffer(filePath), line, column);
 
-	public void Dispose()
-	{
-		_buffer.Dispose();
-	}
+	public void Dispose() => _buffer.Dispose();
 
 	public string FilePath { get; private set; }
 
@@ -159,24 +153,38 @@
     /// </summary>
     public void NextChar()
     {
-        _ch = _buffer.Read();
-        if (_ch == '\n')
-        {
-            ++_line;
-            _column = 0;
-        }
-        //Normalize \r\n -> \n
-        else if (_ch == '\r' && _buffer.Peek() == '\n')
-        {
-            _ch = _buffer.Read();
-            ++_line;
-            _column = 0;
-        }
-        else
-        { 
-            ++_column;
-        }
+	    _ch = _buffer.Read();
+	    if (_ch == '\n')
+	    {
+	        ++_line;
+	        _column = 0;
+
+			prevLine = line.ToString();
+			line.Clear();
+	    }
+	    else if (_ch == '\r')
+	    {
+			++_column;
+	    }
+	    else
+	    { 
+	        ++_column;
+			line.Append((char)_ch);
+	    }
     }
+
+	private string prevLine;
+	private StringBuilder line = new StringBuilder();
+
+	public string Line(int position)
+	{
+		if (position + 1 == _line)
+			return prevLine;
+		if (position == _line)
+			return line.ToString() + _buffer.PeekLine();
+		return string.Empty;
+	}
+
 
 (. scanner.char.map .)
 (. scanner.states .)
@@ -192,10 +200,7 @@
 
 	#region Read Methods
 
-    public static int Read8(Stream stream)
-    {
-        return (sbyte) stream.ReadByte();
-    }
+    public static int Read8(Stream stream) => (sbyte) stream.ReadByte();
 
     public static int Read16(Stream stream)
     {

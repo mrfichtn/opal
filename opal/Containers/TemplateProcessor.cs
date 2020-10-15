@@ -7,7 +7,7 @@ namespace Opal.Containers
 {
 	public class TemplateProcessor
 	{
-		private string _templ;
+		private readonly string _templ;
 		private int _pos;
 		private int _last;
 		private char _ch;
@@ -20,6 +20,11 @@ namespace Opal.Containers
 			Var,
 			SynError
 		}
+
+		protected TemplateProcessor(string templ)
+        {
+			_templ = templ;
+        }
 
 		#region Properties
 
@@ -45,22 +50,21 @@ namespace Opal.Containers
 
         public static void FromFile(Generator generator, IVarProvider provider, string filePath)
         {
-            var processor = new TemplateProcessor();
             var templ = File.ReadAllText(filePath);
-            processor.Format(generator, provider, templ);
+			var processor = new TemplateProcessor(templ);
+			processor.Format(generator, provider);
         }
 
         public static void FromAssembly(Generator generator, IVarProvider provider, string name)
 		{
-			var processor = new TemplateProcessor();
 			var templ = GetTextFromAssembly(name);
-			processor.Format(generator, provider, templ);
+			var processor = new TemplateProcessor(templ);
+			processor.Format(generator, provider);
 		}
 
-		public void Format(Generator generator, IVarProvider provider, string templ)
+		public void Format(Generator generator, IVarProvider provider)
 		{
-			_templ = templ;
-			_last = templ.Length - 1;
+			_last = _templ.Length - 1;
 			_pos = -1;
 			_ch = NextChar();
 			_line = 1;

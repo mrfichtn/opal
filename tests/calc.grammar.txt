@@ -12,10 +12,10 @@ Symbols:
 [10] = primary
 
 R0: @language(11) -> expr(8)
-R1: expr(8) -> expr(8) +(4) term(9)
-R2: expr(8) -> expr(8) -(5) term(9)
-R3: expr(8) -> term(9)
-R4: term(9) -> term(9) *(6) primary(10)
-R5: term(9) -> term(9) /(7) primary(10)
-R6: term(9) -> primary(10)
+R1: expr(8) -> term(9)
+R2: expr(8) -> expr(8) +(4) term(9)
+R3: expr(8) -> expr(8) -(5) term(9)
+R4: term(9) -> primary(10)
+R5: term(9) -> term(9) *(6) primary(10)
+R6: term(9) -> term(9) /(7) primary(10)
 R7: primary(10) -> Int(1)

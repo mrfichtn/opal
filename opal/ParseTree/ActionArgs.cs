@@ -23,13 +23,14 @@ namespace Opal.ParseTree
         public static ActionWriteContext Write(this ActionWriteContext context, ActionArgs args)
         {
             var isFirst = true;
+            var newContext = new ActionWriteContext(context);
             foreach (var item in args)
             {
                 if (isFirst) 
                     isFirst = false; 
                 else 
-                    context.Write(',');
-                item.Write(context);
+                    newContext.Write(',');
+                item.Write(newContext);
             }
             return context;
         }

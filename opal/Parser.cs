@@ -1,5 +1,6 @@
 ﻿using Opal.Nfa;
 using Opal.ParseTree;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +13,7 @@ namespace Opal
         private StringBuilder _usings;
         private ProductionList _productions;
         private Machine _machine;
+        private ConflictList conflicts;
 
         partial void Init()
         {
@@ -19,11 +21,13 @@ namespace Opal
             _usings = new StringBuilder();
             _productions = new ProductionList();
             _machine = new Machine();
+            Graph = new Graph(_machine);
+            conflicts = new ConflictList();
         }
 
         #region Properties
 
-        public Language Language => Root as Language;
+        public Language? Language => Root as Language;
         public string Usings => _usings.ToString();
         public Graph Graph { get; private set; }
 
@@ -70,7 +74,7 @@ namespace Opal
             return result;
         }
 
-        private object Add(NamedCharClass charClass)
+        private object? Add(NamedCharClass charClass)
         {
             
             if (_charClasses.TryGetValue(charClass.Name.Value, out var oldClass))
@@ -86,7 +90,7 @@ namespace Opal
             return null;
         }
 
-        private object AddOption(Token token, StringConst value)
+        private object? AddOption(Token token, StringConst value)
         {
             _options[token.Value] = value.Value;
             return null;
@@ -94,19 +98,36 @@ namespace Opal
 
         private StringTokenProd AddStringTokenProd(StringConst str)
         {
-            var text = str.Value;
-            var state = Graph.FindState(text);
-            if (state == -1)
+            try
             {
-                var g = Graph.Create(text);
-                state = g.MarkEnd(CreateName(text));
-                Graph.Union(g);
+                if (str == null)
+                    throw new ArgumentNullException(nameof(str));
+                var text = str.Value;
+
+                if (Graph == null)
+                    throw new Exception("Graph is null");
+
+                var state = Graph.FindState(text);
+                if (state == -1)
+                {
+                    var g = Graph.Create(text);
+                    state = g.MarkEnd(CreateName(text));
+                    Graph.Union(g);
+                }
+                return new StringTokenProd(str, state);
             }
-            return new StringTokenProd(str, state);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                throw;
+            }
         }
 
         private StringTokenProd AddStringTokenProd(CharConst str)
         {
+            if (str == null)
+                throw new ArgumentNullException(nameof(str));
+
             var text = new string(str.Value, 1);
             var state = Graph.FindState(text);
             if (state == -1)

@@ -60,10 +60,19 @@ namespace CalcTest
         {
         }
 
-        public override int Calc()
+        public override int Calc() =>
+            _left.Calc() * _right.Calc();
+    }
+
+    public class DivExpr: BinaryExpr
+    {
+        public DivExpr(Expr left, Expr right)
+            : base(left, right)
         {
-            return _left.Calc() * _right.Calc();
         }
+
+        public override int Calc() =>
+            _left.Calc() * _right.Calc();
     }
 
     public class Constant: Expr

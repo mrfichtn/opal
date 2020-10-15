@@ -40,7 +40,7 @@ namespace Opal.Nfa
             yield break;
         }
 
-        public IMatch Intersect(IMatch match)
+        public IMatch? Intersect(IMatch match)
         {
             return null;
         }

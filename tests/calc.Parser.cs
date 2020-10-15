@@ -4,11 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Linq.Expressions;
 
 
 namespace CalcTest
 {
-	public partial class Parser
+	public partial class Parser: IDisposable
 	{
 		private readonly ILogger _logger;
 		private readonly Scanner _scanner;
@@ -24,19 +25,25 @@ namespace CalcTest
 		}
 	
 		public Parser(Scanner scanner)
-			: this(new ConsoleLogger(scanner.FilePath), scanner) 
-		{}
+			: this(new ConsoleLogger(scanner.FilePath), scanner) {}
 	
-		public static Parser FromFile(string filePath)
+		public Parser(ILogger logger, string filePath)
+			: this(logger, Scanner.FromFile(filePath)) {}
+	
+		public Parser(string filePath)
+			: this(Scanner.FromFile(filePath))
 		{
-			var scanner = Scanner.FromFile(filePath);
-			return new Parser(scanner);
 		}
 	
 		public static Parser FromString(string text)
 		{
 			var scanner = new Scanner(text);
 			return new Parser(scanner);
+		}
+	
+		public void Dispose()
+		{
+			_scanner.Dispose();
 		}
 	
 		public object Root { get; private set; }
@@ -80,13 +87,14 @@ namespace CalcTest
 							Root = _stack.PopValue();
 							return !_hasErrors;
 						}
-						GetAction(reducedState, _stack.PeekState(), out result);
+						if (GetAction(reducedState, _stack.PeekState(), out result) == ActionType.Error)
+							goto case ActionType.Error;
 						_stack.Replace((uint)result);
 						break;
 	
 					case ActionType.Shift:
-						_stack.Push(result, token);
-						token = _scanner.NextToken();
+						_stack.Shift(result, token);
+						token = NextToken();
 						break;
 				}
 			}
@@ -101,7 +109,6 @@ namespace CalcTest
 	                return token;
 	            _logger.LogError(token, "syntax error - {0}", token.Value);
 	            _hasErrors = true;
-	            token = _scanner.NextToken();
 	        }
 	    }
 	
@@ -111,40 +118,40 @@ namespace CalcTest
 	
 			switch (rule)
 			{
-				case 1: // expr = expr "+" term;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(8, new AddExpr((Expr) _stack[0],(MultiExpr)_stack[2]));
-					break;
-				}
-				case 2: // expr = expr "-" term;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(8, new SubExpr((Expr) _stack[0],(MultiExpr)_stack[2]));
-					break;
-				}
-				case 3: // expr = term;
+				case 1: // expr = term;
 				{
 					state = _stack.SetItems(1)
 					    .Reduce(8, _stack[0]);
 					break;
 				}
-				case 4: // term = term "*" primary;
+				case 2: // expr = expr "+" term;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(9, new MultiExpr((Expr) _stack[0],(Expr) _stack[2]));
+					    .Reduce(8, new AddExpr((Expr) _stack[0], (Expr)_stack[2]));
 					break;
 				}
-				case 5: // term = term "/" primary;
+				case 3: // expr = expr "-" term;
 				{
 					state = _stack.SetItems(3)
-					    .Reduce(9, new MultiExpr((Expr) _stack[0],(Expr) _stack[2]));
+					    .Reduce(8, new SubExpr((Expr) _stack[0],(Expr)_stack[2]));
 					break;
 				}
-				case 6: // term = primary;
+				case 4: // term = primary;
 				{
 					state = _stack.SetItems(1)
 					    .Reduce(9, _stack[0]);
+					break;
+				}
+				case 5: // term = term "*" primary;
+				{
+					state = _stack.SetItems(3)
+					    .Reduce(9, new MultiExpr((Expr) _stack[0],(Expr) _stack[2]));
+					break;
+				}
+				case 6: // term = term "/" primary;
+				{
+					state = _stack.SetItems(3)
+					    .Reduce(9, new DivExpr((Expr) _stack[0],(Expr) _stack[2]));
 					break;
 				}
 				case 7: // primary = Int;
@@ -180,28 +187,29 @@ namespace CalcTest
 			arg = (uint)action;
 			return actionType;
 		}
+	
 		#region Actions Table
 		private readonly int[,] _actions = 
 		{
 			{ -1, 4, -1, -1, -1, -1, -1, -1, 1, 2, 3 },
 			{ -2, -1, -1, -1, 5, 6, -1, -1, -1, -1, -1 },
-			{ -5, -1, -1, -1, -5, -5, 7, 8, -1, -1, -1 },
-			{ -8, -1, -1, -1, -8, -8, -8, -8, -1, -1, -1 },
+			{ -3, -1, -1, -1, -3, -3, 7, 8, -1, -1, -1 },
+			{ -6, -1, -1, -1, -6, -6, -6, -6, -1, -1, -1 },
 			{ -9, -1, -1, -1, -9, -9, -9, -9, -1, -1, -1 },
 			{ -1, 4, -1, -1, -1, -1, -1, -1, -1, 9, 3 },
 			{ -1, 4, -1, -1, -1, -1, -1, -1, -1, 10, 3 },
 			{ -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, 11 },
 			{ -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, 12 },
-			{ -3, -1, -1, -1, -3, -3, 7, 8, -1, -1, -1 },
 			{ -4, -1, -1, -1, -4, -4, 7, 8, -1, -1, -1 },
-			{ -6, -1, -1, -1, -6, -6, -6, -6, -1, -1, -1 },
+			{ -5, -1, -1, -1, -5, -5, 7, 8, -1, -1, -1 },
 			{ -7, -1, -1, -1, -7, -7, -7, -7, -1, -1, -1 },
+			{ -8, -1, -1, -1, -8, -8, -8, -8, -1, -1, -1 },
 		};
 	
 		#endregion
 		#region Symbols
-		private const int _maxTerminal = 7;
-		private readonly string[] _symbols =
+		protected const int _maxTerminal = 7;
+		protected readonly string[] _symbols =
 		{
 			"",
 			"Int",
@@ -218,17 +226,6 @@ namespace CalcTest
 	
 		#endregion
 		
-	    /// <summary>
-	    /// Called by reduction for an invalid, extra token
-	    /// </summary>
-	    /// <param name="t">Invalid token</param>
-	    /// <param name="result">Value to return</param>
-	    /// <returns>Result that allows parser to correctly</returns>
-	    private object InvalidToken(Token t, object result)
-	    {
-	        _logger.LogError(t, "unexpected token {0}", t.Value);
-	        return result;
-	    }
 	
 	    private bool TryRecover(ref Token token, bool suppress)
 	    {
@@ -255,7 +252,6 @@ namespace CalcTest
 	        }
 	        return isOk;
 	    }
-	
 	
 		#region LRStack
 		[DebuggerDisplay("Count = {_count}"), DebuggerTypeProxy(typeof(LRStackProxy))]
@@ -445,7 +441,7 @@ namespace CalcTest
 			if (_ch=='\t' || _ch=='\n' || _ch == ' ') goto State4;
 			if ((_ch>='1' && _ch<='9')) goto State2;
 			if ((_ch>='A' && _ch<='Z') || _ch == '_' || (_ch>='a' && _ch<='z')) goto State3;
-			goto EndState;
+			goto EndState2;
 		State1:
 			MarkAccepting(TokenStates.Int);
 			NextChar();
@@ -487,7 +483,6 @@ namespace CalcTest
 				_lastAcceptingPosition = _buffer.Position - 1;
 				_lastAcceptingState = -1;
 			}
-	
 			var value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
 			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
 			if (_buffer.Position != _lastAcceptingPosition)
@@ -497,6 +492,12 @@ namespace CalcTest
 				_column = _lastColumn;
 				NextChar();
 			}
+			return token;
+	
+	    EndState2:
+			value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
+			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+			NextChar();
 			return token;
 		}
 	
@@ -551,12 +552,10 @@ namespace CalcTest
 		public int State;
 		public string Value;
 	
-		public Token()
-		{}
+		public Token() {}
 			
 		public Token(int line, int column, int ch)
-			: base(new Position(line, column, ch))
-		{}
+			: base(new Position(line, column, ch)) {}
 	
 		public Token Set(int state, string value, int ln, int col, int ch)
 		{
@@ -566,12 +565,16 @@ namespace CalcTest
 			return this;
 		}
 	
+	    public static implicit operator string(Token t)
+	    {
+	        return t.Value;
+	    }
+	
 		public override string ToString()
 		{
 			return string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
 		}
 	}
-	
 	
 	///<summary>Location of a character within a file</summary>
 	public struct Position: IEquatable<Position>
@@ -627,8 +630,7 @@ namespace CalcTest
 		public Position Start;
 		public Position End;
 	
-		public Segment()
-		{}
+		public Segment() {}
 	
 		public Segment(Segment cpy)
 		{
@@ -680,8 +682,6 @@ namespace CalcTest
 		}
 	}
 	
-	
-	
 	/// <summary>
 	/// Buffer between text/file object and scanner
 	/// </summary>
@@ -713,6 +713,90 @@ namespace CalcTest
 	    string GetString(int beg, int end);
 	}
 	
+	public class FileBuffer : IBuffer, IDisposable
+	{
+	    private readonly StreamReader _reader;
+	    private readonly StringBuilder _builder;
+	    private int _filePos;
+	    private int _remaining;
+	    private readonly long _fileLength;
+	
+	    public FileBuffer(string filePath)
+	        : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+	    {
+	    }
+	
+	    public FileBuffer(Stream stream)
+	    {
+	        _fileLength = stream.Length;
+	        _reader = new StreamReader(stream);
+	        _builder = new StringBuilder();
+	    }
+	
+	    public int Position
+	    {
+	        get { return _filePos - _remaining; }
+	        set { _remaining = _filePos - value; }
+	    }
+	
+	    public void Dispose()
+	    {
+	        _reader.Dispose();
+	    }
+	
+	    public string GetString(int beg, int end)
+	    {
+	        var length = end - beg;
+	        var pos = _filePos - _remaining;
+	        var start = pos - beg;
+	        var shift = _builder.Length - start;
+	        var result = _builder.ToString(shift, length);
+	        _builder.Remove(shift, length);
+	        return result;
+	    }
+	
+	    public int Peek()
+	    {
+	        int result;
+	        if (_remaining > 0)
+	        {
+	            result = _builder[_builder.Length - _remaining];
+	        }
+	        else if (_filePos < _fileLength)
+	        {
+	            result = _reader.Read();
+	            _builder.Append((char)result);
+	            _filePos++;
+	            _remaining++;
+	        }
+	        else
+	        {
+	            result = -1;
+	        }
+	        return result;
+	    }
+	
+	    public int Read()
+	    {
+	        int result;
+	        if (_remaining > 0)
+	        {
+	            result = _builder[_builder.Length - _remaining--];
+	        }
+	        else if (_filePos < _fileLength)
+	        {
+	            result = _reader.Read();
+	            _builder.Append((char)result);
+	            _filePos++;
+	        }
+	        else
+	        {
+	            result = -1;
+	        }
+	        return result;
+	    }
+	}
+	
 	public class StringBuffer: IBuffer
 	{
 	    private readonly string _text;
@@ -722,9 +806,7 @@ namespace CalcTest
 	        _text = text;
 	    }
 	
-		public void Dispose()
-		{
-		}
+		public void Dispose() {}
 	
 	    public int Position { get; set;}
 	

@@ -40,7 +40,7 @@ namespace Generators
         }
 
         public void StartClass(string name, AccessSpecifier specifier, ClassFlags flags = ClassFlags.None,
-            IList<string> superClasses = null)
+            IList<string>? superClasses = null)
         {
             Write(ToString(specifier));
             if (flags.HasFlag(ClassFlags.Partial))
@@ -48,7 +48,7 @@ namespace Generators
             if (flags.HasFlag(ClassFlags.Static))
                 Write(" static");
             WriteLine(" class {0}", name);
-            if (superClasses.Count > 0)
+            if ((superClasses != null) && (superClasses.Count > 0))
             {
                 Indent();
                 Write(": {0}", superClasses[0]);
@@ -143,12 +143,12 @@ namespace Generators
             WriteLine(inlineComment(comment));
         }
 
-        public void DeclareScalar(string type, string name, string init = null)
+        public void DeclareScalar(string type, string name, string? init = null)
         {
             if (string.IsNullOrEmpty(init))
                 WriteLine("{0} {1};", type, name);
             else
-                WriteLine("{0} {1} = {2};", type, name, init);
+                WriteLine("{0} {1} = {2};", type, name, init!);
         }
 
 

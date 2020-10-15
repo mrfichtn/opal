@@ -2,14 +2,17 @@
 using System.Linq;
 using Generators;
 using Opal.Logging;
+using Opal.ParseTree;
 
 namespace Opal.LR1
 {
-    internal class LR1Parser
+    public class LR1Parser
 	{
 		private readonly Grammar _grammar;
 
-        public LR1Parser(ILogger logger, Grammar grammar)
+        public LR1Parser(ILogger logger, 
+            Grammar grammar, 
+            ConflictList conflicts)
 		{
 			_grammar = grammar;
 			var endSymbol = grammar.Symbols[0];
@@ -32,7 +35,14 @@ namespace Opal.LR1
                 Goto(startState, actionBuilder, queue);
             }
 
-            Actions = actionBuilder.Build(logger, States.Count, _grammar.Symbols);
+            var resolver = new ConflictResolvers(conflicts,
+                grammar.Symbols,
+                logger);
+
+            Actions = actionBuilder.Build(logger, 
+                States, 
+                _grammar.Symbols,
+                resolver);
         }
 
         #region Properties
@@ -50,7 +60,7 @@ namespace Opal.LR1
 		{
 			foreach (var symbol in state.NextSymbols())
 			{
-				var newState = new State(States.Count);
+				var newState = new State(States.Count, symbol);
 
                 foreach (var item in state.Where(x=>x.IsSymbol(symbol)))
                     newState.Add(item.Production, item.Position + 1, item.Lookahead);
@@ -59,7 +69,6 @@ namespace Opal.LR1
                 {
                     if (!States.TryGetId(newState, out var stateId))
                     {
-                        newState.Symbol = symbol;
                         States.Add(newState);
                         newState.Closure(_grammar);
                         queue.Enqueue(newState);

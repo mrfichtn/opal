@@ -93,7 +93,7 @@ namespace Opal.Nfa
 
         public Graph Create(IMatch match) => new Graph(Machine, match);
 
-        public int MarkEnd(string tokenName, Identifier attr = null)
+        public int MarkEnd(string tokenName, Identifier? attr = null)
         {
             var ignore = (attr?.Value == "ignore");
 

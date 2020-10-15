@@ -3,9 +3,15 @@
 		<TargetFramework>net471</TargetFramework>
 		<OutputType>Exe</OutputType>
 		<Description>LR(1) compiler-compiler</Description>
-		<Version>1.0.12</Version>
+		<Version>1.0.14</Version>
 		<Copyright>Copyright© 2018-2020</Copyright>
 		<RootNamespace>Opal</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <IsTool>True</IsTool>
+    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
+    <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="Logging\ConsoleLogger.cs" />
@@ -16,6 +22,7 @@
 	  <None Remove="FrameFiles\Parser.txt" />
 	  <None Remove="FrameFiles\StateScanner.txt" />
 	  <None Remove="FrameFiles\SwitchScanner.txt" />
+    <None Remove="pub\**" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -34,6 +41,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="FrameFiles\StateScanner.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="16.7.30328.74" />
   </ItemGroup>
 
 </Project>

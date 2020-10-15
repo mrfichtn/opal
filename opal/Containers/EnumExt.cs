@@ -2,12 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Opal.Containers
 {
-	public static class EnumExt
+    public static class EnumExt
 	{
         public static IEnumerable<T> Yield<T>(this T item)
         {
@@ -19,8 +17,8 @@ namespace Opal.Containers
             T result;
             if (items != null)
             {
-                using (var e = items.GetEnumerator())
-                    result = e.MoveNext() ? e.Current : @default;
+                using var e = items.GetEnumerator();
+                result = e.MoveNext() ? e.Current : @default;
             }
             else
             {
@@ -52,12 +50,12 @@ namespace Opal.Containers
                 using (var e = items.GetEnumerator())
                 {
                     isFound = e.MoveNext();
-                    result = isFound ? e.Current : default;
+                    result = isFound ? e.Current : default!;
                 }
             }
             else
             {
-                result = default;
+                result = default!;
             }
             return isFound;
         }

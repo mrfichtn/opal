@@ -1,5 +1,6 @@
+using System.Linq.Expressions;
+
 namespace CalcTest;
-namespace System.Linq.Expressions;
 
 Options
 	scanner		= "switch"
@@ -19,10 +20,13 @@ Tokens
 	white_space = white_space+ ;
 
 Productions expr
-	expr = expr '+' term    	{ new AddExpr($0:Expr, $2); }
-		 | expr '-' term		{ new SubExpr($0:Expr, $2); }
-		 | term;
-	term = term '*' primary 	{ new MultiExpr($0:Expr, $2:Expr); }
-		 | term '/' primary 	{ new MultiExpr($0:Expr, $2:Expr); }
-		 | primary;
-	primary = Int				{ new Constant($0); }
+
+	expr	= term
+			| expr '+' term    		{ new AddExpr($0:Expr, $2); }
+			| expr '-' term			{ new SubExpr($0:Expr, $2); }
+
+	term	= primary
+			| term '*' primary 		{ new MultiExpr($0:Expr, $2:Expr); }
+			| term '/' primary 		{ new DivExpr($0:Expr, $2:Expr); }
+	
+	primary = Int					{ new Constant($0); }

@@ -8,22 +8,6 @@ namespace Opal.ParseTree
     {
         private bool _ignore;
 
-        public Production()
-        {
-            _right = new ProductionExprs();
-        }
-
-        public Production(Token id, ProductionAttr attr, ProductionExprs right, ActionExpr action)
-        {
-            Left = new Identifier(id);
-            _right = right;
-            if (attr != null)
-            {
-                SetAttribute(attr.Option);
-                CallMethod = attr.IsMethod;
-            }
-            Action = action;
-        }
 
         public Production(Token id, ProductionAttr attr, ProdDef definition)
         {
@@ -85,9 +69,9 @@ namespace Opal.ParseTree
         private readonly ProductionExprs _right;
         #endregion
 
-        public Identifier Type { get; set; }
+        public Identifier? Type { get; set; }
         public bool CallMethod { get; set; }
-        public ActionExpr Action { get; set; } 
+        public ActionExpr? Action { get; set; } 
 
         #endregion
 
@@ -99,14 +83,12 @@ namespace Opal.ParseTree
                 Action.GetTypes(types);
         }
 
-        public void SetAttribute(Identifier attr)
+        private void SetAttribute(Identifier attr)
         {
             if (attr.Value == "ignore")
                 _ignore = true;
-            else if (Type == null)
-                Type = attr;
             else
-                Type = new Identifier(Type, attr);
+                Type = attr;
         }
 
         public bool HasItem(int position, int id)
@@ -120,12 +102,22 @@ namespace Opal.ParseTree
 
             generator.Write("case {0}:", RuleId)
                 .WriteLine($" // {this}")
-                .StartBlock();
+                .Indent();
+                //.StartBlock();
 
+            //if (rightCount != 0)
+            //    generator.WriteLine("state = _stack.SetItems({0})", rightCount).Write("    .Reduce({0}, ", Id);
+            //else
+            //    generator.Write("state = _stack.Push({0}, ", Id);
             if (rightCount != 0)
-                generator.WriteLine("state = _stack.SetItems({0})", rightCount).Write("    .Reduce({0}, ", Id);
+            {
+                generator.WriteLine($"items = {rightCount};");
+                generator.Write($"state = Reduce({Id}, ");
+            }
             else
-                generator.Write("state = _stack.Push({0}, ", Id);
+            {
+                generator.Write($"state = Push({Id}, ");
+            }
 
             if (Action != null)
                 Action.Write(new ActionWriteContext(generator, parent, this, true));
@@ -133,7 +125,9 @@ namespace Opal.ParseTree
                 WriteAttributed(generator, parent, option);
 
             generator.WriteLine(");")
-                .WriteLine("break;").EndBlock();
+                .WriteLine("break;")
+                .UnIndent();
+                //.EndBlock();
         }
 
         public void WriteAttributed(IGenerator generator, ProductionList parent, NoActionOption option)
@@ -141,7 +135,7 @@ namespace Opal.ParseTree
             var ignore = _ignore || (_right.Count == 0 && Type == null);
             var retType = Type ?? Left;
             var finalArgs = new StringBuilder();
-            string first = null;
+            string? first = null;
             var argc = 0;
             for (var i = 0; i < _right.Count; i++)
             {
@@ -151,22 +145,24 @@ namespace Opal.ParseTree
                 else if (right.CallMethod)
                 {
                     finalArgs.Append(right.PropName).Append('(');
+                    finalArgs.Append("At");
                     if (right.Type != null)
-                        finalArgs.Append('(').Append(right.Type.Value).Append(')');
-                    finalArgs.Append("_stack[").Append(i).Append("])");
+                        finalArgs.Append('<').Append(right.Type.Value).Append('>');
+                    finalArgs.Append('(').Append(i).Append("))");
                 }
                 else
                 {
                     parent.DefaultTypes.TryGetValue(right.Id, out var type);
+                    finalArgs.Append("At");
                     right.WriteType(finalArgs, type);
-                    finalArgs.Append("_stack[").Append(i).Append("]");
+                    finalArgs.Append('(').Append(i).Append(')');
                 }
                 if (argc++ == 0)
                 {
                     if (right.CallMethod)
                         first = finalArgs.ToString();
                     else
-                        first = string.Format("_stack[{0}]", i);
+                        first = $"At({i})";
                 }
                 finalArgs.Append(',');
             }
@@ -180,12 +176,12 @@ namespace Opal.ParseTree
             else if (Type == null)
             {
                 if (argc == 1)
-                    generator.Write("{0}", first);
+                    generator.Write("{0}", first!);
                 else
                     switch (option)
                     {
                         case NoActionOption.First:
-                            generator.Write("{0}", first);
+                            generator.Write("{0}", first ?? string.Empty);
                             break;
                         case NoActionOption.Null:
                             generator.Write("null");

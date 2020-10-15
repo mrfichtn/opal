@@ -12,9 +12,9 @@ namespace Opal.LR1
 	{
 		///*state*/, /*lookahead*/
 		private readonly int[,] _data;
-		private readonly IList<Symbol> _symbols;
+		private readonly Symbols _symbols;
 
-		public Actions(int[,] data, IList<Symbol> symbols)
+		public Actions(int[,] data, Symbols symbols)
 		{
 			_data = data;
 			_symbols = symbols;

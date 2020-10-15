@@ -579,9 +579,9 @@ namespace Opal.Nfa
             return result;
         }
 
-        public IMatch Intersect(IMatch other)
+        public IMatch? Intersect(IMatch other)
         {
-            IMatch result = null;
+            IMatch? result = null;
             if (other is CharClass cc)
             {
                 var data = new uint[Size];

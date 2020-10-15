@@ -1,4 +1,5 @@
 ﻿using Generators;
+using Opal.Containers;
 using System.Text;
 
 namespace Opal.CodeGenerators
@@ -21,11 +22,13 @@ namespace Opal.CodeGenerators
             else if (value.Length == 0)
                 generator.Write("\"\"");
             else
-                generator.Write(
-                    new StringBuilder('\"')
-                    .AppendEsc(value)
-                    .Append('\"')
-                    .ToString());
+            {
+                generator.WriteIndent();
+                generator.WriteChar('\"');
+                foreach (var ch in value.ToEscape())
+                    generator.WriteChar(ch);
+                generator.WriteChar('\"');
+            }
             return generator;
         }
     }
