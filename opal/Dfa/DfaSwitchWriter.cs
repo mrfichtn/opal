@@ -6,47 +6,28 @@ using System.Linq;
 
 namespace Opal.Dfa
 {
-    public class DfaSwitchWriter: IGeneratable, IVarProvider
+    public class DfaSwitchWriter: IGeneratable, ITemplateContext
     {
-        private readonly Dfa _dfa;
-        public DfaSwitchWriter(Dfa dfa)
-        {
-            _dfa = dfa;
-        }
+        private readonly Dfa dfa;
+        public DfaSwitchWriter(Dfa dfa) => 
+            this.dfa = dfa;
 
-        public void Write(Generator generator)
-        {
+        public void Write(Generator generator) =>
             TemplateProcessor.FromAssembly(generator, this, "Opal.FrameFiles.SwitchScanner.txt");
-        }
-
-        bool IVarProvider.AddVarValue(Generator generator, string varName)
-        {
-            var found = true;
-            switch (varName)
-            {
-                case "dfa.states":
-                    WriteStates(generator);
-                    break;
-                default:
-                    found = false;
-                    break;
-            }
-            return found;
-        }
 
         private void WriteStates(IGenerator generator)
         {
             generator.Indent();
             var nextStates = new HashSet<int>();
-            var edges = _dfa.MaxClass;
+            var edges = dfa.MaxClass;
 
-            foreach (var state in _dfa.States)
+            foreach (var state in dfa.States)
             {
                 if (state.Index != 0)
                     generator.WriteLine().WriteLine($"State{state.Index}:");
                 generator.Indent();
 
-                if (state.IsAccepting && _dfa.TryGetAccepting(state.AcceptingState, out string name))
+                if (state.IsAccepting && dfa.TryGetAccepting(state.AcceptingState, out string name))
                     generator.WriteLine($"MarkAccepting(TokenStates.{name});");
 
                 if (state.Index != 0)
@@ -67,7 +48,7 @@ namespace Opal.Dfa
                     {
                         if (state[i] == nextState)
                         {
-                            var transMatch = _dfa.Matches.Find(i);
+                            var transMatch = dfa.Matches.Find(i);
                             match = match.Union(transMatch);
                         }
                     }
@@ -84,7 +65,7 @@ namespace Opal.Dfa
                     if (i < last)
                     {
                         generator.Write("if (");
-                        item.Value.Write(generator, "_ch");
+                        item.Value.Write(generator, "ch");
                         generator.Write(") ");
                     }
 
@@ -107,6 +88,31 @@ namespace Opal.Dfa
             }
 
             generator.UnIndent();
+        }
+
+        bool ITemplateContext.WriteVariable(Generator generator, string varName)
+        {
+            var found = true;
+            switch (varName)
+            {
+                case "dfa.states":
+                    WriteStates(generator);
+                    break;
+                default:
+                    found = false;
+                    break;
+            }
+            return found;
+        }
+
+        bool ITemplateContext.Condition(string varName)
+        {
+            return false;
+        }
+
+        string? ITemplateContext.Include(string name)
+        {
+            return null;
         }
     }
 }

@@ -5,92 +5,111 @@ using System.Text;
 
 namespace OpalTests
 {
-    public class FileBuffer : IBuffer, IDisposable
-    {
-        private readonly StreamReader _reader;
-        private StringBuilder _builder;
-        private int _filePos;
-        private int _remaining;
+	public class FileBuffer : IBuffer, IDisposable
+	{
+		private readonly StreamReader reader;
+		private readonly StringBuilder builder;
+		private int filePos;
+		private int remaining;
 
-        public FileBuffer(string filePath)
-            : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
-        }
+		public FileBuffer(string filePath)
+			: this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+		{
+		}
 
-        public FileBuffer(Stream stream)
-        {
-            Length = stream.Length;
-            _reader = new StreamReader(stream);
-            _builder = new StringBuilder();
-        }
+		public FileBuffer(Stream stream)
+		{
+			Length = stream.Length;
+			reader = new StreamReader(stream);
+			builder = new StringBuilder();
+		}
 
-        public long Length { get; }
+		public long Length { get; }
 
-        public int Position
-        {
-            get { return _filePos - _remaining; }
-            set
-            {
-                _remaining = _filePos - value;
-            }
+		public int Position
+		{
+			get => filePos - remaining;
+			set => remaining = filePos - value;
+		}
 
-        }
+		public void Dispose() => reader.Dispose();
 
-        public void Dispose()
-        {
-            _reader.Dispose();
-        }
+		public string GetString(int beg, int end)
+		{
+			var length = end - beg;
+			var start = filePos - builder.Length - beg;
+			var result = builder.ToString(start, length);
+			builder.Remove(start, length);
+			return result;
+		}
 
-        public string GetString(int beg, int end)
-        {
-            var length = end - beg;
-            var pos = _filePos - _remaining;
-            var start = pos - beg;
-            var shift = _builder.Length - start;
-            var result = _builder.ToString(shift, length);
-            _builder.Remove(shift, length);
-            return result;
-        }
+		public int Peek()
+		{
+			int result;
+			if (remaining > 0)
+			{
+				result = builder[builder.Length - remaining];
+			}
+			else if (filePos < Length)
+			{
+				result = reader.Read();
+				filePos++;
+				builder.Append((char)result);
+				remaining++;
+			}
+			else
+			{
+				result = -1;
+			}
+			return result;
+		}
 
-        public int Peek()
-        {
-            int result;
-            if (_remaining > 0)
-            {
-                result = _builder[_builder.Length - _remaining];
-            }
-            else if (_filePos < Length)
-            {
-                result = _reader.Read();
-                _builder.Append(result);
-                _filePos++;
-                _remaining++;
-            }
-            else
-            {
-                result = -1;
-            }
-            return result;
-        }
+		public int Read()
+		{
+			int result;
+			if (remaining > 0)
+			{
+				result = builder[builder.Length - remaining--];
+			}
+			else if (filePos < Length)
+			{
+				result = reader.Read();
+				builder.Append((char)result);
+				filePos++;
+			}
+			else
+			{
+				result = -1;
+			}
+			return result;
+		}
 
-        public int Read()
-        {
-            int result;
-            if (_remaining > 0)
-            {
-                result = _builder[_builder.Length - _remaining--];
-            }
-            else if (_filePos < Length)
-            {
-                result = _reader.Read();
-                _builder.Append((char)result);
-                _filePos++;
-            }
-            else
-            {
-                result = -1;
-            }
-            return result;
-        }
-    }
+
+		public string PeekLine()
+		{
+			var result = new StringBuilder();
+			for (var i = builder.Length - remaining; i < builder.Length; i++)
+			{
+				var ch = builder[i];
+				if (ch == '\n')
+					return result.ToString();
+				if (ch != '\r')
+					return result.ToString();
+				result.Append(ch);
+			}
+
+			while (filePos < Length)
+			{
+				var ch = reader.Read();
+				filePos++;
+				builder.Append((char)ch);
+				remaining++;
+				if (ch == '\n')
+					return result.ToString();
+				if (ch != '\r')
+					result.Append((char)ch);
+			}
+			return result.ToString();
+		}
+	}
 }

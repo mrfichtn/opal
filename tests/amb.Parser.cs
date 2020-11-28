@@ -127,7 +127,7 @@ namespace Ambiguity
 					break;
 				case 3: // statements = statements statement;
 					items = 2;
-					state = Reduce(7, Stmts.Add((Stmts) _stack[0],(Stmt) _stack[1]));
+					state = Reduce(7, Stmts.Add(At<Stmts>(0),At<Stmt>(1)));
 					break;
 				case 4: // statement = "print";
 					items = 1;
@@ -135,11 +135,11 @@ namespace Ambiguity
 					break;
 				case 5: // statement = "if" expr statement;
 					items = 3;
-					state = Reduce(8, new IfStmt((int) _stack[1],(Stmt) _stack[2],(ElseClause) _stack[3]));
+					state = Reduce(8, new IfStmt(At<int>(1),At<Stmt>(2),At<ElseClause>(3)));
 					break;
 				case 6: // statement = "if" expr statement "else" statement;
 					items = 5;
-					state = Reduce(8, new IfStmt((int) _stack[1],(Stmt) _stack[2],(Stmt) _stack[4]));
+					state = Reduce(8, new IfStmt(At<int>(1),At<Stmt>(2),At<Stmt>(4)));
 					break;
 				case 7: // expr = "1";
 					items = 1;
@@ -528,7 +528,6 @@ namespace Ambiguity
 				prevLine = line.ToString();
 				line.Clear();
 		    }
-		    //Normalize \r\n -> \n
 		    else if (_ch == '\r')
 		    {
 				++_column;

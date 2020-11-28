@@ -1,4 +1,4 @@
-using ExprBuilder.Tree;
+using namespace ExprBuilder.Tree;
 namespace Ambiguity;
 
 Characters

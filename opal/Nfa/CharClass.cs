@@ -9,14 +9,15 @@ namespace Opal.Nfa
 {
     public class CharClass : Segment, IMatch
     {
-        private bool _invert = false;
-        private uint[] _matches;
-        private const int Size = 2048;
+        private const int size = 2048;
+
+        private bool invert;
+        private uint[] matches;
 
         public CharClass(Segment s)
             : base(s)
         {
-            _matches = new uint[Size];
+            matches = new uint[size];
         }
 
         public CharClass(Token t)
@@ -29,25 +30,25 @@ namespace Opal.Nfa
         public CharClass(CharClass ch)
             : this(ch as Segment)
         {
-            Array.Copy(ch._matches, _matches, _matches.Length);
-            _invert = ch._invert;
+            Array.Copy(ch.matches, matches, matches.Length);
+            invert = ch.invert;
         }
 
         public CharClass(string value)
         {
-            _matches = new uint[Size];
+            matches = new uint[size];
             Set(value);
         }
 
         protected CharClass(uint[] matches)
         {
-            _matches = matches;
+            this.matches = matches;
             int bits = GetCount(matches);
-            if (bits > (Size >> 1))
+            if (bits > (size >> 1))
             {
-                for (int i = 0; i < _matches.Length; i++)
-                    _matches[i] = ~_matches[i];
-                _invert = true;
+                for (int i = 0; i < this.matches.Length; i++)
+                    this.matches[i] = ~this.matches[i];
+                invert = true;
             }
         }
 
@@ -59,8 +60,8 @@ namespace Opal.Nfa
         {
             get
             {
-                var count = GetCount(_matches);
-                return (!_invert) ? count : (1 << 16) - count;
+                var count = GetCount(matches);
+                return (!invert) ? count : (1 << 16) - count;
             }
         }
 
@@ -68,7 +69,7 @@ namespace Opal.Nfa
         {
             get
             {
-                var count = _invert ? 1 : 0;
+                var count = invert ? 1 : 0;
                 int start = -1;
                 for (var i = 0; i <= char.MaxValue; i++)
                 {
@@ -107,7 +108,7 @@ namespace Opal.Nfa
         {
             var copy = new CharClass(this)
             {
-                _invert = !_invert
+                invert = !invert
             };
             copy.CopyFrom(t);
             return copy;
@@ -117,7 +118,7 @@ namespace Opal.Nfa
         {
             var copy = new CharClass(this)
             {
-                _invert = !_invert
+                invert = !invert
             };
             return copy;
         }
@@ -130,7 +131,7 @@ namespace Opal.Nfa
             if (value[i] == '^')
             {
                 i++;
-                _invert = true;
+                invert = true;
             }
 
             var esc = false;
@@ -233,10 +234,7 @@ namespace Opal.Nfa
             }
         }
 
-        public void Add(char ch)
-        {
-            SetBit(ch);
-        }
+        public void Add(char ch) => SetBit(ch);
 
         public void Add(char beg, char end)
         {
@@ -246,36 +244,27 @@ namespace Opal.Nfa
 
         public void AddTo(CharClass right)
         {
-            if (!_invert)
+            if (!invert)
             {
-                if (!right._invert)
-                    OrFrom(right._matches);
+                if (!right.invert)
+                    OrFrom(right.matches);
                 else
-                    NotAndFrom(right._matches);
+                    NotAndFrom(right.matches);
             }
-            else if (!right._invert)
+            else if (!right.invert)
             {
-                AndNotFrom(right._matches);
+                AndNotFrom(right.matches);
             }
             else
             {
-                AndFrom(right._matches);
+                AndFrom(right.matches);
             }
-        }
-
-        public override bool Equals(object obj)
-        {
-            var rt = obj as CharClass;
-            if (Equals(rt, null))
-                return false;
-            else return (rt._invert == _invert)
-                && _matches.Equals(rt._matches);
         }
 
         public void Write(IGenerator generator, string varName)
         {
-            if (_invert)
-                generator.Write("!((_ch==-1) ||");
+            if (invert)
+                generator.Write($"!(({varName}==-1) ||");
 
             int start = -1;
             var isFirst = true;
@@ -346,7 +335,7 @@ namespace Opal.Nfa
                 }
             }
 
-            if (_invert)
+            if (invert)
                 generator.Write(")");
         }
 
@@ -354,7 +343,7 @@ namespace Opal.Nfa
         {
             var builder = new StringBuilder();
             builder.Append('[');
-            if (_invert)
+            if (invert)
                 builder.Append('^');
 
             int start = -1;
@@ -422,36 +411,30 @@ namespace Opal.Nfa
         public override int GetHashCode()
         {
             var hash = 0U;
-            foreach (var item in _matches)
+            foreach (var item in matches)
                 hash ^= item;
-            if (_invert)
+            if (invert)
                 hash = ~hash;
             return (int)hash;
         }
 
-        public static char ConvertEsc(char val)
-        {
-            return Generators.Strings.ConvertEsc(val);
-        }
+        public static char ConvertEsc(char val) => Strings.ConvertEsc(val);
 
-        public bool IsMatch(char ch)
-        {
-            return GetBit(ch) ^ _invert;
-        }
+        public bool IsMatch(char ch) => GetBit(ch) ^ invert;
 
         #region Logic Members
         private void SetBit(int address)
         {
             var index = address >> 5;
             var offset = address & 0x1F;
-            _matches[index] |= (0x1U << offset);
+            matches[index] |= (0x1U << offset);
         }
 
         private void ClrBit(int address)
         {
             var index = address >> 5;
             var offset = address & 0x1F;
-            _matches[index] &= ~((0x1U << offset));
+            matches[index] &= ~((0x1U << offset));
         }
 
 
@@ -459,46 +442,46 @@ namespace Opal.Nfa
         {
             var index = address >> 5;
             var offset = address & 0x1F;
-            return ((_matches[index] >> offset) & 0x1) == 1;
+            return ((matches[index] >> offset) & 0x1) == 1;
         }
 
 
         private void OrFrom(uint[] matches)
         {
-            for (var i = 0; i < _matches.Length; i++)
-                _matches[i] |= matches[i];
+            for (var i = 0; i < this.matches.Length; i++)
+                this.matches[i] |= matches[i];
         }
         private void NotAndFrom(uint[] matches)
         {
-            for (var i = 0; i < _matches.Length; i++)
+            for (var i = 0; i < this.matches.Length; i++)
             {
-                var left = _matches[i];
+                var left = this.matches[i];
                 var right = matches[i];
                 if (left == 0)
-                    _matches[i] = right;
+                    this.matches[i] = right;
                 else
-                    _matches[i] = right & (~left);
+                    this.matches[i] = right & (~left);
             }
-            _invert = true;
+            invert = true;
         }
 
         private void AndNotFrom(uint[] matches)
         {
-            for (var i = 0; i < _matches.Length; i++)
+            for (var i = 0; i < this.matches.Length; i++)
             {
-                var left = _matches[i];
+                var left = this.matches[i];
                 var right = matches[i];
                 if (right == 0)
-                    _matches[i] = left;
+                    this.matches[i] = left;
                 else
-                    _matches[i] = left & (~right);
+                    this.matches[i] = left & (~right);
             }
         }
 
         private void AndFrom(uint[] matches)
         {
-            for (var i = 0; i < _matches.Length; i++)
-                _matches[i] &= matches[i];
+            for (var i = 0; i < this.matches.Length; i++)
+                this.matches[i] &= matches[i];
         }
 
 
@@ -508,37 +491,37 @@ namespace Opal.Nfa
         {
             var index = ch >> 5;
             var offset = ch & 0x1F;
-            if (!_invert)
+            if (!invert)
             {
                 uint data = 1U << offset;
-                if (_matches[index] != data)
+                if (matches[index] != data)
                     return false;
 
                 for (var i = 0; i < index; i++)
                 {
-                    if (_matches[i] != 0)
+                    if (matches[i] != 0)
                         return false;
                 }
-                for (var i = index + 1; i < _matches.Length; i++)
+                for (var i = index + 1; i < matches.Length; i++)
                 {
-                    if (_matches[i] != 0)
+                    if (matches[i] != 0)
                         return false;
                 }
             }
             else
             {
                 uint data = ~(1U << offset);
-                if (_matches[index] != data)
+                if (matches[index] != data)
                     return false;
 
                 for (var i = 0; i < index; i++)
                 {
-                    if (_matches[i] != uint.MaxValue)
+                    if (matches[i] != uint.MaxValue)
                         return false;
                 }
-                for (var i = index + 1; i < _matches.Length; i++)
+                for (var i = index + 1; i < matches.Length; i++)
                 {
-                    if (_matches[i] != uint.MaxValue)
+                    if (matches[i] != uint.MaxValue)
                         return false;
                 }
 
@@ -546,28 +529,37 @@ namespace Opal.Nfa
             return true;
         }
 
+        public override bool Equals(object? obj)
+        {
+            if (obj is CharClass cc)
+                return Equals(cc);
+            if (obj is SingleChar sc)
+                return IsSingleChar(sc.Ch);
+            return false;
+        }
+
         public bool Equals(CharClass other)
         {
-            if (_invert == other._invert)
+            if (invert == other.invert)
             {
-                for (int i = 0; i < _matches.Length; i++)
+                for (int i = 0; i < matches.Length; i++)
                 {
-                    if (_matches[i] != other._matches[i])
+                    if (matches[i] != other.matches[i])
                         return false;
                 }
             }
             else
             {
-                for (int i = 0; i < _matches.Length; i++)
+                for (int i = 0; i < matches.Length; i++)
                 {
-                    if (_matches[i] != ~other._matches[i])
+                    if (matches[i] != ~other.matches[i])
                         return false;
                 }
             }
             return true;
         }
 
-        public bool Equals(IMatch other)
+        public bool Equals(IMatch? other)
         {
             bool result;
             if (other is CharClass cc)
@@ -584,15 +576,15 @@ namespace Opal.Nfa
             IMatch? result = null;
             if (other is CharClass cc)
             {
-                var data = new uint[Size];
+                var data = new uint[size];
                 var hasIntersection = false;
-                if (!_invert)
+                if (!invert)
                 {
-                    if (!cc._invert)
+                    if (!cc.invert)
                     {
-                        for (int i = 0; i < _matches.Length; i++)
+                        for (int i = 0; i < matches.Length; i++)
                         {
-                            var intersect = _matches[i] & cc._matches[i];
+                            var intersect = matches[i] & cc.matches[i];
                             data[i] = intersect;
                             if (intersect != 0)
                                 hasIntersection = true;
@@ -600,20 +592,20 @@ namespace Opal.Nfa
                     }
                     else
                     {
-                        for (int i = 0; i < _matches.Length; i++)
+                        for (int i = 0; i < matches.Length; i++)
                         {
-                            var intersect = _matches[i] & ~cc._matches[i];
+                            var intersect = matches[i] & ~cc.matches[i];
                             data[i] = intersect;
                             if (intersect != 0)
                                 hasIntersection = true;
                         }
                     }
                 }
-                else if (!cc._invert)
+                else if (!cc.invert)
                 {
-                    for (int i = 0; i < _matches.Length; i++)
+                    for (int i = 0; i < matches.Length; i++)
                     {
-                        var intersect = ~_matches[i] & cc._matches[i];
+                        var intersect = ~matches[i] & cc.matches[i];
                         data[i] = intersect;
                         if (intersect != 0)
                             hasIntersection = true;
@@ -621,9 +613,9 @@ namespace Opal.Nfa
                 }
                 else
                 {
-                    for (int i = 0; i < _matches.Length; i++)
+                    for (int i = 0; i < matches.Length; i++)
                     {
-                        var intersect = _matches[i] | cc._matches[i];
+                        var intersect = matches[i] | cc.matches[i];
                         data[i] = ~intersect;
                         if (intersect != 0)
                             hasIntersection = true;
@@ -655,7 +647,7 @@ namespace Opal.Nfa
 
         public int GetCount()
         {
-            return GetCount(_matches);
+            return GetCount(matches);
         }
 
         public static int GetCount(uint[] data)
@@ -678,7 +670,7 @@ namespace Opal.Nfa
 
         public bool Subtract(IMatch other)
         {
-            if (!_invert)
+            if (!invert)
             {
                 foreach (var ch in other)
                     ClrBit(ch);
@@ -696,7 +688,7 @@ namespace Opal.Nfa
         {
             IMatch result;
             var count = Normalize();
-            if (count == 1 && !_invert)
+            if (count == 1 && !invert)
                 result = new SingleChar(this.FirstOrDefault());
             else if (count == 0)
                 result = EmptyMatch.Instance;
@@ -708,7 +700,7 @@ namespace Opal.Nfa
         public IMatch Difference(IMatch other)
         {
             var result = new CharClass(this);
-            if (!_invert)
+            if (!invert)
             {
                 foreach (var ch in other)
                     result.ClrBit(ch);
@@ -720,7 +712,7 @@ namespace Opal.Nfa
             }
 
             var count = result.Normalize();
-            if (!result._invert)
+            if (!result.invert)
             {
                 if (count == 0)
                     return EmptyMatch.Instance;
@@ -744,18 +736,18 @@ namespace Opal.Nfa
 
         private void Flip()
         {
-            _invert = !_invert;
-            for (int i = 0; i < _matches.Length; i++)
-                _matches[i] = ~_matches[i];
+            invert = !invert;
+            for (int i = 0; i < matches.Length; i++)
+                matches[i] = ~matches[i];
         }
 
         public IEnumerator<char> GetEnumerator()
         {
-            if (!_invert)
+            if (!invert)
             {
-                for (int i = 0; i < _matches.Length; i++)
+                for (int i = 0; i < matches.Length; i++)
                 {
-                    var item = _matches[i];
+                    var item = matches[i];
                     if (item != 0)
                     {
                         for (int j = 0; j < 32; j++)
@@ -768,9 +760,9 @@ namespace Opal.Nfa
             }
             else
             {
-                for (int i = 0; i < _matches.Length; i++)
+                for (int i = 0; i < matches.Length; i++)
                 {
-                    var item = _matches[i];
+                    var item = matches[i];
                     if (item != (~0U))
                     {
                         for (int j = 0; j < 32; j++)

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 (. usings .)
 
@@ -14,12 +16,14 @@ public partial class Parser: IDisposable
 	private LRStack _stack;
 	private bool _hasErrors;
 	private int items;
+	private ImmutableQueue<LogItem> log;
 		
 	public Parser(ILogger logger, Scanner scanner)
 	{
 		_logger = logger;
 		_scanner = scanner;
 		_stack = LRStack.Root;
+		log = ImmutableQueue<LogItem>.Empty;
 		Init();
 	}
 
@@ -44,6 +48,8 @@ public partial class Parser: IDisposable
 
 	public object Root { get; private set; }
 
+	public IEnumerable<LogItem> Log => log.ToArray();
+
 	partial void Init();
 
 	public bool Parse()
@@ -63,7 +69,7 @@ public partial class Parser: IDisposable
 			{
 				case ActionType.Error:
                     _hasErrors = true;
-                    if (!TryRecover(ref token, (suppressError > 0)))
+                    if (!TryRecover(state, ref token, (suppressError > 0)))
                         return false;
                     if (token.State == 0)
                     {
@@ -98,13 +104,39 @@ public partial class Parser: IDisposable
 
     private Token NextToken()
     {
-        while (true)
+		while (!peekToken.IsEmpty)
         {
-            var token = _scanner.NextToken();
-            if (token.State >= 0)
-                return token;
-            _logger.LogError(token, "syntax error - {0}", token.Value);
-            _hasErrors = true;
+			peekToken = peekToken.Dequeue(out var token);
+			if (token.State >= 0)
+				return token;
+			SyntaxError(token);
+		}
+
+		while (true)
+	    {
+	        var token = _scanner.NextToken();
+	        if (token.State >= 0)
+	            return token;
+			SyntaxError(token);
+		}
+    }
+
+	private void SyntaxError(Token token)
+    {
+		_logger.LogError(token, "syntax error - {0}", token.Value);
+		_hasErrors = true;
+	}
+
+	private ImmutableQueue<Token> peekToken = ImmutableQueue<Token>.Empty;
+		
+	private Token PeekToken()
+    {
+		while (true)
+        {
+			var token = _scanner.NextToken();
+			peekToken = peekToken.Enqueue(token);
+			if (token.State >= 0)
+				return token;
         }
     }
 
@@ -145,43 +177,67 @@ public partial class Parser: IDisposable
 	#region Actions Table
 (. actions .)
 	#endregion
-	#region Symbols
-(. parser.symbols .)
-	#endregion
-	
-	private bool TryRecover(ref Token token, bool suppress)
-	{
-	    var isOk = false;
 
+(. parser.symbols .)
+
+	private bool TryRecover(uint state, ref Token token, bool suppress)
+	{
+		var isOk = false;
 		if (token.State != 0)
 		{
-			_logger.LogError(token, "Unexpected token '{0}'", token.Value);
-			_logger.LogError("[{0,4}]   {1}", token.Start.Ln, _scanner.Line(token.Start.Ln));
-			_logger.LogError("        {0}{1}", 
-				new string(' ', token.Start.Col),
-				new string('^', token.Length));
+			var builder = new StringBuilder("  Expecting one of the following token type(s):");
+			var count = 0;
+			for (var i = 0; i < _maxTerminal; i++)
+            {
+				if (_actions[state, i] != -1)
+                {
+					builder.Append("\n      ").Append(_symbols[i]);
+					count++;
+                }
+            }
+
+			var logItem = new LogItem(LogLevel.Error,
+				$"Unexpected token",
+				token,
+				_scanner.Line(token.Start.Ln),
+				count > 0 ? builder.ToString() : null
+				);
+			log = log.Enqueue(logItem);
 		}
 		else
-		{
 			_logger.LogError(token, "unexpected token [EOF]");
-		}
 	
-	    while (true)
+		if (token.State != 0)
 	    {
-	        for (var i = 0; _stack.GetState(i, out var state); i++)
+	        var nextToken = PeekToken();
+	        if (nextToken.State >= 0)
 	        {
-	            if (_actions[state, token.State] != -1)
+	            _stack.GetState(0, out var newState);
+	            if (_actions[newState, nextToken.State] != -1)
 	            {
-	                _stack = _stack.Pop(1);
+	                token = NextToken();
 	                return true;
 	            }
 	        }
-	        if (token.State == 0)
-	            break;
-	        token = NextToken();
 	    }
-	    return isOk;
+	
+	    while (true)
+		{
+			for (var i = 0; _stack.GetState(i, out var newState); i++)
+			{
+			    if (_actions[newState, token.State] != -1)
+			    {
+			        _stack = _stack.Pop(i);
+			        return true;
+			    }
+			}
+			if (token.State == 0)
+			    break;
+			token = NextToken();
+		}
+		return isOk;
 	}
+
 
 	private T At<T>(int index) => (T)At(index);
 
@@ -204,8 +260,5 @@ public partial class Parser: IDisposable
 }
 
 (. scanner .)
-public class TokenStates
-{
-(. scanner.states .)};
-
+(. scanner.states .)
 (. namespace.end .)

@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using CalcTest;
+﻿using CalcTest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Opal;
 
 namespace OpalTests
 {
@@ -20,7 +19,5 @@ namespace OpalTests
             var result = root.Calc();
             Assert.AreEqual(20, result);
         }
-
-
     }
 }

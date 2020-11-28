@@ -1,188 +1,187 @@
-S0: (Transition = )
-    @language: · expr, ＄ => 1
+S0
+    S': · expr, ＄ => 1
     expr: · term, ＄ => 2
-    expr: · expr + term, ＄ => 1
-    expr: · expr - term, ＄ => 1
-    term: · primary, ＄ => 3
-    term: · term * primary, ＄ => 2
-    term: · term / primary, ＄ => 2
     expr: · term, + => 2
-    expr: · expr + term, + => 1
-    expr: · expr - term, + => 1
     expr: · term, - => 2
+    expr: · expr + term, ＄ => 1
+    expr: · expr + term, + => 1
     expr: · expr + term, - => 1
+    expr: · expr - term, ＄ => 1
+    expr: · expr - term, + => 1
     expr: · expr - term, - => 1
-    primary: · Int, ＄ => 4
-    term: · primary, * => 3
-    term: · term * primary, * => 2
-    term: · term / primary, * => 2
-    term: · primary, / => 3
-    term: · term * primary, / => 2
-    term: · term / primary, / => 2
+    term: · primary, ＄ => 3
     term: · primary, + => 3
-    term: · term * primary, + => 2
-    term: · term / primary, + => 2
     term: · primary, - => 3
+    term: · primary, * => 3
+    term: · primary, / => 3
+    term: · term * primary, ＄ => 2
+    term: · term * primary, + => 2
     term: · term * primary, - => 2
+    term: · term * primary, * => 2
+    term: · term * primary, / => 2
+    term: · term / primary, ＄ => 2
+    term: · term / primary, + => 2
     term: · term / primary, - => 2
-    primary: · Int, * => 4
-    primary: · Int, / => 4
+    term: · term / primary, * => 2
+    term: · term / primary, / => 2
+    primary: · Int, ＄ => 4
     primary: · Int, + => 4
     primary: · Int, - => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
 
-S1: (Transition = expr(8))
-    @language: expr ·, ＄
+S1: (Transition = expr)
+    S': expr ·, ＄
     expr: expr · + term, ＄ => 5
-    expr: expr · - term, ＄ => 6
     expr: expr · + term, + => 5
-    expr: expr · - term, + => 6
     expr: expr · + term, - => 5
+    expr: expr · - term, ＄ => 6
+    expr: expr · - term, + => 6
     expr: expr · - term, - => 6
 
-S2: (Transition = term(9))
+S2: (Transition = term)
     expr: term ·, ＄
-    term: term · * primary, ＄ => 7
-    term: term · / primary, ＄ => 8
     expr: term ·, +
     expr: term ·, -
-    term: term · * primary, * => 7
-    term: term · / primary, * => 8
-    term: term · * primary, / => 7
-    term: term · / primary, / => 8
+    term: term · * primary, ＄ => 7
     term: term · * primary, + => 7
-    term: term · / primary, + => 8
     term: term · * primary, - => 7
+    term: term · * primary, * => 7
+    term: term · * primary, / => 7
+    term: term · / primary, ＄ => 8
+    term: term · / primary, + => 8
     term: term · / primary, - => 8
+    term: term · / primary, * => 8
+    term: term · / primary, / => 8
 
-S3: (Transition = primary(10))
+S3: (Transition = primary)
     term: primary ·, ＄
-    term: primary ·, *
-    term: primary ·, /
     term: primary ·, +
     term: primary ·, -
+    term: primary ·, *
+    term: primary ·, /
 
-S4: (Transition = Int(1))
+S4: (Transition = Int)
     primary: Int ·, ＄
-    primary: Int ·, *
-    primary: Int ·, /
     primary: Int ·, +
     primary: Int ·, -
+    primary: Int ·, *
+    primary: Int ·, /
 
-S5: (Transition = +(4))
+S5: (Transition = +)
     expr: expr + · term, ＄ => 9
     expr: expr + · term, + => 9
     expr: expr + · term, - => 9
     term: · primary, ＄ => 3
-    term: · term * primary, ＄ => 9
-    term: · term / primary, ＄ => 9
     term: · primary, + => 3
-    term: · term * primary, + => 9
-    term: · term / primary, + => 9
     term: · primary, - => 3
-    term: · term * primary, - => 9
-    term: · term / primary, - => 9
-    primary: · Int, ＄ => 4
     term: · primary, * => 3
-    term: · term * primary, * => 9
-    term: · term / primary, * => 9
     term: · primary, / => 3
+    term: · term * primary, ＄ => 9
+    term: · term * primary, + => 9
+    term: · term * primary, - => 9
+    term: · term * primary, * => 9
     term: · term * primary, / => 9
+    term: · term / primary, ＄ => 9
+    term: · term / primary, + => 9
+    term: · term / primary, - => 9
+    term: · term / primary, * => 9
     term: · term / primary, / => 9
+    primary: · Int, ＄ => 4
     primary: · Int, + => 4
     primary: · Int, - => 4
     primary: · Int, * => 4
     primary: · Int, / => 4
 
-S6: (Transition = -(5))
+S6: (Transition = -)
     expr: expr - · term, ＄ => 10
     expr: expr - · term, + => 10
     expr: expr - · term, - => 10
     term: · primary, ＄ => 3
-    term: · term * primary, ＄ => 10
-    term: · term / primary, ＄ => 10
     term: · primary, + => 3
-    term: · term * primary, + => 10
-    term: · term / primary, + => 10
     term: · primary, - => 3
-    term: · term * primary, - => 10
-    term: · term / primary, - => 10
-    primary: · Int, ＄ => 4
     term: · primary, * => 3
-    term: · term * primary, * => 10
-    term: · term / primary, * => 10
     term: · primary, / => 3
+    term: · term * primary, ＄ => 10
+    term: · term * primary, + => 10
+    term: · term * primary, - => 10
+    term: · term * primary, * => 10
     term: · term * primary, / => 10
+    term: · term / primary, ＄ => 10
+    term: · term / primary, + => 10
+    term: · term / primary, - => 10
+    term: · term / primary, * => 10
     term: · term / primary, / => 10
+    primary: · Int, ＄ => 4
     primary: · Int, + => 4
     primary: · Int, - => 4
     primary: · Int, * => 4
     primary: · Int, / => 4
 
-S7: (Transition = *(6))
+S7: (Transition = *)
     term: term * · primary, ＄ => 11
-    term: term * · primary, * => 11
-    term: term * · primary, / => 11
     term: term * · primary, + => 11
     term: term * · primary, - => 11
+    term: term * · primary, * => 11
+    term: term * · primary, / => 11
     primary: · Int, ＄ => 4
-    primary: · Int, * => 4
-    primary: · Int, / => 4
     primary: · Int, + => 4
     primary: · Int, - => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
 
-S8: (Transition = /(7))
+S8: (Transition = /)
     term: term / · primary, ＄ => 12
-    term: term / · primary, * => 12
-    term: term / · primary, / => 12
     term: term / · primary, + => 12
     term: term / · primary, - => 12
+    term: term / · primary, * => 12
+    term: term / · primary, / => 12
     primary: · Int, ＄ => 4
-    primary: · Int, * => 4
-    primary: · Int, / => 4
     primary: · Int, + => 4
     primary: · Int, - => 4
+    primary: · Int, * => 4
+    primary: · Int, / => 4
 
-S9: (Transition = term(9))
+S9: (Transition = term)
     expr: expr + term ·, ＄
     expr: expr + term ·, +
     expr: expr + term ·, -
     term: term · * primary, ＄ => 7
-    term: term · / primary, ＄ => 8
     term: term · * primary, + => 7
-    term: term · / primary, + => 8
     term: term · * primary, - => 7
-    term: term · / primary, - => 8
     term: term · * primary, * => 7
-    term: term · / primary, * => 8
     term: term · * primary, / => 7
+    term: term · / primary, ＄ => 8
+    term: term · / primary, + => 8
+    term: term · / primary, - => 8
+    term: term · / primary, * => 8
     term: term · / primary, / => 8
 
-S10: (Transition = term(9))
+S10: (Transition = term)
     expr: expr - term ·, ＄
     expr: expr - term ·, +
     expr: expr - term ·, -
     term: term · * primary, ＄ => 7
-    term: term · / primary, ＄ => 8
     term: term · * primary, + => 7
-    term: term · / primary, + => 8
     term: term · * primary, - => 7
-    term: term · / primary, - => 8
     term: term · * primary, * => 7
-    term: term · / primary, * => 8
     term: term · * primary, / => 7
+    term: term · / primary, ＄ => 8
+    term: term · / primary, + => 8
+    term: term · / primary, - => 8
+    term: term · / primary, * => 8
     term: term · / primary, / => 8
 
-S11: (Transition = primary(10))
+S11: (Transition = primary)
     term: term * primary ·, ＄
-    term: term * primary ·, *
-    term: term * primary ·, /
     term: term * primary ·, +
     term: term * primary ·, -
+    term: term * primary ·, *
+    term: term * primary ·, /
 
-S12: (Transition = primary(10))
+S12: (Transition = primary)
     term: term / primary ·, ＄
-    term: term / primary ·, *
-    term: term / primary ·, /
     term: term / primary ·, +
     term: term / primary ·, -
-
+    term: term / primary ·, *
+    term: term / primary ·, /

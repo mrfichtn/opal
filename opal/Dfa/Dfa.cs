@@ -19,7 +19,6 @@ namespace Opal.Dfa
         #region Properties
         public AcceptingStates AcceptingStates { get; }
         public DfaNode[] States { get; }
-        public DfaNode this[int state] => States[state];
         public int MaxClass => Matches.NextId;
         public int[] MatchToClass { get; }
         public Matches Matches { get; }
@@ -74,17 +73,32 @@ namespace Opal.Dfa
             return result;
         }
 
-        public void WriteTokenEnum(IGenerator generator)
+        /// <summary>
+        /// Writes token name to id constants
+        /// </summary>
+        public void WriteTokenEnum(IGenerator generator, bool emitTokenStates)
         {
-            generator.Indent();
-            foreach (var state in AcceptingStates.AllStates)
+            generator.WriteLine("public class TokenStates")
+                .WriteLine("{")
+                .Indent();
+
+            if (emitTokenStates)
             {
-                if (state.index == 0)
-                    generator.WriteLine("public const int SyntaxError = -1;");
-                var name = Identifier.SafeName(state.name);
-                generator.WriteLine($"public const int {name} = {state.index};");
+                foreach (var state in AcceptingStates.AllStates)
+                {
+                    if (state.index == 0)
+                        generator.WriteLine("public const int SyntaxError = -1;");
+                    var name = Identifier.SafeName(state.name);
+                    generator.WriteLine($"public const int {name} = {state.index};");
+                }
             }
-            generator.UnIndent();
+            else
+            {
+                generator.WriteLine("public const int SyntaxError = -1;")
+                    .WriteLine("public const int Empty = 0;");
+            }
+            generator.UnIndent()
+                .WriteLine("}");
         }
 
         public int[,] GetStateTable(bool addSyntaxError = false)

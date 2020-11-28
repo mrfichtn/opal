@@ -7,11 +7,12 @@ namespace Opal.Containers
 {
 	public class TemplateProcessor
 	{
-		private readonly string _templ;
-		private int _pos;
-		private int _last;
-		private char _ch;
 		private const char Eof = char.MaxValue;
+
+		private readonly string templ;
+		private int pos;
+		private int last;
+		private char ch;
 
 		public enum TokenType
 		{
@@ -21,54 +22,38 @@ namespace Opal.Containers
 			SynError
 		}
 
-		protected TemplateProcessor(string templ)
-        {
-			_templ = templ;
-        }
+		protected TemplateProcessor(string templ) =>
+			this.templ = templ;
 
 		#region Properties
 
-		#region Line Property
-		public int Line
-		{
-			get { return _line; }
-		}
-		private int _line;
-		#endregion
+		public int Line { get; private set; }
 
-		#region Column Property
-
-		public int Column
-		{
-			get { return _column; }
-		}
-		private int _column;
+		public int Column { get; private set; }
 
         #endregion
 
-        #endregion
-
-        public static void FromFile(Generator generator, IVarProvider provider, string filePath)
+        public static void FromFile(Generator generator, ITemplateContext provider, string filePath)
         {
             var templ = File.ReadAllText(filePath);
 			var processor = new TemplateProcessor(templ);
 			processor.Format(generator, provider);
         }
 
-        public static void FromAssembly(Generator generator, IVarProvider provider, string name)
+        public static void FromAssembly(Generator generator, ITemplateContext provider, string name)
 		{
 			var templ = GetTextFromAssembly(name);
 			var processor = new TemplateProcessor(templ);
 			processor.Format(generator, provider);
 		}
 
-		public void Format(Generator generator, IVarProvider provider)
+		public void Format(Generator generator, ITemplateContext provider)
 		{
-			_last = _templ.Length - 1;
-			_pos = -1;
-			_ch = NextChar();
-			_line = 1;
-			_column = 0;
+			last = templ.Length - 1;
+			pos = -1;
+			ch = NextChar();
+			Line = 1;
+			Column = 0;
 
 			var builder = new StringBuilder();
 			while (true)
@@ -80,15 +65,14 @@ namespace Opal.Containers
 						break;
 					case TokenType.Var:
 						var varName = builder.ToString();
-						if (!provider.AddVarValue(generator, varName))
+						if (!provider.WriteVariable(generator, varName))
 							generator.Write("(. {0} .)", varName);
 						break;
 					case TokenType.End:
 						return;
 
 					case TokenType.SynError:
-						var msg = string.Format("({0},{1}): syntax error", _line, _column);
-						throw new Exception(msg);
+						throw new Exception($"({Line},{Column}): syntax error");
 				}
 			}
 		}
@@ -98,7 +82,10 @@ namespace Opal.Containers
 			var assm = typeof(TemplateProcessor).Assembly;
             using (var stream = assm.GetManifestResourceStream(name))
             {
-                var reader = new StreamReader(stream);
+				if (stream == null)
+					return string.Empty;
+
+				var reader = new StreamReader(stream);
                 return reader.ReadToEnd();
             }
 		}
@@ -106,21 +93,21 @@ namespace Opal.Containers
 		private TokenType GetToken(StringBuilder builder)
 		{
 			builder.Length = 0;
-            if (_ch == Eof)
+            if (ch == Eof)
                 return TokenType.End;
-            else if (_ch == '(')
+            else if (ch == '(')
                 goto Var1;
 
 			TextToken:
-				builder.Append(_ch);
-				_ch = NextChar();
-                if (_ch == Eof || _ch == '(')
+				builder.Append(ch);
+				ch = NextChar();
+                if (ch == Eof || ch == '(')
                     return TokenType.Text;
                 goto TextToken;
 
 			Var1: // (
-				_ch = NextChar();
-				switch (_ch)
+				ch = NextChar();
+				switch (ch)
 				{
 				case Eof:
 					builder.Append('(');
@@ -133,8 +120,8 @@ namespace Opal.Containers
 				}
 
 			Var2: // (.
-				_ch = NextChar();
-				switch (_ch)
+				ch = NextChar();
+				switch (ch)
 				{
 				case ' ':
 				case '\t':
@@ -143,16 +130,16 @@ namespace Opal.Containers
 					return TokenType.SynError;
 				case ')':
 					builder.Append("(.");
-					_ch = NextChar();
+					ch = NextChar();
 					goto TextToken;
 				default:
 					goto Var3;
 				}
 
 			Var3: // (. id
-				builder.Append(_ch);
-				_ch = NextChar();
-				switch (_ch)
+				builder.Append(ch);
+				ch = NextChar();
+				switch (ch)
 				{
 				case ' ':
 				case '\t':
@@ -164,8 +151,8 @@ namespace Opal.Containers
 				}
 
 			Var4: // (. id space
-				_ch = NextChar();
-				switch (_ch)
+				ch = NextChar();
+				switch (ch)
 				{
 					case ' ':
 					case '\t':
@@ -176,14 +163,14 @@ namespace Opal.Containers
 				}
 
 			Var5: // (. id .
-				_ch = NextChar();
-				switch (_ch)
+				ch = NextChar();
+				switch (ch)
 				{
 				case ' ':
 				case '\t':
 					return TokenType.SynError;
 				case ')':
-					_ch = NextChar();
+					ch = NextChar();
 					return TokenType.Var;
 				default:
                     builder.Append('.');
@@ -191,11 +178,11 @@ namespace Opal.Containers
 				}
 
 			Var6: // (. id .
-				_ch = NextChar();
-				switch (_ch)
+				ch = NextChar();
+				switch (ch)
 				{
 					case ')':
-						_ch = NextChar();
+						ch = NextChar();
 						return TokenType.Var;
 				}
 			return TokenType.SynError;
@@ -204,18 +191,18 @@ namespace Opal.Containers
 		private char NextChar()
 		{
 			char ch;
-			if (_pos < _last)
+			if (pos < last)
 			{
-				_pos++;
-				ch = _templ[_pos];
+				pos++;
+				ch = templ[pos];
 				if (ch == '\n')
 				{
-					_column = 1;
-					_line++;
+					Column = 1;
+					Line++;
 				}
 				else
 				{
-					_column++;
+					Column++;
 				}
 			}
 			else
@@ -224,6 +211,5 @@ namespace Opal.Containers
 			}
 			return ch;
 		}
-
 	}
 }

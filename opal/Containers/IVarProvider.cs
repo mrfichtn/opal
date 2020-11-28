@@ -2,8 +2,24 @@
 
 namespace Opal.Containers
 {
-	public interface IVarProvider
-	{
-		bool AddVarValue(Generator generator, string varName);
-	}
+    /// <summary>
+    /// Template context
+    /// </summary>
+    public interface IVarProvider
+    {
+        /// <summary>
+        /// Used by if-macro to determine condition value
+        /// </summary>
+        bool Condition(string varName);
+
+        /// <summary>
+        /// Injects variable value into output stream
+        /// </summary>
+        bool WriteVariable(Generator generator, string varName);
+
+        /// <summary>
+        /// Returns template for varName
+        /// </summary>
+        string? Include(string varName);
+    }
 }

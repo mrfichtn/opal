@@ -1,5 +1,4 @@
 ﻿using Opal.Containers;
-using Opal.ParseTree;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -58,7 +57,7 @@ namespace Opal.LR1
 
 						logger.LogWarning("Conflicted state S{0}, Lookahead = {1}", stateAction.Key, symbol);
 						if (state.Symbol != null)
-							logger.LogWarning($"  (transition: {state.Symbol.Value})");
+							logger.LogWarning($"  (transition: {state.Symbol.Name})");
 
 						foreach (var action in q.Value)
 						{

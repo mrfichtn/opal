@@ -11,10 +11,10 @@ namespace OpalTests
         public void NfaTest()
         {
             var graph = new Graph("hello");
-            graph.MarkEnd("kw_hello");
+            graph.MarkEnd("kw_hello", "hello");
 
             var g2 = graph.Create("world");
-            g2.MarkEnd("kw_world");
+            g2.MarkEnd("kw_world", "world");
             graph = graph.Union(g2);
 
             var dfa = graph.ToDfa();
@@ -76,12 +76,12 @@ namespace OpalTests
         public void NfaReduceTest()
         {
             var graph = new Graph("h");
-            graph.MarkEnd("kw_h");
+            graph.MarkEnd("kw_h", "h");
 
             var g2 = graph.Create("y");
             var g3 = graph.Create("m");
             g2.Union(g3);
-            g2.MarkEnd("kw_you");
+            g2.MarkEnd("kw_you", "you");
 
             graph = graph.Union(g2);
 
@@ -107,12 +107,12 @@ namespace OpalTests
         public void NfaRemoveSingleEpsilonTest()
         {
             var graph = new Graph("h");
-            graph.MarkEnd("kw_h");
+            graph.MarkEnd("kw_h", "h");
 
             var g2 = graph.Create("y");
             var g3 = graph.Create("m");
             g2.Union(g3);
-            g2.MarkEnd("kw_you");
+            g2.MarkEnd("kw_you", "you");
 
             graph = graph.Union(g2);
 

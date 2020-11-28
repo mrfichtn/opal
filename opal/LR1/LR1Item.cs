@@ -95,14 +95,14 @@ namespace Opal.LR1
 
         public void AppendTo(StringBuilder builder)
         {
-            builder.Append(Production.Left.Value);
+            builder.Append(Production.Left.Name);
             builder.Append(": ");
             int i = 0;
             var min = Math.Min(Position, Production.Right.Length);
 
             for (; i < min; i++)
             {
-                builder.Append(Production.Right[i].Value);
+                builder.Append(Production.Right[i].Name);
                 builder.Append(" ");
             }
 
@@ -111,11 +111,11 @@ namespace Opal.LR1
             for (; i < Production.Right.Length; i++)
             {
                 builder.Append(" ");
-                builder.Append(Production.Right[i].Value);
+                builder.Append(Production.Right[i].Name);
             }
 
             builder.Append(", ");
-            builder.Append(Lookahead.Id == 0 ? "＄" : Lookahead.Value);
+            builder.Append(Lookahead.Id == 0 ? "＄" : Lookahead.Name);
 
             if (NextState >= 0)
                 builder.Append(" => ").Append(NextState);
@@ -137,14 +137,14 @@ namespace Opal.LR1
         {
             var production = item.Production;
             
-            builder.Append(production.Left.Value);
+            builder.Append(production.Left.Name);
             builder.Append(": ");
             int i = 0;
             var min = Math.Min(item.Position, item.Production.Right.Length);
 
             for (; i < min; i++)
             {
-                builder.Append(production.Right[i].Value);
+                builder.Append(production.Right[i].Name);
                 builder.Append(" ");
             }
 
@@ -153,11 +153,11 @@ namespace Opal.LR1
             for (; i < production.Right.Length; i++)
             {
                 builder.Append(" ");
-                builder.Append(production.Right[i].Value);
+                builder.Append(production.Right[i].Name);
             }
 
             builder.Append(", ");
-            builder.Append(item.Lookahead.Id == 0 ? "＄" : item.Lookahead.Value);
+            builder.Append(item.Lookahead.Id == 0 ? "＄" : item.Lookahead.Name);
 
             if (showTransition && (item.NextState >= 0))
                 builder.Append(" => ").Append(item.NextState);

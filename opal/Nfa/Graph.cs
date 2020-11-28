@@ -93,11 +93,13 @@ namespace Opal.Nfa
 
         public Graph Create(IMatch match) => new Graph(Machine, match);
 
-        public int MarkEnd(string tokenName, Identifier? attr = null)
+        public int MarkEnd(string tokenName, string keyword)
         {
-            var ignore = (attr?.Value == "ignore");
-
-            if (!Machine.AcceptingStates.TryAdd(tokenName, ignore, end, out var index))
+            if (!Machine.AcceptingStates.TryAdd(
+                name:tokenName, 
+                text:keyword,
+                node:end, 
+                symbolIndex:out var index))
                 throw new Exception(string.Format("Duplicate symbol {0}", tokenName));
             return index;
         }

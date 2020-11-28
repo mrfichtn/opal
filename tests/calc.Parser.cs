@@ -119,47 +119,33 @@ namespace CalcTest
 			switch (rule)
 			{
 				case 1: // expr = term;
-				{
-					state = _stack.SetItems(1)
-					    .Reduce(8, _stack[0]);
+					items = 1;
+					state = Reduce(8, At(0));
 					break;
-				}
 				case 2: // expr = expr "+" term;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(8, new AddExpr((Expr) _stack[0], (Expr)_stack[2]));
+					items = 3;
+					state = Reduce(8, new AddExpr(At<Expr>(0),At(2)));
 					break;
-				}
 				case 3: // expr = expr "-" term;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(8, new SubExpr((Expr) _stack[0],(Expr)_stack[2]));
+					items = 3;
+					state = Reduce(8, new SubExpr(At<Expr>(0),At(2)));
 					break;
-				}
 				case 4: // term = primary;
-				{
-					state = _stack.SetItems(1)
-					    .Reduce(9, _stack[0]);
+					items = 1;
+					state = Reduce(9, At(0));
 					break;
-				}
 				case 5: // term = term "*" primary;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(9, new MultiExpr((Expr) _stack[0],(Expr) _stack[2]));
+					items = 3;
+					state = Reduce(9, new MultiExpr(At<Expr>(0),At<Expr>(2)));
 					break;
-				}
 				case 6: // term = term "/" primary;
-				{
-					state = _stack.SetItems(3)
-					    .Reduce(9, new DivExpr((Expr) _stack[0],(Expr) _stack[2]));
+					items = 3;
+					state = Reduce(9, new DivExpr(At<Expr>(0),At<Expr>(2)));
 					break;
-				}
 				case 7: // primary = Int;
-				{
-					state = _stack.SetItems(1)
-					    .Reduce(10, new Constant((Token)_stack[0]));
+					items = 1;
+					state = Reduce(10, new Constant(At<Token>(0)));
 					break;
-				}
 	
 			}
 			return state;
@@ -208,10 +194,11 @@ namespace CalcTest
 	
 		#endregion
 		#region Symbols
+		#region Symbols
 		protected const int _maxTerminal = 7;
 		protected readonly string[] _symbols =
 		{
-			"",
+			"𝜖",
 			"Int",
 			"identifier",
 			"white_space",
@@ -221,8 +208,9 @@ namespace CalcTest
 			"/",
 			"expr",
 			"term",
-			"primary",
+			"primary"
 		};
+		#endregion
 	
 		#endregion
 		
@@ -373,16 +361,17 @@ namespace CalcTest
 	
 	public class Scanner: IDisposable
 	{
-	    private readonly IBuffer _buffer;
 	    public const int Eof = -1;
-	    private int _ch;
-	    private int _line;
-		private int _column;
 	
-		private int _lastAcceptingState;
-	    private int _lastAcceptingPosition;
-	    private int _lastLine;
-	    private int _lastColumn;
+	    private readonly IBuffer buffer;
+	    private int ch;
+	    private int line;
+		private int column;
+	
+		private int lastAcceptingState;
+	    private int lastAcceptingPosition;
+	    private int lastLine;
+	    private int lastColumn;
 	
 	    public Scanner(string source, int line = 1, int column = 0)
 			: this(new StringBuffer(source), line, column) 
@@ -390,9 +379,9 @@ namespace CalcTest
 	
 	    public Scanner(IBuffer buffer, int line = 1, int column = 0)
 	    {
-	        _buffer = buffer;
-	        _line = line;
-	        _column = column;
+	        this.buffer = buffer;
+	        this.line = line;
+	        this.column = column;
 	        NextChar();
 	    }
 	
@@ -402,10 +391,7 @@ namespace CalcTest
 			return new Scanner(text, line, column);
 		}
 	
-		public void Dispose()
-		{
-			_buffer.Dispose();
-		}
+		public void Dispose() => buffer.Dispose();
 	
 	    public string FilePath { get; private set; }
 	
@@ -413,24 +399,21 @@ namespace CalcTest
 	    public Token NextToken()
 	    {
 	        Token token;
-	        do
-	        {
-	            token = RawNextToken();
-	        } while (token.State < TokenStates.SyntaxError);
-	
+	        do { token = RawNextToken(); } 
+	        while (token.State < TokenStates.SyntaxError);
 	        return token;
 	    }
 	       
 		Token RawNextToken()
 		{
 	        Token token;
-			if (_ch == Eof)
+			if (ch == Eof)
 			{
-	            token = new Token(_line, _column, _buffer.Position);
+	            token = new Token(line, column, buffer.Position);
 	            MarkAccepting(TokenStates.Empty);
 				goto EndState;
 			}
-	        token = new Token(_line, _column, _buffer.Position - 1);
+	        token = new Token(line, column, buffer.Position - 1);
 			MarkAccepting(TokenStates.SyntaxError);
 	
 			if (_ch=='0') goto State1;
@@ -478,35 +461,35 @@ namespace CalcTest
 			NextChar();
 			goto EndState;
 		EndState:
-			if (_lastAcceptingState == TokenStates.SyntaxError)
+			if (lastAcceptingState == TokenStates.SyntaxError)
 			{
-				_lastAcceptingPosition = _buffer.Position - 1;
-				_lastAcceptingState = -1;
+				lastAcceptingPosition = buffer.Position - 1;
+				lastAcceptingState = -1;
 			}
-			var value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
-			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
-			if (_buffer.Position != _lastAcceptingPosition)
+			var value = buffer.GetString(token.Beg, lastAcceptingPosition);
+			token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
+			if (buffer.Position != lastAcceptingPosition)
 			{
-				_buffer.Position = _lastAcceptingPosition;
-				_line = _lastLine;
-				_column = _lastColumn;
+				buffer.Position = lastAcceptingPosition;
+				line = lastLine;
+				column = lastColumn;
 				NextChar();
 			}
 			return token;
 	
 	    EndState2:
-			value = _buffer.GetString(token.Beg, _lastAcceptingPosition);
-			token.Set(_lastAcceptingState, value, _lastLine, _lastColumn, _lastAcceptingPosition - 1);
+			value = buffer.GetString(token.Beg, lastAcceptingPosition);
+			token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
 			NextChar();
 			return token;
 		}
 	
 	    void MarkAccepting(int type)
 	    {
-	        _lastAcceptingState = type;
-	        _lastAcceptingPosition = _buffer.Position;
-	        _lastLine = _line;
-	        _lastColumn = _column;
+	        lastAcceptingState = type;
+	        lastAcceptingPosition = buffer.Position;
+	        lastLine = line;
+	        lastColumn = column;
 	    }
 	
 	    /// <summary>
@@ -514,22 +497,22 @@ namespace CalcTest
 	    /// </summary>
 	    private void NextChar()
 	    {
-	        _ch = _buffer.Read();
-	        if (_ch == '\n')
+	        ch = buffer.Read();
+	        if (ch == '\n')
 	        {
-	            ++_line;
-	            _column = 0;
+	            ++line;
+	            column = 0;
 	        }
 	        //Normalize \r\n -> \n
-	        else if (_ch == '\r' && _buffer.Peek() == '\n')
+	        else if (ch == '\r' && buffer.Peek() == '\n')
 	        {
-	            _ch = _buffer.Read();
-	            ++_line;
-	            _column = 0;
+	            ch = buffer.Read();
+	            ++line;
+	            column = 0;
 	        }
 	        else
 	        { 
-	            ++_column;
+	            ++column;
 	        }
 	    }
 	}
@@ -545,7 +528,8 @@ namespace CalcTest
 		public const int Minus = 5;
 		public const int Asterisk = 6;
 		public const int Slash = 7;
-	};
+	}
+	
 	
 	public class Token: Segment
 	{
@@ -565,15 +549,10 @@ namespace CalcTest
 			return this;
 		}
 	
-	    public static implicit operator string(Token t)
-	    {
-	        return t.Value;
-	    }
+	    public static implicit operator string(Token t) =>  t.Value;
 	
-		public override string ToString()
-		{
-			return string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
-		}
+		public override string ToString() =>
+			$"({Start.Ln},{Start.Col}): '{Value}', state = {State}";
 	}
 	
 	///<summary>Location of a character within a file</summary>
@@ -590,38 +569,18 @@ namespace CalcTest
 			Ch = ch;
 		}
 	
-		#region Methods
+		public override int GetHashCode() => Ch.GetHashCode();
+		public override bool Equals(object obj) => Equals((Position)obj);
+		public bool Equals(Position other) => (Ch == other.Ch);
 	
-		public override int GetHashCode()
-		{
-			return Ch.GetHashCode();
-		}
+		public override string ToString() =>
+			string.Format("Ln {0}, Col {1}, Ch {2}", Ln, Col, Ch);
 	
-		public override bool Equals(object obj)
-		{
-			return Equals((Position)obj);
-		}
+		public static bool operator ==(Position left, Position right) =>
+			left.Ch == right.Ch;
 	
-		public bool Equals(Position other)
-		{
-			return Ch == other.Ch;
-		}
-	
-		public override string ToString()
-		{
-			return string.Format("Ln {0}, Col {1}, Ch {2}", Ln, Col, Ch);
-		}
-	
-		public static bool operator ==(Position left, Position right)
-		{
-			return left.Ch == right.Ch;
-		}
-	
-		public static bool operator !=(Position left, Position right)
-		{
-			return left.Ch != right.Ch;
-		}
-		#endregion
+		public static bool operator !=(Position left, Position right) =>
+			left.Ch != right.Ch;
 	}
 	
 	///<summary>Segment location in a file</summary>
@@ -629,9 +588,9 @@ namespace CalcTest
 	{
 		public Position Start;
 		public Position End;
-	
+		
 		public Segment() {}
-	
+		
 		public Segment(Segment cpy)
 		{
 			if (cpy != null)
@@ -640,38 +599,25 @@ namespace CalcTest
 				End = cpy.End;
 			}
 		}
-	
+		
 		public Segment(Position start)
 		{
 			Start = start;
 			End = start;
 		}
-	
+		
 		public Segment(Position start, Position end)
 		{
 			Start = start;
 			End = end;
 		}
 	
-		#region Properties
-			
-		public bool IsEmpty
-		{
-			get { return End == Start; }
-		}
-	
-		public int Beg
-		{
-			get { return Start.Ch; }
-		}
-	
-		public int Length
-		{
-			get { return End.Ch - Start.Ch; }
-		}
-			
-		#endregion
-	
+		public bool IsEmpty => (End == Start);
+		
+		public int Beg => Start.Ch;
+		
+		public int Length => End.Ch - Start.Ch + 1;
+				
 		public void CopyFrom(Segment segment)
 		{
 			if (segment != null)
@@ -682,147 +628,164 @@ namespace CalcTest
 		}
 	}
 	
+	
 	/// <summary>
 	/// Buffer between text/file object and scanner
 	/// </summary>
 	public interface IBuffer: IDisposable
 	{
-	    /// <summary>
-	    /// Returns the index within the buffer
-	    /// </summary>
+	    /// <summary>Text/file length</summary>
+		long Length { get; }
+	
+		/// <summary>Returns the index within the buffer</summary>
 	    int Position { get; set; }
 	
-	    /// <summary>
-	    /// Returns the next character, moves the position one forward
-	    /// </summary>
-	    /// <returns></returns>
+	    /// <summary>Returns the next character, moves the position one forward</summary>
 	    int Read();
 	
-	    /// <summary>
-	    /// Examines the next character in the stream, leaves position at the same place
-	    /// </summary>
-	    /// <returns></returns>
+	    /// <summary>Examines the next character in the stream, leaves position at the same place</summary>
 	    int Peek();
 	
 	    /// <summary>
 	    /// Returns string from beg to end
 	    /// </summary>
-	    /// <param name="beg"></param>
-	    /// <param name="end"></param>
-	    /// <returns></returns>
 	    string GetString(int beg, int end);
+		
+		string PeekLine();
 	}
 	
 	public class FileBuffer : IBuffer, IDisposable
 	{
-	    private readonly StreamReader _reader;
-	    private readonly StringBuilder _builder;
-	    private int _filePos;
-	    private int _remaining;
-	    private readonly long _fileLength;
+		private readonly StreamReader reader;
+		private readonly StringBuilder builder;
+		private int filePos;
+		private int remaining;
 	
 	    public FileBuffer(string filePath)
-	        : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-	    {
-	    }
+		    : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+		{
+		}
+		
+		public FileBuffer(Stream stream)
+		{
+		    Length = stream.Length;
+		    reader = new StreamReader(stream);
+		    builder = new StringBuilder();
+		}
 	
-	    public FileBuffer(Stream stream)
-	    {
-	        _fileLength = stream.Length;
-	        _reader = new StreamReader(stream);
-	        _builder = new StringBuilder();
-	    }
+		public void Dispose() => reader.Dispose();
+		
+	    public long Length { get; }
 	
 	    public int Position
-	    {
-	        get { return _filePos - _remaining; }
-	        set { _remaining = _filePos - value; }
-	    }
+		{
+		    get => filePos - remaining;
+		    set => remaining = filePos - value;
+		}
+		
+		public string GetString(int beg, int end)
+		{
+		    var length = end - beg;
+			var start = filePos - builder.Length - beg;
+		    var result = builder.ToString(start, length);
+		    builder.Remove(start, length);
+		    return result;
+		}
+		
+		public int Peek()
+		{
+		    int result;
+		    if (remaining > 0)
+		    {
+		        result = builder[builder.Length - remaining];
+		    }
+		    else if (filePos < Length)
+		    {
+		        result = reader.Read();
+				filePos++;
+				builder.Append((char)result);
+		        remaining++;
+		    }
+		    else
+		    {
+		        result = -1;
+		    }
+		    return result;
+		}
 	
-	    public void Dispose()
-	    {
-	        _reader.Dispose();
-	    }
+		public int Read()
+		{
+			int result;
+			if (remaining > 0)
+			{
+				result = builder[builder.Length - remaining--];
+			}
+			else if (filePos < Length)
+			{
+				result = reader.Read();
+				builder.Append((char)result);
+				filePos++;
+			}
+			else
+			{
+				result = -1;
+			}
+			return result;
+		}
 	
-	    public string GetString(int beg, int end)
-	    {
-	        var length = end - beg;
-	        var pos = _filePos - _remaining;
-	        var start = pos - beg;
-	        var shift = _builder.Length - start;
-	        var result = _builder.ToString(shift, length);
-	        _builder.Remove(shift, length);
-	        return result;
-	    }
 	
-	    public int Peek()
+		public string PeekLine()
 	    {
-	        int result;
-	        if (_remaining > 0)
+			var result = new StringBuilder();
+			for (var i = builder.Length - remaining; i < builder.Length; i++)
 	        {
-	            result = _builder[_builder.Length - _remaining];
+				var ch = builder[i];
+				if (ch == '\n') return result.ToString();
+				if (ch != '\r') result.Append(ch);
 	        }
-	        else if (_filePos < _fileLength)
-	        {
-	            result = _reader.Read();
-	            _builder.Append((char)result);
-	            _filePos++;
-	            _remaining++;
-	        }
-	        else
-	        {
-	            result = -1;
-	        }
-	        return result;
-	    }
 	
-	    public int Read()
-	    {
-	        int result;
-	        if (_remaining > 0)
+			while (filePos < Length)
 	        {
-	            result = _builder[_builder.Length - _remaining--];
-	        }
-	        else if (_filePos < _fileLength)
-	        {
-	            result = _reader.Read();
-	            _builder.Append((char)result);
-	            _filePos++;
-	        }
-	        else
-	        {
-	            result = -1;
-	        }
-	        return result;
-	    }
+				var ch = reader.Read();
+				filePos++;
+				builder.Append((char)ch);
+				remaining++;
+				if (ch == '\n') return result.ToString();
+				if (ch != '\r') result.Append((char)ch);
+			}
+			return result.ToString();
+		}
 	}
+	
 	
 	public class StringBuffer: IBuffer
 	{
-	    private readonly string _text;
+	    private readonly string text;
 	
 	    public StringBuffer(string text)
 	    {
-	        _text = text;
+	        this.text = text;
 	    }
 	
 		public void Dispose() {}
+	
+		public long Length => text.Length;
 	
 	    public int Position { get; set;}
 	
 	    public int Read()
 	    {
-	        return (Position < _text.Length) ? _text[Position++] : -1;
+	        return (Position < text.Length) ? text[Position++] : -1;
 	    }
 	
 	    public int Peek()
 	    {
-	        return (Position < _text.Length) ? _text[Position] : -1;
+	        return (Position < text.Length) ? text[Position] : -1;
 	    }
 	
 	    public string GetString(int start, int end)
 	    {
-	        return _text.Substring(start, end - start);
+	        return text.Substring(start, end - start);
 	    }
 	}
 	

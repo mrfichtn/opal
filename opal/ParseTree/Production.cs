@@ -8,7 +8,6 @@ namespace Opal.ParseTree
     {
         private bool _ignore;
 
-
         public Production(Token id, ProductionAttr attr, ProdDef definition)
         {
             Left = new Identifier(id);

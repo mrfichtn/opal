@@ -1,5 +1,4 @@
-﻿using Opal.Logging;
-using System;
+﻿using System;
 
 namespace Opal
 {
@@ -22,6 +21,41 @@ namespace Opal
                     parserGen.OutPath = args[1];
 
                 isOk = parserGen.Compile();
+
+                var log = new Logger();
+                foreach (var item in parserGen.Log)
+                {
+                    switch (item.Level)
+                    {
+                        case LogLevel.Error:
+                            log .NewLine()
+                                .InfoLine(item.Message)
+                                .NewLine()
+                                .Info(string.Format("{0,4}| ", item.Token.Start.Ln))
+                                //.Info(item.Line.Substring(0,
+                                //item.Token.Start.Col - 1))
+                                //.Error(item.Token.Value)
+                                //.InfoLine(item.Line.Substring(item.Token.End.Col))
+                                .InfoLine(item.Line)
+                                .ErrorLine("     {0}^",
+                                    new string(' ', item.Token.Start.Col)
+                                    //new string('^', item.Token.Length)
+                                    )
+                                .NewLine();
+
+                            if (item.Suggestions != null)
+                                log.InfoLine(item.Suggestions)
+                                    .NewLine();
+
+                            //_logger.LogError(token, "Unexpected token '{0}'", token.Value);
+                            //_logger.LogError("[{0,4}]   {1}", token.Start.Ln, _scanner.Line(token.Start.Ln));
+                            //_logger.LogError("        {0}{1}", 
+                            //	new string(' ', token.Start.Col),
+                            //	new string('^', token.Length));
+                            break;
+                    }
+                }
+
             }
             catch (Exception ex)
             {

@@ -1,5 +1,4 @@
 ﻿using Generators;
-using Opal.Containers;
 using Opal.ParseTree;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,14 +15,19 @@ namespace Opal.LR1
 		{
 			Symbols = new Symbols();
 
-			foreach (var state in productions.Symbols.Skip(1))
-				Symbols.Create(state, true);
+			Symbols.AddSymbols(productions.Symbols);
 
 			if (!Symbols.TryFind(productions.Language!.Value, out var startSym))
-				startSym = Symbols[productions[0].Left.Value];
+			{
+				startSym = Symbols.Create(
+					name: productions[0].Left.Value,
+					isTerminal: false);
+			}
 
             //Create kernal rule
-            var languageSymbol = new Symbol("S'", (uint)Symbols.Count, terminal:false);
+            var languageSymbol = new Symbol(name:"S'", 
+				id:(uint)Symbols.Count, 
+				terminal:false);
             var rule = new Rule(this, 0, languageSymbol, new[] { startSym });
             rules = new List<Rule> { rule };
 
@@ -119,35 +123,6 @@ namespace Opal.LR1
 		{
 			foreach (var prod in rules)
 				prod.Write(generator);
-		}
-	}
-
-	public static class GrammarExt
-    {
-		public static StringBuilder AppendTo(this StringBuilder builder, 
-			Grammar grammar,
-			bool showSymbols)
-		{
-			if (showSymbols)
-			{
-				builder.AppendLine("Symbols:");
-				foreach (var symbol in grammar.Symbols)
-				{
-					builder.AppendFormat("[{0}] = {1}", symbol.Id, symbol.Value)
-						.AppendIf(symbol.IsTerminal, "(T)")
-						.AppendLine();
-				}
-				builder.AppendLine();
-			}
-			for (uint i = 0; i < grammar.Count; i++)
-			{
-				builder.Append("R")
-					.Append(i)
-					.Append(": ");
-				grammar[i].AppendTo(builder);
-				builder.AppendLine();
-			}
-			return builder;
 		}
 	}
 }

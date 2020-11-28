@@ -1,0 +1,10 @@
+Symbols:
+[0] = (T)
+[1] = word(T)
+[2] = hexadecimal(T)
+[3] = comment(T)
+[4] = multi_line_comment(T)
+[5] = language
+
+R0: S' -> language
+R1: language -> word

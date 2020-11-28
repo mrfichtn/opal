@@ -4,10 +4,11 @@ using Opal.ParseTree;
 namespace Opal;
 
 Options
-	frame					= "opal.frame.txt"
+	frame					= "opal.parser.frame"
 	no_action				= "null"
 	//nfa					= "opal.nfa.txt"
 	//scanner				= "switch"
+	emit_token_states		= false
 
 Characters
 	char_class_ctrl 		= [\[\]\^\\]
@@ -32,6 +33,8 @@ Characters
 	start_id_char			= [_@]+letter
 	id_char 				= start_id_char+digit
 	not_lf                  = ![\n]
+	non_asterisk            = ![*]
+	non_slash               = ![/]
 	
 Tokens
 	identifier = start_id_char id_char*;
@@ -63,6 +66,15 @@ Tokens
 	arg = '$' ('0' | (non_zero digit*));
 	Space<ignore> = all_space+;
 	Comment<ignore> = "//" not_lf*;
+	multi_line_comment<ignore> = "/*" 
+	(
+		non_asterisk
+		|
+		(
+			'*'
+			non_slash
+		)
+	)* "*/";
 	
 Productions language
 	language = 
@@ -88,7 +100,8 @@ Productions language
 	option_list = option 
 				| option_list option;
 
-	option = identifier '=' String								{ AddOption($0, $2: StringConst); }
+	option	=	identifier '=' string_literal					{ AddOption($0, $2: StringConst); }
+			|	identifier '=' Boolean							{ AddOption($0, $2: BoolConst); }
 
 	characters_section	= | "Characters" character_expr;
 
@@ -133,7 +146,7 @@ Productions language
 	token_primary	= identifier								{ CreateGraph(FindCharClass($0)); }
 					| Char										{ CreateGraph($0: EscChar); }
 					| CharClass									{ CreateGraph($0: IMatch); }
-					| String									{ Graph.Create($0: StringConst); }
+					| string_literal							{ Graph.Create($0: StringConst); }
 					| '(' token_expr ')'						{ $1; }
 
 	production_section	= "Productions" identifier prod_list	{ _productions.SetLanguage($1); }
@@ -172,7 +185,7 @@ Productions language
 	prod_expr = prod_expr_primary production_attr				{ ProductionExpr.SetAttributes($0: ProductionExpr, $1: ProductionAttr); }
 
 	prod_expr_primary	= identifier							{ new SymbolProd($0); }
-						| String								{ AddStringTokenProd($0: StringConst); }
+						| string_literal								{ AddStringTokenProd($0: StringConst); }
 						| Char									{ AddStringTokenProd($0: CharConst); }
 
 	prod_action =  '{' action_stmt  '}'							{ $1; }
@@ -191,7 +204,8 @@ Productions language
 	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
 						| Identifier							{ new ActionMember($0); }
 						| Integer                               { new ActionIntConstant($0); }
-						| String                                { new ActionStringConstant($0: StringConst); }
+						| string_literal                                { new ActionStringConstant($0: StringConst); }
+						| Boolean                               { new ActionBoolConstant($0); }
 
 	action_cast = 
 				| ':' Identifier								{ $1; }
@@ -220,7 +234,8 @@ Productions language
 
 	CharClass = char_class										{ new CharClass($0); }
 	Char = char_string											{ new EscChar($0); }
-	String = EscString											{ $0; }
-	EscString = string											{ new EscString($0); }
+	string_literal = regular_string_literal						{ $0; }
+	regular_string_literal = string								{ new EscString($0); }
 	Integer = integer											{ new DecInteger($0); }
-
+	Boolean = "true"											{ new BoolConst($0, true); }
+			| "false"                                           { new BoolConst($0, false); }

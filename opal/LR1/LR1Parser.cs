@@ -92,23 +92,31 @@ namespace Opal.LR1
 
             var maxTerminal = symbols.Where(x => x.IsTerminal).Max(x => x.Id);
             generator.Indent(1)
+                .WriteLine("#region Symbols")
                 .WriteLine($"protected const int _maxTerminal = {maxTerminal};")
                 .WriteLine("protected readonly string[] _symbols =")
                 .StartBlock();
 
-            for (var i = 0; i < symbols.Count; i++)
+            generator.Write("\"𝜖\"");
+            for (var i = 1; i < symbols.Count; i++)
             {
+                generator.WriteLine(",");
                 var symbol = symbols[i];
                 generator.Write("\"");
 
-                if (symbol.Value.StartsWith("@"))
-                    generator.Write(symbol.Value.Substring(1));
-                else
-                    generator.Write(symbol.Value);
+                generator.Write(symbol.ParseSymbol);
 
-                generator.WriteLine("\",");
+                //if (symbol.Value.StartsWith("@"))
+                //    generator.Write(symbol.Value.Substring(1));
+                //else
+                //    generator.Write(symbol.Value);
+
+                generator.Write("\"");
             }
-            generator.EndBlock(";")
+            generator
+                .WriteLine()
+                .EndBlock(";")
+                .WriteLine("#endregion")
                 .UnIndent(1);
         }
     }

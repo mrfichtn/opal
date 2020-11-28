@@ -4,7 +4,7 @@ using System;
 
 namespace Opal.Dfa
 {
-    public class DfaStateWriter: IGeneratable, IVarProvider
+    public class DfaStateWriter: IGeneratable, ITemplateContext
     {
         private readonly Dfa dfa;
         
@@ -13,22 +13,6 @@ namespace Opal.Dfa
 
         public void Write(Generator generator) =>
             TemplateProcessor.FromAssembly(generator, this, "Opal.FrameFiles.StateScanner.txt");
-
-        bool IVarProvider.AddVarValue(Generator generator, string varName)
-        {
-            var found = true;
-            switch (varName)
-            {
-                case "dfa.class.read":      generator.Write(dfa.GetClassReadMethod());  break;
-                case "dfa.maxClass":        generator.Write((dfa.MaxClass + 1).ToString()); break;
-                case "dfa.states.read":     generator.Write(dfa.GetStatesReadMethod()); break;
-                case "dfa.maxStates":       generator.Write(dfa.States.Length.ToString()); break;
-                case "scanner.char.map":    dfa.WriteMap(generator); break;
-                case "scanner.states":      WriteStates(generator); break;
-                default:                    found = false; break;
-            }
-            return found;
-        }
 
         private void WriteStates(IGenerator generator, bool addSyntaxError = false)
         {
@@ -39,6 +23,32 @@ namespace Opal.Dfa
                 new ScannerStateTableWithSyntaxErrors (dfa.States);
             var table = tableFactory.Create();
             generator.WriteCompressedArray(table);
+        }
+
+        bool ITemplateContext.WriteVariable(Generator generator, string varName)
+        {
+            var found = true;
+            switch (varName)
+            {
+                case "dfa.class.read": generator.Write(dfa.GetClassReadMethod()); break;
+                case "dfa.maxClass": generator.Write((dfa.MaxClass + 1).ToString()); break;
+                case "dfa.states.read": generator.Write(dfa.GetStatesReadMethod()); break;
+                case "dfa.maxStates": generator.Write(dfa.States.Length.ToString()); break;
+                case "scanner.char.map": dfa.WriteMap(generator); break;
+                case "scanner.states": WriteStates(generator); break;
+                default: found = false; break;
+            }
+            return found;
+        }
+
+        bool ITemplateContext.Condition(string varName)
+        {
+            return false;
+        }
+
+        string? ITemplateContext.Include(string name)
+        {
+            return null;
         }
     }
 }

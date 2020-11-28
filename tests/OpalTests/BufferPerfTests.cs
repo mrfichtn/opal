@@ -16,7 +16,7 @@ namespace OpalTests
         [TestMethod]
         public void Test()
         {
-            var inFilePath = @"d:\git\compilers\opal\tests\opal.txt";
+            var inFilePath = @"d:\src\opal\tests\opal.txt";
 
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 10000; i++)

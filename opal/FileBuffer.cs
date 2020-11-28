@@ -83,18 +83,14 @@ namespace Opal
 			return result;
 		}
 
-
 		public string PeekLine()
 		{
 			var result = new StringBuilder();
 			for (var i = builder.Length - remaining; i < builder.Length; i++)
 			{
 				var ch = builder[i];
-				if (ch == '\n')
-					return result.ToString();
-				if (ch != '\r')
-					return result.ToString();
-				result.Append(ch);
+				if (ch == '\n') return result.ToString();
+				if (ch != '\r') result.Append(ch);
 			}
 
 			while (filePos < Length)
@@ -103,10 +99,8 @@ namespace Opal
 				filePos++;
 				builder.Append((char)ch);
 				remaining++;
-				if (ch == '\n')
-					return result.ToString();
-				if (ch != '\r')
-					result.Append((char)ch);
+				if (ch == '\n') break;
+				if (ch != '\r') result.Append((char)ch);
 			}
 			return result.ToString();
 		}

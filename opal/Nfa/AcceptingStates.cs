@@ -1,6 +1,7 @@
 ﻿using Opal.Containers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Opal.Nfa
 {
@@ -9,19 +10,20 @@ namespace Opal.Nfa
         /// <summary>
         /// Maps symbol name to symbol index
         /// </summary>
-        private readonly Dictionary<string, int> symbols;
+        private readonly Symbols symbols;
         private readonly List<string> names;
         private readonly List<string> ignore;
 
         public AcceptingStates()
         {
-            symbols = new Dictionary<string, int>();
+            symbols = new Symbols();
             names = new List<string>();
             ignore = new List<string>();
             Nodes = new Dictionary<int, int>();
 
-            symbols.Add("Empty", 0);
-            names.Add("Empty");
+            var eof = new EofSymbol();
+            symbols.Add(eof);
+            names.Add(eof.Name);
         }
 
         #region Properties
@@ -33,6 +35,12 @@ namespace Opal.Nfa
 
         public IEnumerable<string> Names => names;
 
+        public IEnumerable<Symbol> Symbols =>
+            names.Select(x => symbols[x]);
+
+        /// <summary>
+        /// Called when writing out name to token-id constants
+        /// </summary>
         public IEnumerable<(string name, int index)> AllStates
         {
             get
@@ -85,6 +93,21 @@ namespace Opal.Nfa
         }
 
         /// <summary>
+        /// Adds symbol declared in the production section
+        /// </summary>
+        public bool TryAdd(string name, string text, int node, out int symbolIndex)
+        {
+            var result = TryAdd(name, text, out symbolIndex);
+            if (result)
+            {
+                if (Nodes.TryGetValue(node, out var prevSymbolIndex))
+                    throw StateAlreadyExists(prevSymbolIndex);
+                Nodes.Add(node, symbolIndex);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Returns accepting state at node
         /// </summary>
         /// <param name="node">NFA node index</param>
@@ -118,11 +141,25 @@ namespace Opal.Nfa
         /// <returns>True if symbol is added, false if already exists</returns>
         private bool TryAdd(string name, bool ignore, out int symbolIndex)
         {
-            var result = !symbols.TryGetValue(name, out symbolIndex);
+            var result = !symbols.TryGetIndex(name, out symbolIndex);
             if (result)
             {
                 symbolIndex = ignore ? AddIgnore(name) : Add(name);
-                symbols.Add(name, symbolIndex);
+                symbols.Add(new Symbol(name, symbolIndex));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Adds symbol declared in production section
+        /// </summary>
+        private bool TryAdd(string name, string text, out int symbolIndex)
+        {
+            var result = !symbols.TryGetIndex(name, out symbolIndex);
+            if (result)
+            {
+                symbolIndex = Add(name);
+                symbols.Add(new Symbol(name, symbolIndex, text));
             }
             return result;
         }

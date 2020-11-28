@@ -31,56 +31,59 @@ Symbols:
 [29] = :(T)
 [30] = @Conflicts(T)
 [31] = .(T)
-[32] = language
-[33] = using_section
-[34] = namespace_section
-[35] = option_section
-[36] = characters_section
-[37] = token_section
-[38] = production_section
-[39] = conflict_section
-[40] = using_decl
-[41] = Identifier
-[42] = option_list
-[43] = option
-[44] = String
-[45] = character_expr
-[46] = character_pair
-[47] = char_class_concat
-[48] = char_class_unary
-[49] = char_class_primary
-[50] = CharClass
-[51] = Char
-[52] = token_list
-[53] = token
-[54] = token_attr
-[55] = token_expr
-[56] = token_quantifier
-[57] = token_primary
-[58] = Integer
-[59] = prod_list
-[60] = production
-[61] = production_attr
-[62] = prod_def_list
-[63] = func_opt
-[64] = func_opt_arg_type
-[65] = prod_def_start
-[66] = prod_exprs
-[67] = prod_def
-[68] = prod_action
-[69] = optional_semicolon
-[70] = prod_expr
-[71] = prod_expr_primary
-[72] = action_stmt
-[73] = action_expr
-[74] = type
-[75] = action_args
-[76] = action_primary_expr
-[77] = action_cast
-[78] = generic_args
-[79] = conflict_list
-[80] = conflict
-[81] = EscString
+[32] = @true(T)
+[33] = @false(T)
+[34] = language
+[35] = using_section
+[36] = namespace_section
+[37] = option_section
+[38] = characters_section
+[39] = token_section
+[40] = production_section
+[41] = conflict_section
+[42] = using_decl
+[43] = Identifier
+[44] = option_list
+[45] = option
+[46] = string_literal
+[47] = Boolean
+[48] = character_expr
+[49] = character_pair
+[50] = char_class_concat
+[51] = char_class_unary
+[52] = char_class_primary
+[53] = CharClass
+[54] = Char
+[55] = token_list
+[56] = token
+[57] = token_attr
+[58] = token_expr
+[59] = token_quantifier
+[60] = token_primary
+[61] = Integer
+[62] = prod_list
+[63] = production
+[64] = production_attr
+[65] = prod_def_list
+[66] = func_opt
+[67] = func_opt_arg_type
+[68] = prod_def_start
+[69] = prod_exprs
+[70] = prod_def
+[71] = prod_action
+[72] = optional_semicolon
+[73] = prod_expr
+[74] = prod_expr_primary
+[75] = action_stmt
+[76] = action_expr
+[77] = type
+[78] = action_args
+[79] = action_primary_expr
+[80] = action_cast
+[81] = generic_args
+[82] = conflict_list
+[83] = conflict
+[84] = regular_string_literal
 
 R0: S' -> language
 R1: language -> using_section namespace_section option_section characters_section token_section production_section conflict_section
@@ -93,93 +96,97 @@ R7: option_section ->
 R8: option_section -> @Options option_list
 R9: option_list -> option
 R10: option_list -> option_list option
-R11: option -> identifier = String
-R12: characters_section ->
-R13: characters_section -> @Characters character_expr
-R14: character_expr -> character_pair
-R15: character_expr -> character_expr character_pair
-R16: character_pair -> identifier = char_class_concat
-R17: char_class_concat -> char_class_unary
-R18: char_class_concat -> char_class_concat + char_class_unary
-R19: char_class_concat -> char_class_concat - char_class_unary
-R20: char_class_unary -> char_class_primary
-R21: char_class_unary -> ! char_class_unary
-R22: char_class_primary -> CharClass
-R23: char_class_primary -> identifier
-R24: char_class_primary -> Char
-R25: token_section ->
-R26: token_section -> @Tokens token_list
-R27: token_list -> token
-R28: token_list -> token_list token
-R29: token -> identifier token_attr = token_expr ;
-R30: token_attr ->
-R31: token_attr -> < identifier >
-R32: token_expr -> token_quantifier
-R33: token_expr -> token_expr | token_quantifier
-R34: token_expr -> token_expr token_quantifier
-R35: token_quantifier -> token_primary
-R36: token_quantifier -> token_primary +
-R37: token_quantifier -> token_primary *
-R38: token_quantifier -> token_primary ?
-R39: token_quantifier -> token_primary { Integer }
-R40: token_quantifier -> token_primary { Integer , Integer }
-R41: token_primary -> identifier
-R42: token_primary -> Char
-R43: token_primary -> CharClass
-R44: token_primary -> String
-R45: token_primary -> ( token_expr )
-R46: production_section -> @Productions identifier prod_list
-R47: prod_list ->
-R48: prod_list -> prod_list production
-R49: production -> identifier production_attr = prod_def_list
-R50: production_attr ->
-R51: production_attr -> < Identifier func_opt >
-R52: func_opt ->
-R53: func_opt -> ( func_opt_arg_type )
-R54: func_opt_arg_type ->
-R55: func_opt_arg_type -> Identifier
-R56: prod_def_list -> prod_def_start prod_exprs ;
-R57: prod_def_list -> prod_def_start prod_def
-R58: prod_def_start ->
-R59: prod_def_start -> prod_def_start prod_exprs |
-R60: prod_def_start -> prod_def_start prod_def |
-R61: prod_def -> prod_exprs prod_action optional_semicolon
-R62: optional_semicolon ->
-R63: optional_semicolon -> ;
-R64: prod_exprs ->
-R65: prod_exprs -> prod_exprs prod_expr
-R66: prod_expr -> prod_expr_primary production_attr
-R67: prod_expr_primary -> identifier
-R68: prod_expr_primary -> String
-R69: prod_expr_primary -> Char
-R70: prod_action -> { action_stmt }
-R71: action_stmt ->
-R72: action_stmt -> action_expr ;
-R73: action_expr -> @new type ( action_args )
-R74: action_expr -> Identifier ( action_args )
-R75: action_expr -> action_primary_expr
-R76: action_args ->
-R77: action_args -> action_expr
-R78: action_args -> action_args , action_expr
-R79: action_primary_expr -> arg action_cast
-R80: action_primary_expr -> Identifier
-R81: action_primary_expr -> Integer
-R82: action_primary_expr -> String
-R83: action_cast ->
-R84: action_cast -> : Identifier
-R85: type -> Identifier
-R86: type -> Identifier < generic_args >
-R87: generic_args -> type
-R88: generic_args -> generic_args , type
-R89: conflict_section ->
-R90: conflict_section -> @Conflicts conflict_list
-R91: conflict_list ->
-R92: conflict_list -> conflict_list conflict
-R93: conflict -> Identifier , Identifier : Identifier Identifier ;
-R94: Identifier -> identifier
-R95: Identifier -> Identifier . identifier
-R96: CharClass -> char_class
-R97: Char -> char_string
-R98: String -> EscString
-R99: EscString -> string
-R100: Integer -> integer
+R11: option -> identifier = string_literal
+R12: option -> identifier = Boolean
+R13: characters_section ->
+R14: characters_section -> @Characters character_expr
+R15: character_expr -> character_pair
+R16: character_expr -> character_expr character_pair
+R17: character_pair -> identifier = char_class_concat
+R18: char_class_concat -> char_class_unary
+R19: char_class_concat -> char_class_concat + char_class_unary
+R20: char_class_concat -> char_class_concat - char_class_unary
+R21: char_class_unary -> char_class_primary
+R22: char_class_unary -> ! char_class_unary
+R23: char_class_primary -> CharClass
+R24: char_class_primary -> identifier
+R25: char_class_primary -> Char
+R26: token_section ->
+R27: token_section -> @Tokens token_list
+R28: token_list -> token
+R29: token_list -> token_list token
+R30: token -> identifier token_attr = token_expr ;
+R31: token_attr ->
+R32: token_attr -> < identifier >
+R33: token_expr -> token_quantifier
+R34: token_expr -> token_expr | token_quantifier
+R35: token_expr -> token_expr token_quantifier
+R36: token_quantifier -> token_primary
+R37: token_quantifier -> token_primary +
+R38: token_quantifier -> token_primary *
+R39: token_quantifier -> token_primary ?
+R40: token_quantifier -> token_primary { Integer }
+R41: token_quantifier -> token_primary { Integer , Integer }
+R42: token_primary -> identifier
+R43: token_primary -> Char
+R44: token_primary -> CharClass
+R45: token_primary -> string_literal
+R46: token_primary -> ( token_expr )
+R47: production_section -> @Productions identifier prod_list
+R48: prod_list ->
+R49: prod_list -> prod_list production
+R50: production -> identifier production_attr = prod_def_list
+R51: production_attr ->
+R52: production_attr -> < Identifier func_opt >
+R53: func_opt ->
+R54: func_opt -> ( func_opt_arg_type )
+R55: func_opt_arg_type ->
+R56: func_opt_arg_type -> Identifier
+R57: prod_def_list -> prod_def_start prod_exprs ;
+R58: prod_def_list -> prod_def_start prod_def
+R59: prod_def_start ->
+R60: prod_def_start -> prod_def_start prod_exprs |
+R61: prod_def_start -> prod_def_start prod_def |
+R62: prod_def -> prod_exprs prod_action optional_semicolon
+R63: optional_semicolon ->
+R64: optional_semicolon -> ;
+R65: prod_exprs ->
+R66: prod_exprs -> prod_exprs prod_expr
+R67: prod_expr -> prod_expr_primary production_attr
+R68: prod_expr_primary -> identifier
+R69: prod_expr_primary -> string_literal
+R70: prod_expr_primary -> Char
+R71: prod_action -> { action_stmt }
+R72: action_stmt ->
+R73: action_stmt -> action_expr ;
+R74: action_expr -> @new type ( action_args )
+R75: action_expr -> Identifier ( action_args )
+R76: action_expr -> action_primary_expr
+R77: action_args ->
+R78: action_args -> action_expr
+R79: action_args -> action_args , action_expr
+R80: action_primary_expr -> arg action_cast
+R81: action_primary_expr -> Identifier
+R82: action_primary_expr -> Integer
+R83: action_primary_expr -> string_literal
+R84: action_primary_expr -> Boolean
+R85: action_cast ->
+R86: action_cast -> : Identifier
+R87: type -> Identifier
+R88: type -> Identifier < generic_args >
+R89: generic_args -> type
+R90: generic_args -> generic_args , type
+R91: conflict_section ->
+R92: conflict_section -> @Conflicts conflict_list
+R93: conflict_list ->
+R94: conflict_list -> conflict_list conflict
+R95: conflict -> Identifier , Identifier : Identifier Identifier ;
+R96: Identifier -> identifier
+R97: Identifier -> Identifier . identifier
+R98: CharClass -> char_class
+R99: Char -> char_string
+R100: string_literal -> regular_string_literal
+R101: regular_string_literal -> string
+R102: Integer -> integer
+R103: Boolean -> @true
+R104: Boolean -> @false

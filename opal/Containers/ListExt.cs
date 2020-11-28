@@ -25,5 +25,19 @@ namespace Opal.Containers
                 list.Add(item);
             return list;
         }
+
+        public static void Set<T>(this IList<T> list, int index, T item)
+        {
+            if (list.Count < index)
+                list[index] = item;
+            else if (list.Count == index)
+                list.Add(item);
+            else
+            {
+                while (list.Count < index)
+                    list.Add(default!);
+                list.Add(item);
+            }
+        }
     }
 }

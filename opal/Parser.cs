@@ -9,12 +9,12 @@ namespace Opal
     public partial class Parser
     {
         private Dictionary<string, IMatch> _charClasses;
-        private Dictionary<string, string> _options;
+        private Dictionary<string, object> _options;
         private StringBuilder _usings;
         private ProductionList _productions;
         private Machine _machine;
         private ConflictList conflicts;
-
+        
         partial void Init()
         {
             _charClasses = new Dictionary<string, IMatch>();
@@ -33,15 +33,30 @@ namespace Opal
 
         #endregion
 
-        public void SetOptions(Dictionary<string, string> options)
-        {
+        public void SetOptions(Dictionary<string, object> options) =>
             _options = options;
+
+        public bool TryGetOption(string key, out string? text)
+        {
+            var result = _options.TryGetValue(key, out var value);
+            text = result ? value as string : null;
+            return result;
         }
 
-        public bool TryGetOption(string key, out string value)
+        public bool HasOption(string key)
         {
-            return _options.TryGetValue(key, out value);
+            if (!_options.TryGetValue(key, out var value))
+                return false;
+
+            if (value is bool b)
+                return b;
+            if (value is string s)
+                return s != null &&
+                    !s.Equals("false", StringComparison.InvariantCultureIgnoreCase) &&
+                    !s.Equals("0");
+            return true;
         }
+
 
         private StringBuilder AddNamespace(Identifier id)
         {
@@ -96,6 +111,17 @@ namespace Opal
             return null;
         }
 
+        private object? AddOption(Token token, BoolConst value)
+        {
+            _options[token.Value] = value.Value;
+            return null;
+        }
+
+        /// <summary>
+        /// Called when a string occurs in the production area
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         private StringTokenProd AddStringTokenProd(StringConst str)
         {
             try
@@ -111,7 +137,7 @@ namespace Opal
                 if (state == -1)
                 {
                     var g = Graph.Create(text);
-                    state = g.MarkEnd(CreateName(text));
+                    state = g.MarkEnd(CreateName(text), text);
                     Graph.Union(g);
                 }
                 return new StringTokenProd(str, state);
@@ -123,6 +149,9 @@ namespace Opal
             }
         }
 
+        /// <summary>
+        /// Called when a character occurs in the production area
+        /// </summary>
         private StringTokenProd AddStringTokenProd(CharConst str)
         {
             if (str == null)
@@ -133,7 +162,7 @@ namespace Opal
             if (state == -1)
             {
                 var g = Graph.Create(text);
-                state = g.MarkEnd(CreateName(text));
+                state = g.MarkEnd(CreateName(text), text);
                 Graph.Union(g);
             }
             return new StringTokenProd(str, text, state);

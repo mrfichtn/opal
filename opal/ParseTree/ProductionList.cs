@@ -8,11 +8,14 @@ using Opal.Nfa;
 
 namespace Opal.ParseTree
 {
-	public class ProductionList: List<Production>
+	public class ProductionList: IEnumerable<Production>
 	{
-		public ProductionList()
+        private readonly List<Production> productions;
+        
+        public ProductionList()
 		{
-			Symbols = new Index<string>();
+            productions = new List<Production>();
+            Symbols = new Symbols();
             DefaultTypes = new Dictionary<int, string>();
 		}
 
@@ -48,14 +51,15 @@ namespace Opal.ParseTree
         public Identifier? Language { get; private set; }
         public int TerminalCount { get; private set; }
         public int SymbolCount => Symbols.Count;
-        public Index<string> Symbols { get; }
+        public Symbols Symbols { get; }
         public Dictionary<int, string> DefaultTypes { get; }
+        public Production this[int index] => productions[index];
         #endregion
 
-        public new void Add(Production production)
+        public void Add(Production production)
 		{
-			production.Index = Count;
-			base.Add(production);
+			production.Index = productions.Count;
+			productions.Add(production);
 		}
 
         public static ProductionList Add(ProductionList prods, Production prod)
@@ -71,8 +75,7 @@ namespace Opal.ParseTree
 		public bool SetStates(ILogger logger, AcceptingStates stateMap)
 		{
             TerminalCount = stateMap.Count;
-            foreach (var name in stateMap.Names)
-                Symbols.Add(name);
+            Symbols.Add(stateMap.Symbols);
 
             if (!MarkTerminals(logger))
                 return false;
@@ -81,7 +84,7 @@ namespace Opal.ParseTree
             MarkNonTerminals();
 
             var types = new HashSet<string>();
-            foreach (var g in this.GroupBy(x=>x.Id))
+            foreach (var g in productions.GroupBy(x=>x.Id))
             {
                 types.Clear();
                 foreach (var item in g)
@@ -95,15 +98,12 @@ namespace Opal.ParseTree
             return true;
 		}
 
-		public int GetId(string name)
-		{
-			return Symbols.AddOrGet(name);
-		}
+		public int GetId(string name) => Symbols.AddOrGet(name);
 
 		public void ExpandQuantifiers()
 		{
 			int temp = 0;
-			int length = Count;
+			int length = productions.Count;
 
 			string tempName;
 			int stateId;
@@ -113,7 +113,7 @@ namespace Opal.ParseTree
 
 			for (int i = 0; i < length; i++)
 			{
-				var prod = this[i];
+				var prod = productions[i];
 				for (int j = 0; j < prod.Right.Count; j++)
 				{
 					var expr = prod.Right[j];
@@ -188,11 +188,11 @@ namespace Opal.ParseTree
         private bool MarkTerminals(ILogger logger)
         {
             var isOk = true;
-            var nonTerminals = this
+            var nonTerminals = productions
                 .Select(x => x.Left.Value)
                 .ToSet();
 
-            foreach (var prod in this)
+            foreach (var prod in productions)
             {
                 foreach (var expr in prod.Right.OfType<SymbolProd>())
                 {
@@ -220,17 +220,17 @@ namespace Opal.ParseTree
                 return;
 
             var start = Language.Value;
-            var notFound = new HashSet<string>(this.Select(x => x.Left.Value));
-            var prods = new HashSet<int>(Enumerable.Range(0, Count));
+            var notFound = new HashSet<string>(productions.Select(x => x.Left.Value));
+            var prods = new HashSet<int>(Enumerable.Range(0, productions.Count));
             notFound.Remove(start);
-            var stack = new Stack<Production>(this.Where(x => x.Left.Value == start));
+            var stack = new Stack<Production>(productions.Where(x => x.Left.Value == start));
             while (stack.Count > 0)
             {
                 var production = stack.Pop();
                 prods.Remove(production.Index);
                 foreach (var expr in production.Right.OfType<SymbolProd>().Where(x => !x.IsTerminal && notFound.Remove(x.Name)))
                 {
-                    foreach (var prod in this.Where(x => x.Left.Value == expr.Name))
+                    foreach (var prod in productions.Where(x => x.Left.Value == expr.Name))
                     {
                         if (prods.Remove(prod.Index))
                             stack.Push(prod);
@@ -240,16 +240,16 @@ namespace Opal.ParseTree
 
             foreach (var index in prods.OrderBy(x=>x))
             {
-                var production = this[index];
+                var production = productions[index];
                 logger.LogWarning(production.Left, "found and removed unreachable rule\n    {0}", production);
             }
             foreach (var index in prods.OrderByDescending(x => x))
-                RemoveAt(index);
+                productions.RemoveAt(index);
         }
 
         private void MarkNonTerminals()
         {
-            foreach (var prod in this)
+            foreach (var prod in productions)
             {
                 prod.Id = GetId(prod.Left.Value);
                 foreach (var item in prod.Right.OfType<SymbolProd>().Where(x=>!x.IsTerminal))
@@ -261,7 +261,7 @@ namespace Opal.ParseTree
 		{
             var option = GetOption(noAction);
             generator.Indent(1);
-			foreach (var item in this)
+			foreach (var item in productions)
 				item.Write(generator, this, option);
             generator.UnIndent(1);
         }
@@ -283,12 +283,12 @@ namespace Opal.ParseTree
 
         private void Replace(int copy, int orig)
 		{
-			int copyId = this[copy].Id;
-			int origId = this[orig].Id;
+			int copyId = productions[copy].Id;
+			int origId = productions[orig].Id;
 
 			for (int i = 0; i < copy; i++)
 			{
-				var prod = this[i];
+				var prod = productions[i];
 				foreach (var symbol in prod.Right.OfType<SymbolProd>())
 				{
 					if (symbol.Id == copyId)
@@ -296,5 +296,10 @@ namespace Opal.ParseTree
 				}
 			}
 		}
-	}
+
+        public IEnumerator<Production> GetEnumerator() => productions.GetEnumerator();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+            GetEnumerator();
+    }
 }

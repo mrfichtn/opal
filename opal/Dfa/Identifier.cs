@@ -35,16 +35,23 @@ namespace Opal.Dfa
             }
             else
             {
-                ReplaceId2Char(builder, ch);
+                ReplaceAnyChar(builder, ch);
             }
         }
 
         public static void ReplaceId2Char(StringBuilder builder, char ch)
         {
+            if (ch == '@')
+                builder.Append("AtSign");
+            else
+                ReplaceAnyChar(builder, ch);
+        }
+
+        public static void ReplaceAnyChar(StringBuilder builder, char ch)
+        {
             switch (ch)
             {
                 case '!': builder.Append("Exclamation"); break;
-                case '@': builder.Append("AtSign"); break;
                 case '#': builder.Append("Hash"); break;
                 case '$': builder.Append("Dollar"); break;
                 case '%': builder.Append("Percent"); break;

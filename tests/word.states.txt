@@ -1,0 +1,9 @@
+S0
+    S': · language, ＄ => 1
+    language: · word, ＄ => 2
+
+S1: (Transition = language)
+    S': language ·, ＄
+
+S2: (Transition = word)
+    language: word ·, ＄

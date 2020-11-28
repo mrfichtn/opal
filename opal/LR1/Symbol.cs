@@ -4,30 +4,40 @@ namespace Opal.LR1
 {
 	public class Symbol: IEquatable<Symbol>
 	{
-		public Symbol(string value, uint id, bool terminal)
+		public Symbol(string name, uint id, bool terminal, string? text = null)
 		{
-			Value = value;
+			Name = name;
 			Id = id;
 			IsTerminal = terminal;
+			Text = text;
 		}
 
-        #region Property
+		public Symbol(string name, uint id)
+		{
+			Name = name;
+			Id = id;
+			IsTerminal = false;
+		}
 
-        public string Value { get; }
+		#region Property
+
+		public string Name { get; }
+		public string? Text { get; }
         public uint Id { get; }
         public bool IsTerminal { get; set; }
 
-        #endregion
+		#endregion
 
-        public override string ToString()
-		{
-			return string.Format("{0}", Value, Id);
-		}
+		public string ParseSymbol =>
+			string.IsNullOrEmpty(Text) ? Name : Text;
 
-		public bool Equals(Symbol other)
-		{
-			return (other != null) && (Id == other.Id);
-		}
+		public override string ToString() => Name;
+
+		public bool Equals(Symbol? other) =>
+			(other != null) && (Id == other.Id);
+
+		public override bool Equals(object? other) => Equals(other as Symbol);
+
 
 		public override int GetHashCode()
 		{

@@ -1,13 +1,13 @@
-﻿using Opal.Containers;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Opal.LR1
 {
     public class Symbols: IEnumerable<Symbol>
     {
-        public static Symbol EndOfLine;
+        public static readonly Symbol EndOfLine;
         private readonly List<Symbol> symbols;
         private readonly Dictionary<string, Symbol> byName;
 
@@ -19,9 +19,15 @@ namespace Opal.LR1
         public Symbols()
         {
             byName = new Dictionary<string, Symbol>
-            {   { EndOfLine.Value, EndOfLine } };
+            {   
+                { 
+                    EndOfLine.Name, EndOfLine 
+                }
+            };
             symbols = new List<Symbol>
-            { EndOfLine };
+            {
+                EndOfLine 
+            };
         }
 
         public Symbol this[string name] => byName[name];
@@ -29,15 +35,35 @@ namespace Opal.LR1
 
         public int Count => symbols.Count;
 
-        public bool TryFind(string name, out Symbol symbol) =>
+        public bool TryFind(string name,
+            [MaybeNullWhen(false)] out Symbol symbol) =>
             byName.TryGetValue(name, out symbol);
 
-        public Symbol Create(string symbolValue, bool isTerminal)
+        public void AddSymbols(ParseTree.Symbols parseSymbols)
         {
-            if (!byName.TryGetValue(symbolValue, out Symbol symbol))
+            foreach (var parseSymbol in parseSymbols.Skip(1))
             {
-                symbol = new Symbol(symbolValue, (uint)symbols.Count, isTerminal);
-                byName.Add(symbolValue, symbol);
+                var name = parseSymbol.Name;
+                if (!byName.ContainsKey(name))
+                {
+                    var symbol = new Symbol(name:name, 
+                        id:(uint)symbols.Count, 
+                        terminal: parseSymbol.Terminal,
+                        text: parseSymbol.Text);
+                    byName.Add(name, symbol);
+                    symbols.Add(symbol);
+                }
+            }
+        }
+
+        public Symbol Create(string name, bool isTerminal)
+        {
+            if (!byName.TryGetValue(name, out var symbol))
+            {
+                symbol = new Symbol(name:name, 
+                    id:(uint)symbols.Count, 
+                    terminal: isTerminal);
+                byName.Add(name, symbol);
                 symbols.Add(symbol);
             }
             else if (!isTerminal && symbol.IsTerminal)
@@ -50,20 +76,5 @@ namespace Opal.LR1
         public IEnumerator<Symbol> GetEnumerator() => symbols.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    public static class SymbolsExt
-    {
-        public static StringBuilder AppendTo(this StringBuilder builder, 
-            Symbols symbols)
-        {
-            foreach (var symbol in symbols)
-            {
-                builder.AppendFormat("[{0}] = {1}", symbol.Id, symbol.Value)
-                    .AppendIf(symbol.IsTerminal, "(T)")
-                    .AppendLine();
-            }
-            return builder;
-        }
     }
 }
