@@ -17,9 +17,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{57D0DC39
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpalTests", "tests\OpalTests\OpalTests.csproj", "{323AFF7D-3B38-45FE-985F-ED42DB5D9977}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "opal", "opal\opal.csproj", "{BCB698BD-E894-42E1-8012-D95835B9108E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "oc", "oc\oc.csproj", "{BCB698BD-E894-42E1-8012-D95835B9108E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExprBuilder", "ExprBuilder\ExprBuilder.csproj", "{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "opal", "Opal\opal.csproj", "{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F470BC51-CD21-461D-B433-90413F9DE602}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.props = build\build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +46,10 @@ Global
 		{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

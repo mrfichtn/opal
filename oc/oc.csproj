@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<Description>LR(1) compiler-compiler</Description>
+		<Version>1.0.14</Version>
+		<Copyright>Copyright© 2018-2020</Copyright>
+		<RootNamespace>Opal</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <IsTool>True</IsTool>
+    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Logging\ConsoleLogger.cs" />
+	  <Compile Remove="Logging\ILogger.cs" />
+	  <Compile Remove="Logging\Importance.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="FrameFiles\Parser.txt" />
+	  <None Remove="FrameFiles\StateScanner.txt" />
+	  <None Remove="FrameFiles\SwitchScanner.txt" />
+    <None Remove="pub\**" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\Parser.txt" />
+    <EmbeddedResource Include="FrameFiles\SwitchScanner.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\StateScanner.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.8.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="16.7.30328.74" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Opal\opal.csproj" />
+  </ItemGroup>
+
+</Project>

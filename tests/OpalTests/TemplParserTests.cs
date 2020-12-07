@@ -1,18 +1,112 @@
 ﻿using Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Opal.Containers;
+using Opal.Templates;
 using OpalTests.Mocks;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpalTests
 {
     [TestClass]
     public class TemplParserTests
     {
+        [TestMethod]
+        public void TemplSymbolTest()
+        {
+            var provider = new VarProviderMock();
+            provider.Variables.Add("b", "b-value");
+
+            var template = "a $(b)";
+
+            var templ = new TemplateProcessor2(template);
+            var generator = new Generator();
+            templ.Format(generator, provider);
+            var text = generator.ToString();
+
+            Assert.AreEqual("a b-value", text);
+        }
+        
+        [TestMethod]
+        public void NotConditionTest()
+        {
+            var provider = new VarProviderMock();
+            provider.Conditions.Add("true", true);
+            provider.Conditions.Add("false", false);
+            provider.Variables.Add("b", "b-value");
+
+            var template = "$(if !true)bad$(endif)$(if !false)good$(endif)";
+            var text = Generate(template, provider);
+            Assert.AreEqual("good", text);
+        }
+
+        [TestMethod]
+        public void PartialMacroTest()
+        {
+            var provider = new VarProviderMock();
+
+            var template = "$\"Hello world\"";
+            var text = Generate(template, provider);
+            Assert.AreEqual("$\"Hello world\"", text);
+        }
+
+        [TestMethod]
+        public void MacroEscTest()
+        {
+            var provider = new VarProviderMock();
+
+            var template = "$()";
+            var text = Generate(template, provider);
+            Assert.AreEqual("$(", text);
+        }
+
+
+        [TestMethod]
+        public void NotConditionExprTrueTest()
+        {
+            var provider = new VarProviderMock();
+            provider.Conditions.Add("false", false);
+            provider.Variables.Add("b", "b-value");
+
+            var template = "$(if !false)$(b)$(endif)";
+            var text = Generate(template, provider);
+            Assert.AreEqual("b-value", text);
+        }
+
+        [TestMethod]
+        public void NotConditionExprFalseTest()
+        {
+            var provider = new VarProviderMock();
+            provider.Conditions.Add("true", true);
+            provider.Variables.Add("b", "b-value");
+
+            var template = "$(if !true)$(b)$(endif)";
+            var text = Generate(template, provider);
+            Assert.AreEqual("", text);
+        }
+
+
+        [TestMethod]
+        public void ElseTest()
+        {
+            var provider = new VarProviderMock();
+            provider.Conditions.Add("true", true);
+            provider.Conditions.Add("false", false);
+            provider.Variables.Add("b", "b-value");
+
+            var template = "$(if false)bad$(else)good$(endif)";
+            var text = Generate(template, provider);
+            Assert.AreEqual("good", text);
+        }
+
+
+        private static string Generate(string template, ITemplateContext context)
+        {
+            var templ = new TemplateProcessor2(template);
+            var generator = new Generator();
+            templ.Format(generator, context);
+            return generator.ToString();
+        }
+
         [TestMethod]
         public void TemplParserTest()
         {
@@ -34,6 +128,25 @@ namespace OpalTests
                 text);
         }
 
+        [TestMethod]
+        public void TemplParserStandaloneIf()
+        {
+            var provider = new VarProviderMock();
+            provider.Conditions.Add("true", true);
+            provider.Conditions.Add("false", false);
+            provider.Variables.Add("b", "b-value");
+            provider.Variables.Add("templ", "$(b)");
+
+            var template = "$(if true)true$(endif)$(if false)false$(endif)";
+
+            var templ = new TemplateProcessor2(template);
+            var generator = new Generator();
+            templ.Format(generator, provider);
+            var text = generator.ToString();
+
+            Assert.AreEqual("true", text);
+        }
+        
         [TestMethod]
         public void TemplParserIf()
         {
@@ -58,14 +171,11 @@ namespace OpalTests
         [TestMethod]
         public void MacroScannerTest()
         {
-            var scanner = new TemplateProcessor2.MacroScanner("hi 1 2,,");
+            var scanner = new MacroScanner("hi 1 2,,");
             var list = new List<string>();
-            while (true)
-            {
-                var t = scanner.Token();
-                if (!t.AddTo(list))
-                    break;
-            }
+            while (scanner.NextToken(out var t))
+                list.Add(t);
+            
             Assert.AreEqual(4, list.Count);
             Assert.AreEqual("hi", list[0]);
             Assert.AreEqual("1", list[1]);
@@ -76,7 +186,7 @@ namespace OpalTests
         [TestMethod]
         public void SimpleBufferNextChar()
         {
-            var buffer = new SimpleStringBuffer("hi");
+            var buffer = new StringBuffer("hi");
             var ch = buffer.NextChar();
             Assert.AreEqual('h', ch);
 
@@ -84,7 +194,7 @@ namespace OpalTests
             Assert.AreEqual('i', ch);
 
             ch = buffer.NextChar();
-            Assert.AreEqual(ch, SimpleStringBuffer.Eof);
+            Assert.AreEqual(ch, StringBuffer.Eof);
         }
     }
 }

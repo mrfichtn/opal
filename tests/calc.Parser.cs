@@ -1,39 +1,37 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
 
+
+#nullable enable
 
 namespace CalcTest
 {
 	public partial class Parser: IDisposable
 	{
-		private readonly ILogger _logger;
 		private readonly Scanner _scanner;
-		private readonly LRStack _stack;
+		private LRStack _stack;
 		private bool _hasErrors;
+		private int items;
+		private ImmutableQueue<LogItem> log;
 			
-		public Parser(ILogger logger, Scanner scanner)
+		public Parser(Scanner scanner)
 		{
-			_logger = logger;
 			_scanner = scanner;
-			_stack = new LRStack();
+			_stack = LRStack.Root;
+			log = ImmutableQueue<LogItem>.Empty;
 			Init();
 		}
 	
-		public Parser(Scanner scanner)
-			: this(new ConsoleLogger(scanner.FilePath), scanner) {}
-	
-		public Parser(ILogger logger, string filePath)
-			: this(logger, Scanner.FromFile(filePath)) {}
-	
 		public Parser(string filePath)
-			: this(Scanner.FromFile(filePath))
-		{
-		}
+			: this(Scanner.FromFile(filePath)) 
+		{}
 	
 		public static Parser FromString(string text)
 		{
@@ -44,9 +42,12 @@ namespace CalcTest
 		public void Dispose()
 		{
 			_scanner.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	
-		public object Root { get; private set; }
+		public object? Root { get; private set; }
+	
+		public IEnumerable<LogItem> Log => log.ToArray();
 	
 		partial void Init();
 	
@@ -60,14 +61,14 @@ namespace CalcTest
 			{
 	            if (suppressError > 0) --suppressError;
 				
-				var state = _stack.PeekState();
+				var state = _stack.State;
 				var actionType = GetAction(state, (uint) token.State, out var result);
 	
 				switch (actionType)
 				{
 					case ActionType.Error:
 	                    _hasErrors = true;
-	                    if (!TryRecover(ref token, (suppressError > 0)))
+	                    if (!TryRecover(state, ref token, (suppressError > 0)))
 	                        return false;
 	                    if (token.State == 0)
 	                    {
@@ -84,33 +85,63 @@ namespace CalcTest
 						var reducedState = Reduce(rule);
 						if (rule == 0)
 						{
-							Root = _stack.PopValue();
+							Root = _stack.Value;
 							return !_hasErrors;
 						}
-						if (GetAction(reducedState, _stack.PeekState(), out result) == ActionType.Error)
+						if (GetAction(reducedState, _stack.State, out result) == ActionType.Error)
 							goto case ActionType.Error;
-						_stack.Replace((uint)result);
+						_stack = _stack.Replace((uint)result);
 						break;
 	
 					case ActionType.Shift:
-						_stack.Shift(result, token);
+						_stack = _stack.Shift(result, token);
 						token = NextToken();
 						break;
 				}
 			}
 		}
 	
-	    private Token NextToken()
-	    {
-	        while (true)
-	        {
-	            var token = _scanner.NextToken();
-	            if (token.State >= 0)
-	                return token;
-	            _logger.LogError(token, "syntax error - {0}", token.Value);
-	            _hasErrors = true;
-	        }
-	    }
+		private Token NextToken()
+		{
+			while (!peekToken.IsEmpty)
+		    {
+				peekToken = peekToken.Dequeue(out var token);
+				if (token.State >= 0)
+					return token;
+				SyntaxError(token);
+			}
+		
+			while (true)
+			{
+			    var token = _scanner.NextToken();
+			    if (token.State >= 0)
+			        return token;
+				SyntaxError(token);
+			}
+		}
+	
+		private void SyntaxError(Token token)
+		{
+			var logItem = new LogItem(LogLevel.Error,
+				message:$"Syntax error",
+				token:token,
+				line:_scanner.Line(token.Start.Ln));
+			log = log.Enqueue(logItem);
+			_hasErrors = true;
+		}
+			
+		private ImmutableQueue<Token> peekToken = ImmutableQueue<Token>.Empty;
+				
+		private Token PeekToken()
+		{
+			while (true)
+		    {
+				var token = _scanner.NextToken();
+				peekToken = peekToken.Enqueue(token);
+				if (token.State >= 0)
+					return token;
+		    }
+		}
 	
 		private uint Reduce(uint rule)
 		{
@@ -124,11 +155,11 @@ namespace CalcTest
 					break;
 				case 2: // expr = expr "+" term;
 					items = 3;
-					state = Reduce(8, new AddExpr(At<Expr>(0),At(2)));
+					state = Reduce(8, new AddExpr(At<Expr>(0),At<Expr>(2)));
 					break;
 				case 3: // expr = expr "-" term;
 					items = 3;
-					state = Reduce(8, new SubExpr(At<Expr>(0),At(2)));
+					state = Reduce(8, new SubExpr(At<Expr>(0),At<Expr>(2)));
 					break;
 				case 4: // term = primary;
 					items = 1;
@@ -194,7 +225,6 @@ namespace CalcTest
 	
 		#endregion
 		#region Symbols
-		#region Symbols
 		protected const int _maxTerminal = 7;
 		protected readonly string[] _symbols =
 		{
@@ -212,152 +242,144 @@ namespace CalcTest
 		};
 		#endregion
 	
-		#endregion
 		
-	
-	    private bool TryRecover(ref Token token, bool suppress)
-	    {
-	        var isOk = false;
-	
-	        if (token.State != 0)
-	            _logger.LogError(token, "unexpected token '{0}'", token.Value);
-	        else
-	            _logger.LogError(token, "unexpected token [EOF]");
-	
-	        while (true)
-	        {
-	            for (var i = 0; _stack.GetState(i, out var state); i++)
-	            {
-	                if (_actions[state, token.State] != -1)
-	                {
-	                    _stack.Pop(i);
-	                    return true;
-	                }
-	            }
-	            if (token.State == 0)
-	                break;
-	            token = NextToken();
-	        }
-	        return isOk;
-	    }
-	
-		#region LRStack
-		[DebuggerDisplay("Count = {_count}"), DebuggerTypeProxy(typeof(LRStackProxy))]
-		private class LRStack
+		private bool TryRecover(uint state, ref Token token, bool suppress)
 		{
-			private Rec[] _array = new Rec[4];
-			private int _items;
-			private int _count = 1;
-		
-			public LRStack SetItems(int value)
+			var isOk = false;
+			var builder = new StringBuilder("  Expecting one of the following token type(s):");
+			var count = 0;
+			for (var i = 0; i < _maxTerminal; i++)
 			{
-				_items = value;
-				return this;
-			}
-		
-			public object this[int offset]
-			{
-				get
+				if (_actions[state, i] != -1)
 				{
-					if (_count < offset || offset < 0)
-						throw new InvalidOperationException(string.Format("Unable to retrieve {0} items", offset));
-					return _array[_count - _items + offset].Value;
+					builder.Append("\n      ").Append(_symbols[i]);
+					count++;
 				}
 			}
-		
-			public uint Reduce(uint state, object value)
-			{
-				var oldState = _array[_count - _items - 1].State;
-				for (var i = _items - 1; i > 0; i--)
-					_array[_count - i].Value = null;
-				_array[_count - _items] = new Rec(state, value);
-				_count = _count - _items + 1;
-				return oldState;
-			}
 	
-	        public uint Push(uint state, object value)
-	        {
-	            var oldState = _array[_count - 1].State;
-	            Shift(state, value);
-	            return oldState;
-	        }
-	
-	        public void Replace(uint state)
+			var logItem = new LogItem(LogLevel.Error,
+				(token.State != 0) ? $"Unexpected token" :
+					$"Unexpected token [EOF]",
+				token,
+				_scanner.Line(token.Start.Ln),
+				count > 0 ? builder.ToString() : null
+				);
+			log = log.Enqueue(logItem);
+				
+			if (token.State != 0)
 			{
-				_array[_count - 1].State = state;
-			}
-		
-			public void Shift(uint state, object value)
-			{
-	            if (_count == _array.Length)
-	            {
-	                var array = new Rec[_array.Length == 0 ? 4 : 2 * _array.Length];
-	                Array.Copy(_array, 0, array, 0, _count);
-	                _array = array;
-	            }
-	            _array[_count++] = new Rec(state, value);
-			}
-		
-			public object PopValue()
-			{
-				return _array[--_count].Value;
-			}
-	
-			public bool GetState(int index, out uint state)
-	        {
-	            index++;
-	            var isOk = _count > index;
-	            state = isOk ? _array[_count - index].State : 0;
-	            return isOk;
-	        }
-	
-	        public void Pop(int items)
-	        {
-	            for (var i = items - 1; i > 0; i--)
-	                _array[_count - i].Value = null;
-	            _count -= items;
-	        }
-		
-			public uint PeekState()
-			{
-				return _array[_count - 1].State;
-			}
-		
-	        [DebuggerDisplay("{State,2}: {Value}")]
-			struct Rec
-			{
-				public Rec(uint state, object value)
+				var nextToken = PeekToken();
+				if (nextToken.State >= 0)
 				{
-					State = state;
-					Value = value;
+				    _stack.GetState(0, out var newState);
+				    if (_actions[newState, nextToken.State] != -1)
+				    {
+				        token = NextToken();
+				        return true;
+				    }
 				}
-				public uint State;
-				public object Value;
 			}
-	
-	        sealed class LRStackProxy
-	        {
-	            private readonly LRStack _stack;
-	            public LRStackProxy(LRStack stack)
-	            {
-	                _stack = stack;
-	            }
-	
-	            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-	            public Rec[] Items
-	            {
-	                get
-	                {
-	                    var result = new Rec[_stack._count];
-	                    for (var i = 0; i < _stack._count; i++)
-	                        result[i] = _stack._array[_stack._count - i - 1];
-	                    return result;
-	                }
-	            }
-	        }
+				
+			while (true)
+			{
+				for (var i = 0; _stack.GetState(i, out var newState); i++)
+				{
+					if (_actions[newState, token.State] != -1)
+					{
+						_stack = _stack.Pop(i);
+						return true;
+					}
+				}
+				if (token.State == 0)
+					break;
+				token = NextToken();
+			}
+			return isOk;
 		}
-		#endregion
+		
+		
+		private T? At<T>(int index) => (T)At(index);
+		
+		private object? At(int index) => _stack[items - index - 1].Value;	
+				
+		private uint Reduce(uint state, object? value)
+		{
+			var oldStack = _stack[items];
+			var newState = oldStack.State;
+			_stack = new LRStack(state, value, oldStack);
+			return newState;
+		}
+		
+		private uint Push(uint state, object? value)
+		{
+			var oldState = _stack.State;
+			_stack = new LRStack(state, value, _stack);
+			return oldState;
+		}
 	}
+	
+	public class LRStack
+	{
+		public static readonly LRStack Root = new LRStack(0, null, null!);
+	
+		public readonly uint State;
+		public readonly object? Value;
+		public readonly LRStack? Next;
+	
+		public LRStack(uint state, object? value, LRStack next)
+		{
+			State = state;
+			Value = value;
+			Next = next;
+		}
+	
+		public LRStack Push(uint state, object value, out uint oldState)
+		{
+			oldState = State;
+			return new LRStack(state, value, this);
+		}
+	
+		public LRStack Replace(uint state) => new LRStack(state, Value, Next!);
+			
+		public LRStack Shift(uint state, object value) => new LRStack(state, value, this);
+	
+		public LRStack this[int index] => Find(index);
+	
+		private LRStack Find(int index)
+	    {
+			var node = this;
+			for (; (index > 0) && (node != null); index--)
+				node = node!.Next;
+			return node ?? throw new ArgumentOutOfRangeException(nameof(index));
+		}
+	
+		private bool TryFind(int index, out LRStack? node)
+	    {
+			node = this;
+			for (; index > 0; index--)
+			{
+				if (node == null) return false;
+				node = node!.Next;
+			}
+			return true;
+		}
+	
+		public bool GetState(int index, out uint state)
+		{
+			var result = TryFind(index, out var node);
+			state = result ? node!.State : 0;
+			return result;
+		}
+	
+		public LRStack Pop(int items)
+		{
+			var node = this;
+			for (; items > 0; items--)
+				node = node!.Next;
+			return node!;
+		}
+	}
+	
 	
 	public class Scanner: IDisposable
 	{
@@ -391,7 +413,11 @@ namespace CalcTest
 			return new Scanner(text, line, column);
 		}
 	
-		public void Dispose() => buffer.Dispose();
+		public void Dispose()
+	    {
+	        buffer.Dispose();
+	        GC.SuppressFinalize(this);
+	    }
 	
 	    public string FilePath { get; private set; }
 	
@@ -406,24 +432,21 @@ namespace CalcTest
 	       
 		Token RawNextToken()
 		{
-	        Token token;
-			if (ch == Eof)
-			{
-	            token = new Token(line, column, buffer.Position);
-	            MarkAccepting(TokenStates.Empty);
-				goto EndState;
-			}
-	        token = new Token(line, column, buffer.Position - 1);
+			Token token;
+	        if (ch == Eof)
+	            return new Token(line, column, buffer.Position);
+	        
+	        var startPosition = new Position(line, column, buffer.Position - 1);
 			MarkAccepting(TokenStates.SyntaxError);
 	
-			if (_ch=='0') goto State1;
-			if (_ch=='+') goto State5;
-			if (_ch=='-') goto State6;
-			if (_ch=='*') goto State7;
-			if (_ch=='/') goto State8;
-			if (_ch=='\t' || _ch=='\n' || _ch == ' ') goto State4;
-			if ((_ch>='1' && _ch<='9')) goto State2;
-			if ((_ch>='A' && _ch<='Z') || _ch == '_' || (_ch>='a' && _ch<='z')) goto State3;
+			if (ch=='0') goto State1;
+			if (ch=='+') goto State5;
+			if (ch=='-') goto State6;
+			if (ch=='*') goto State7;
+			if (ch=='/') goto State8;
+			if (ch=='\t' || ch=='\n' || ch == ' ') goto State4;
+			if ((ch>='1' && ch<='9')) goto State2;
+			if ((ch>='A' && ch<='Z') || ch == '_' || (ch>='a' && ch<='z')) goto State3;
 			goto EndState2;
 		State1:
 			MarkAccepting(TokenStates.Int);
@@ -432,17 +455,17 @@ namespace CalcTest
 		State2:
 			MarkAccepting(TokenStates.Int);
 			NextChar();
-			if ((_ch>='0' && _ch<='9')) goto State2;
+			if ((ch>='0' && ch<='9')) goto State2;
 			goto EndState;
 		State3:
 			MarkAccepting(TokenStates.identifier);
 			NextChar();
-			if ((_ch>='0' && _ch<='9') || (_ch>='A' && _ch<='Z') || _ch == '_' || (_ch>='a' && _ch<='z')) goto State3;
+			if ((ch>='0' && ch<='9') || (ch>='A' && ch<='Z') || ch == '_' || (ch>='a' && ch<='z')) goto State3;
 			goto EndState;
 		State4:
 			MarkAccepting(TokenStates.white_space);
 			NextChar();
-			if (_ch=='\t' || _ch=='\n' || _ch == ' ') goto State4;
+			if (ch=='\t' || ch=='\n' || ch == ' ') goto State4;
 			goto EndState;
 		State5:
 			MarkAccepting(TokenStates.Plus);
@@ -466,8 +489,10 @@ namespace CalcTest
 				lastAcceptingPosition = buffer.Position - 1;
 				lastAcceptingState = -1;
 			}
-			var value = buffer.GetString(token.Beg, lastAcceptingPosition);
-			token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
+			token = new Token(startPosition, 
+	            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
+	            lastAcceptingState, 
+	            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
 			if (buffer.Position != lastAcceptingPosition)
 			{
 				buffer.Position = lastAcceptingPosition;
@@ -478,8 +503,10 @@ namespace CalcTest
 			return token;
 	
 	    EndState2:
-			value = buffer.GetString(token.Beg, lastAcceptingPosition);
-			token.Set(lastAcceptingState, value, lastLine, lastColumn, lastAcceptingPosition - 1);
+			token = new Token(startPosition, 
+	            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
+	            lastAcceptingState,
+	            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
 			NextChar();
 			return token;
 		}
@@ -497,24 +524,37 @@ namespace CalcTest
 	    /// </summary>
 	    private void NextChar()
 	    {
-	        ch = buffer.Read();
-	        if (ch == '\n')
-	        {
-	            ++line;
-	            column = 0;
-	        }
-	        //Normalize \r\n -> \n
-	        else if (ch == '\r' && buffer.Peek() == '\n')
-	        {
-	            ch = buffer.Read();
-	            ++line;
-	            column = 0;
-	        }
-	        else
-	        { 
-	            ++column;
-	        }
+		    ch = buffer.Read();
+		    if (ch == '\n')
+		    {
+		        ++line;
+		        column = 0;
+	
+				prevLine = curLine.ToString();
+				curLine.Clear();
+		    }
+		    else if (ch == '\r')
+		    {
+				++column;
+		    }
+		    else
+		    { 
+		        ++column;
+				curLine.Append((char)ch);
+		    }
 	    }
+	
+		private string prevLine;
+		private StringBuilder curLine = new StringBuilder();
+	
+		public string Line(int position)
+		{
+			if (position + 1 == line)
+				return prevLine;
+			if (position == line)
+				return curLine.ToString() + buffer.PeekLine();
+			return string.Empty;
+		}
 	}
 	
 	public class TokenStates
@@ -530,29 +570,28 @@ namespace CalcTest
 		public const int Slash = 7;
 	}
 	
-	
-	public class Token: Segment
+		public class Token : Segment
 	{
 		public int State;
 		public string Value;
 	
-		public Token() {}
-			
 		public Token(int line, int column, int ch)
-			: base(new Position(line, column, ch)) {}
-	
-		public Token Set(int state, string value, int ln, int col, int ch)
-		{
-			State = state;
-			Value = value;
-			End = new Position(ln, col, ch);
-			return this;
+			: base(new Position(line, column, ch)) 
+		{ 
+			Value = string.Empty;
 		}
 	
-	    public static implicit operator string(Token t) =>  t.Value;
+		public Token(Position start, Position end, int state, string value)
+			: base(start, end)
+	    {
+			State = state;
+			Value = value;
+	    }
+	
+		public static implicit operator string?(Token t) => t.Value;
 	
 		public override string ToString() =>
-			$"({Start.Ln},{Start.Col}): '{Value}', state = {State}";
+			string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
 	}
 	
 	///<summary>Location of a character within a file</summary>
@@ -570,8 +609,8 @@ namespace CalcTest
 		}
 	
 		public override int GetHashCode() => Ch.GetHashCode();
-		public override bool Equals(object obj) => Equals((Position)obj);
-		public bool Equals(Position other) => (Ch == other.Ch);
+		public override bool Equals(object? obj) => (obj != null) && Equals((Position)obj);
+		public bool Equals(Position other) => Ch == other.Ch;
 	
 		public override string ToString() =>
 			string.Format("Ln {0}, Col {1}, Ch {2}", Ln, Col, Ch);
@@ -627,7 +666,6 @@ namespace CalcTest
 			}
 		}
 	}
-	
 	
 	/// <summary>
 	/// Buffer between text/file object and scanner
@@ -697,7 +735,7 @@ namespace CalcTest
 		    int result;
 		    if (remaining > 0)
 		    {
-		        result = builder[builder.Length - remaining];
+		        result = builder[^remaining];
 		    }
 		    else if (filePos < Length)
 		    {
@@ -718,7 +756,7 @@ namespace CalcTest
 			int result;
 			if (remaining > 0)
 			{
-				result = builder[builder.Length - remaining--];
+				result = builder[^(remaining--)];
 			}
 			else if (filePos < Length)
 			{
@@ -762,139 +800,62 @@ namespace CalcTest
 	{
 	    private readonly string text;
 	
-	    public StringBuffer(string text)
-	    {
-	        this.text = text;
-	    }
+	    public StringBuffer(string text) => this.text = text;
 	
-		public void Dispose() {}
+		public void Dispose() => GC.SuppressFinalize(this);
 	
 		public long Length => text.Length;
 	
 	    public int Position { get; set;}
 	
-	    public int Read()
-	    {
-	        return (Position < text.Length) ? text[Position++] : -1;
-	    }
+	    public int Read() => (Position < text.Length) ? text[Position++] : -1;
 	
-	    public int Peek()
-	    {
-	        return (Position < text.Length) ? text[Position] : -1;
-	    }
+	    public int Peek() => (Position < text.Length) ? text[Position] : -1;
 	
-	    public string GetString(int start, int end)
-	    {
-	        return text.Substring(start, end - start);
-	    }
+	    public string GetString(int start, int end) => text[start..end];
+	
+		public string PeekLine()
+		{
+			int i;
+			for (i = Position; i < text.Length; i++)
+			{
+				var ch = text[i];
+				if (ch == '\r' || ch == '\n')
+					break;
+			}
+			return text.Substring(Position, i - Position + 1);
+		}
 	}
 	
 	#region Logger
-	
-	public enum Importance
+	public class LogItem
 	{
-		High = 0,
-		Normal = 1,
-		Low = 2
+	    public LogItem(LogLevel level, 
+	        string message,
+	        Token token,
+	        string line,
+	        string? suggestions = null)
+	    {
+	        Level = level;
+	        Message = message;
+	        Token = token;
+	        Line = line;
+	        Suggestions = suggestions;
+	    }
+	
+	    public readonly LogLevel Level;
+	    public readonly string Message;
+	    public readonly Token Token;
+	    public readonly string Line;
+	    public readonly string? Suggestions;
 	}
 	
-	public interface ILogger
+	public enum LogLevel
 	{
-		void LogError(string message, params object[] messageArgs);
-		void LogError(Segment segment, string message, params object[] messageArgs);
-		void LogWarning(string message, params object[] messageArgs);
-		void LogWarning(Segment segment, string message, params object[] messageArgs);
-		void LogMessage(Importance importance, string message, params object[] messageArgs);
-		void LogMessage(Importance importance, Segment segment, string message, params object[] messageArgs);
+	    Error,
+	    Warning,
+	    Info
 	}
 	
-	public class ConsoleLogger : ILogger
-	{
-	    private readonly string _file;
-	    private readonly ConsoleColor _oldColor;
-	
-	    public ConsoleLogger(string file)
-	    {
-	        _file = file;
-	        _oldColor = Console.ForegroundColor;
-	    }
-	
-	    public void LogError(string message, params object[] messageArgs)
-	    {	Log(ConsoleColor.Red, message, messageArgs); }
-	
-	    public void LogError(Segment segment, string message, params object[] messageArgs)
-	    {	Log(ConsoleColor.Red, segment, message, messageArgs); }
-	
-	    public void LogMessage(string message, params object[] messageArgs)
-	    {	LogMessage(Importance.Low, message, messageArgs); }
-	
-	    public void LogMessage(Importance importance, string message, params object[] messageArgs)
-	    {	
-	        Log(ToColor(importance), message, messageArgs);
-	    }
-	
-		public void LogMessage(Importance importance, Segment segment, string message, params object[] messageArgs)
-		{
-			Log(ToColor(importance), segment, message, messageArgs);
-		}
-	
-	    public void LogWarning(Segment segment, string message, params object[] messageArgs)
-	    {	Log(ConsoleColor.Yellow, segment, message, messageArgs); }
-	
-	    public void LogWarning(string message, params object[] messageArgs)
-	    {	Log(ConsoleColor.Yellow, message, messageArgs); }
-	
-	    public void Log(ConsoleColor color, Segment segment, string message, params object[] messageArgs)
-	    {
-	        var builder = new StringBuilder();
-	        if (!string.IsNullOrEmpty(_file))
-	            builder.Append(_file);
-	        if (segment.Start.Ln > 0)
-	        {
-	            builder.Append('(').Append(segment.Start.Ln);
-	            if (segment.Start.Col > 0)
-	            {
-	                builder.Append(',').Append(segment.Start.Col);
-	                if (segment.End.Ln > 0)
-	                    builder.Append(',').Append(segment.End.Ln).Append(',').Append(segment.End.Col);
-	            }
-	            builder.Append(')');
-	        }
-	        if (builder.Length > 0)
-	            builder.Append(":\t");
-	        if (messageArgs == null || messageArgs.Length == 0)
-	            builder.Append(message);
-	        else
-	            builder.AppendFormat(message, messageArgs);
-	        Log(color, builder.ToString());
-	    }
-	
-	    public void Log(ConsoleColor color, string message, params object[] messageArgs)
-	    {
-	        if (messageArgs == null || messageArgs.Length == 0)
-	            Log(color, message);
-	        else
-	            Log(color, string.Format(message, messageArgs));
-	    }
-	
-	    public void Log(ConsoleColor color, string message)
-	    {
-	        Console.ForegroundColor = color;
-	        Console.WriteLine(message);
-	        Console.ForegroundColor = _oldColor;
-	    }
-	
-		private static ConsoleColor ToColor(Importance importance)
-		{
-	        ConsoleColor color;
-	        switch (importance)
-	        {
-	            case Importance.High:	color = ConsoleColor.White; break;
-	            case Importance.Normal:	color = ConsoleColor.Gray; break;
-	            default:				color = ConsoleColor.DarkGray; break;
-	        }
-			return color;
-		}
-	}
 	#endregion
 }

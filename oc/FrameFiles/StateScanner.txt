@@ -1,0 +1,32 @@
+﻿public class Scanner: StateScanner
+{
+    private static readonly int[] _charToClass;
+    private static readonly int[,] _states;
+
+	static Scanner()
+	{
+        _charToClass = Opal.CharClasses.$(dfa.class.decompress)(_charToClassCompressed);
+		_states = Opal.ScannerStates.$(dfa.states.decompress)(_compressedStates,
+			maxClasses: $(dfa.maxClass),
+			maxStates: $(dfa.maxStates));
+	}
+
+    public Scanner(string source, int line = 1, int column = 0)
+		: this(new StringBuffer(source), line, column)
+    {
+    }
+
+	public Scanner(IBuffer buffer, int line = 1, int column = 0)
+		: base(buffer, line, column)
+	{
+	}
+
+	public static Scanner FromFile(string filePath, int line = 1, int column = 0) =>
+		new Scanner(new FileBuffer(filePath), line, column);
+
+	protected override int[] CharClasses => _charToClass;
+	protected override int[,] States => _states;
+
+$(scanner.char.map)
+$(scanner.states)
+}

@@ -7,17 +7,19 @@ namespace Opal
     /// </summary>
     public interface IBuffer : IDisposable
 	{
+		/// <summary>
+		/// Full length of source
+		/// </summary>
 		long Length { get; }
 
 		/// <summary>
-		/// Returns the index within the buffer
+		/// Current buffer position
 		/// </summary>
 		int Position { get; set; }
 
 		/// <summary>
-		/// Returns the next character, moves the position one forward
+		/// Returns next character, moves the position one forward
 		/// </summary>
-		/// <returns></returns>
 		int Read();
 
 		/// <summary>

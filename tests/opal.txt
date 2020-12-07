@@ -4,11 +4,15 @@ using Opal.ParseTree;
 namespace Opal;
 
 Options
-	frame					= "opal.parser.frame"
+	//frame					= "opal.parser.frame"
 	no_action				= "null"
 	//nfa					= "opal.nfa.txt"
 	//scanner				= "switch"
 	emit_token_states		= false
+	no.token				= true
+	no.buffer				= true
+	no.logger				= true
+	no.lrstack				= true
 
 Characters
 	char_class_ctrl 		= [\[\]\^\\]
@@ -100,8 +104,8 @@ Productions language
 	option_list = option 
 				| option_list option;
 
-	option	=	identifier '=' string_literal					{ AddOption($0, $2: StringConst); }
-			|	identifier '=' Boolean							{ AddOption($0, $2: BoolConst); }
+	option	=	Identifier '=' string_literal					{ AddOption($0, $2: StringConst); }
+			|	Identifier '=' Boolean							{ AddOption($0, $2: BoolConst); }
 
 	characters_section	= | "Characters" character_expr;
 
@@ -111,8 +115,8 @@ Productions language
 	character_pair = identifier '=' char_class_concat			{ new NamedCharClass($0, $2: IMatch); }
 
 	char_class_concat = char_class_unary
-				      | char_class_concat '+' char_class_unary	{ Match.Union($0: IMatch, $1, $2: IMatch); }
-				      | char_class_concat '-' char_class_unary	{ Match.Difference($0: IMatch, $1, $2: IMatch); }
+				      | char_class_concat '+' char_class_unary	{ Match.Union($0:IMatch, $2:IMatch); }
+				      | char_class_concat '-' char_class_unary	{ Match.Difference($0:IMatch, $2:IMatch); }
 
 	char_class_unary = 	char_class_primary 
 					 | '!' char_class_unary						{ Match.Invert($0, $1: IMatch); }

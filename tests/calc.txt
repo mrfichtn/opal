@@ -23,8 +23,8 @@ Tokens
 Productions expr
 
 	expr	= term
-			| expr '+' term    		{ new AddExpr($0:Expr, $2); }
-			| expr '-' term			{ new SubExpr($0:Expr, $2); }
+			| expr '+' term    		{ new AddExpr($0:Expr, $2:Expr); }
+			| expr '-' term			{ new SubExpr($0:Expr, $2:Expr); }
 
 	term	= primary
 			| term '*' primary 		{ new MultiExpr($0:Expr, $2:Expr); }

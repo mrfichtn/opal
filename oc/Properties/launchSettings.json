@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "opal": {
+      "commandName": "Project",
+      "commandLineArgs": "word.opal",
+      "workingDirectory": "D:\\src\\opal\\tests"
+    }
+  }
+}

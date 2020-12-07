@@ -2,7 +2,10 @@ namespace Words;
 
 Options
 	scanner				= "switch"
-
+	no.parser			= true
+	no.token			= true
+	no.buffer			= true
+	no.logger			= true
 
 Characters
 	letter = [a-zA-Z]

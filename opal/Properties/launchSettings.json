@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "opal": {
-      "commandName": "Project",
-      "commandLineArgs": "calc.txt",
-      "workingDirectory": "D:\\src\\opal\\tests"
-    }
-  }
-}

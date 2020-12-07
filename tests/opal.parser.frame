@@ -6,9 +6,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-(. usings .)
+$(usings)
 
-(. namespace.start .)
+$(namespace.start)
 public partial class Parser: IDisposable
 {
 	private readonly ILogger _logger;
@@ -146,7 +146,7 @@ public partial class Parser: IDisposable
 
 		switch (rule)
 		{
-(. productions .)
+$(productions)
 		}
 		return state;
 	}
@@ -175,10 +175,10 @@ public partial class Parser: IDisposable
 	}
 
 	#region Actions Table
-(. actions .)
+$(actions)
 	#endregion
 
-(. parser.symbols .)
+$(parser.symbols)
 
 	private bool TryRecover(uint state, ref Token token, bool suppress)
 	{
@@ -259,6 +259,6 @@ public partial class Parser: IDisposable
 	}
 }
 
-(. scanner .)
-(. scanner.states .)
-(. namespace.end .)
+$(scanner)
+$(scanner.states)
+$(namespace.end)

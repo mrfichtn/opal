@@ -96,8 +96,8 @@ R7: option_section ->
 R8: option_section -> @Options option_list
 R9: option_list -> option
 R10: option_list -> option_list option
-R11: option -> identifier = string_literal
-R12: option -> identifier = Boolean
+R11: option -> Identifier = string_literal
+R12: option -> Identifier = Boolean
 R13: characters_section ->
 R14: characters_section -> @Characters character_expr
 R15: character_expr -> character_pair

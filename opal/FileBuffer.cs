@@ -31,7 +31,11 @@ namespace Opal
 			set => remaining = filePos - value;
 		}
 
-		public void Dispose() => reader.Dispose();
+		public void Dispose()
+		{
+			reader.Dispose();
+			GC.SuppressFinalize(this);
+		}
 
 		public string GetString(int beg, int end)
 		{
@@ -58,7 +62,7 @@ namespace Opal
 			}
 			else
 			{
-				result = -1;
+				result = Buffer.Eof;
 			}
 			return result;
 		}
@@ -78,7 +82,7 @@ namespace Opal
 			}
 			else
 			{
-				result = -1;
+				result = Buffer.Eof;
 			}
 			return result;
 		}

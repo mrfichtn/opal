@@ -1,0 +1,611 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+$(usings)
+
+#nullable enable
+
+$(namespace.start)
+$(if !no.parser)public partial class Parser: IDisposable
+{
+	private readonly Scanner _scanner;
+	private LRStack _stack;
+	private bool _hasErrors;
+	private int items;
+	private ImmutableQueue<LogItem> log;
+		
+	public Parser(Scanner scanner)
+	{
+		_scanner = scanner;
+		_stack = LRStack.Root;
+		log = ImmutableQueue<LogItem>.Empty;
+		Init();
+	}
+
+	public Parser(string filePath)
+		: this(Scanner.FromFile(filePath)) 
+	{}
+
+	public static Parser FromString(string text)
+	{
+		var scanner = new Scanner(text);
+		return new Parser(scanner);
+	}
+
+	public void Dispose()
+	{
+		_scanner.Dispose();
+		GC.SuppressFinalize(this);
+	}
+
+	public object? Root { get; private set; }
+
+	public IEnumerable<LogItem> Log => log.ToArray();
+
+	partial void Init();
+
+	public bool Parse()
+	{
+		var token = NextToken();
+		var errorState = 0U;
+		var suppressError = 0;
+
+		while (true)
+		{
+            if (suppressError > 0) --suppressError;
+			
+			var state = _stack.State;
+			var actionType = GetAction(state, (uint) token.State, out var result);
+
+			switch (actionType)
+			{
+				case ActionType.Error:
+                    _hasErrors = true;
+                    if (!TryRecover(state, ref token, (suppressError > 0)))
+                        return false;
+                    if (token.State == 0)
+                    {
+                        if (errorState == state)
+                            return false;
+                        else
+                            errorState = state;
+                    }
+                    suppressError = 2;
+	                break;
+
+				case ActionType.Reduce:
+					var rule = result;
+					var reducedState = Reduce(rule);
+					if (rule == 0)
+					{
+						Root = _stack.Value;
+						return !_hasErrors;
+					}
+					if (GetAction(reducedState, _stack.State, out result) == ActionType.Error)
+						goto case ActionType.Error;
+					_stack = _stack.Replace((uint)result);
+					break;
+
+				case ActionType.Shift:
+					_stack = _stack.Shift(result, token);
+					token = NextToken();
+					break;
+			}
+		}
+	}
+
+	private Token NextToken()
+	{
+		while (!peekToken.IsEmpty)
+	    {
+			peekToken = peekToken.Dequeue(out var token);
+			if (token.State >= 0)
+				return token;
+			SyntaxError(token);
+		}
+	
+		while (true)
+		{
+		    var token = _scanner.NextToken();
+		    if (token.State >= 0)
+		        return token;
+			SyntaxError(token);
+		}
+	}
+
+	private void SyntaxError(Token token)
+	{
+		var logItem = new LogItem(LogLevel.Error,
+			message:$"Syntax error",
+			token:token,
+			line:_scanner.Line(token.Start.Ln));
+		log = log.Enqueue(logItem);
+		_hasErrors = true;
+	}
+		
+	private ImmutableQueue<Token> peekToken = ImmutableQueue<Token>.Empty;
+			
+	private Token PeekToken()
+	{
+		while (true)
+	    {
+			var token = _scanner.NextToken();
+			peekToken = peekToken.Enqueue(token);
+			if (token.State >= 0)
+				return token;
+	    }
+	}
+
+	private uint Reduce(uint rule)
+	{
+		uint state = 0;
+
+		switch (rule)
+		{
+$(productions)
+		}
+		return state;
+	}
+
+	private enum ActionType { Shift, Reduce, Error }
+
+	private ActionType GetAction(uint state, uint token, out uint arg)
+	{
+		var action = _actions[state, token];
+		ActionType actionType;
+		if (action == -1)
+		{
+			actionType = ActionType.Error;
+		}
+		else if (action >= 0)
+		{
+			actionType = ActionType.Shift;
+		}
+		else
+		{
+			actionType = ActionType.Reduce;
+			action = -2 - action;
+		}
+		arg = (uint)action;
+		return actionType;
+	}
+
+	#region Actions Table
+$(actions)
+	#endregion
+$(parser.symbols)
+	
+	private bool TryRecover(uint state, ref Token token, bool suppress)
+	{
+		var isOk = false;
+		var builder = new StringBuilder("  Expecting one of the following token type(s):");
+		var count = 0;
+		for (var i = 0; i < _maxTerminal; i++)
+		{
+			if (_actions[state, i] != -1)
+			{
+				builder.Append("\n      ").Append(_symbols[i]);
+				count++;
+			}
+		}
+
+		var logItem = new LogItem(LogLevel.Error,
+			(token.State != 0) ? $"Unexpected token" :
+				$"Unexpected token [EOF]",
+			token,
+			_scanner.Line(token.Start.Ln),
+			count > 0 ? builder.ToString() : null
+			);
+		log = log.Enqueue(logItem);
+			
+		if (token.State != 0)
+		{
+			var nextToken = PeekToken();
+			if (nextToken.State >= 0)
+			{
+			    _stack.GetState(0, out var newState);
+			    if (_actions[newState, nextToken.State] != -1)
+			    {
+			        token = NextToken();
+			        return true;
+			    }
+			}
+		}
+			
+		while (true)
+		{
+			for (var i = 0; _stack.GetState(i, out var newState); i++)
+			{
+				if (_actions[newState, token.State] != -1)
+				{
+					_stack = _stack.Pop(i);
+					return true;
+				}
+			}
+			if (token.State == 0)
+				break;
+			token = NextToken();
+		}
+		return isOk;
+	}
+	
+	
+	private T? At<T>(int index) => (T)At(index);
+	
+	private object? At(int index) => _stack[items - index - 1].Value;	
+			
+	private uint Reduce(uint state, object? value)
+	{
+		var oldStack = _stack[items];
+		var newState = oldStack.State;
+		_stack = new LRStack(state, value, oldStack);
+		return newState;
+	}
+	
+	private uint Push(uint state, object? value)
+	{
+		var oldState = _stack.State;
+		_stack = new LRStack(state, value, _stack);
+		return oldState;
+	}
+}
+
+$(if !no.lrstack)public class LRStack
+{
+	public static readonly LRStack Root = new LRStack(0, null, null!);
+
+	public readonly uint State;
+	public readonly object? Value;
+	public readonly LRStack? Next;
+
+	public LRStack(uint state, object? value, LRStack next)
+	{
+		State = state;
+		Value = value;
+		Next = next;
+	}
+
+	public LRStack Push(uint state, object value, out uint oldState)
+	{
+		oldState = State;
+		return new LRStack(state, value, this);
+	}
+
+	public LRStack Replace(uint state) => new LRStack(state, Value, Next!);
+		
+	public LRStack Shift(uint state, object value) => new LRStack(state, value, this);
+
+	public LRStack this[int index] => Find(index);
+
+	private LRStack Find(int index)
+    {
+		var node = this;
+		for (; (index > 0) && (node != null); index--)
+			node = node!.Next;
+		return node ?? throw new ArgumentOutOfRangeException(nameof(index));
+	}
+
+	private bool TryFind(int index, out LRStack? node)
+    {
+		node = this;
+		for (; index > 0; index--)
+		{
+			if (node == null) return false;
+			node = node!.Next;
+		}
+		return true;
+	}
+
+	public bool GetState(int index, out uint state)
+	{
+		var result = TryFind(index, out var node);
+		state = result ? node!.State : 0;
+		return result;
+	}
+
+	public LRStack Pop(int items)
+	{
+		var node = this;
+		for (; items > 0; items--)
+			node = node!.Next;
+		return node!;
+	}
+}
+$(endif)
+$(endif)
+$(scanner)
+$(scanner.states)
+$(if !no.token)	public class Token : Segment
+{
+	public int State;
+	public string Value;
+
+	public Token(int line, int column, int ch)
+		: base(new Position(line, column, ch)) 
+	{ 
+		Value = string.Empty;
+	}
+
+	public Token(Position start, Position end, int state, string value)
+		: base(start, end)
+    {
+		State = state;
+		Value = value;
+    }
+
+	public static implicit operator string?(Token t) => t.Value;
+
+	public override string ToString() =>
+		string.Format("({0},{1}): '{2}', state = {3}", Start.Ln, Start.Col, Value, State);
+}
+
+///<summary>Location of a character within a file</summary>
+public struct Position: IEquatable<Position>
+{
+	public readonly int Ln;
+	public readonly int Col;
+	public readonly int Ch;
+
+	public Position(int ln, int col, int ch)
+	{
+		Ln = ln;
+		Col = col;
+		Ch = ch;
+	}
+
+	public override int GetHashCode() => Ch.GetHashCode();
+	public override bool Equals(object? obj) => (obj != null) && Equals((Position)obj);
+	public bool Equals(Position other) => Ch == other.Ch;
+
+	public override string ToString() =>
+		string.Format("Ln {0}, Col {1}, Ch {2}", Ln, Col, Ch);
+
+	public static bool operator ==(Position left, Position right) =>
+		left.Ch == right.Ch;
+
+	public static bool operator !=(Position left, Position right) =>
+		left.Ch != right.Ch;
+}
+
+///<summary>Segment location in a file</summary>
+public class Segment
+{
+	public Position Start;
+	public Position End;
+	
+	public Segment() {}
+	
+	public Segment(Segment cpy)
+	{
+		if (cpy != null)
+		{
+			Start = cpy.Start;
+			End = cpy.End;
+		}
+	}
+	
+	public Segment(Position start)
+	{
+		Start = start;
+		End = start;
+	}
+	
+	public Segment(Position start, Position end)
+	{
+		Start = start;
+		End = end;
+	}
+
+	public bool IsEmpty => (End == Start);
+	
+	public int Beg => Start.Ch;
+	
+	public int Length => End.Ch - Start.Ch + 1;
+			
+	public void CopyFrom(Segment segment)
+	{
+		if (segment != null)
+		{
+			Start = segment.Start;
+			End = segment.End;
+		}
+	}
+}
+$(endif)
+$(if !no.buffer)/// <summary>
+/// Buffer between text/file object and scanner
+/// </summary>
+public interface IBuffer: IDisposable
+{
+    /// <summary>Text/file length</summary>
+	long Length { get; }
+
+	/// <summary>Returns the index within the buffer</summary>
+    int Position { get; set; }
+
+    /// <summary>Returns the next character, moves the position one forward</summary>
+    int Read();
+
+    /// <summary>Examines the next character in the stream, leaves position at the same place</summary>
+    int Peek();
+
+    /// <summary>
+    /// Returns string from beg to end
+    /// </summary>
+    string GetString(int beg, int end);
+	
+	string PeekLine();
+}
+
+public class FileBuffer : IBuffer, IDisposable
+{
+	private readonly StreamReader reader;
+	private readonly StringBuilder builder;
+	private int filePos;
+	private int remaining;
+
+    public FileBuffer(string filePath)
+	    : this(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+	{
+	}
+	
+	public FileBuffer(Stream stream)
+	{
+	    Length = stream.Length;
+	    reader = new StreamReader(stream);
+	    builder = new StringBuilder();
+	}
+
+	public void Dispose() => reader.Dispose();
+	
+    public long Length { get; }
+
+    public int Position
+	{
+	    get => filePos - remaining;
+	    set => remaining = filePos - value;
+	}
+	
+	public string GetString(int beg, int end)
+	{
+	    var length = end - beg;
+		var start = filePos - builder.Length - beg;
+	    var result = builder.ToString(start, length);
+	    builder.Remove(start, length);
+	    return result;
+	}
+	
+	public int Peek()
+	{
+	    int result;
+	    if (remaining > 0)
+	    {
+	        result = builder[^remaining];
+	    }
+	    else if (filePos < Length)
+	    {
+	        result = reader.Read();
+			filePos++;
+			builder.Append((char)result);
+	        remaining++;
+	    }
+	    else
+	    {
+	        result = -1;
+	    }
+	    return result;
+	}
+
+	public int Read()
+	{
+		int result;
+		if (remaining > 0)
+		{
+			result = builder[^(remaining--)];
+		}
+		else if (filePos < Length)
+		{
+			result = reader.Read();
+			builder.Append((char)result);
+			filePos++;
+		}
+		else
+		{
+			result = -1;
+		}
+		return result;
+	}
+
+
+	public string PeekLine()
+    {
+		var result = new StringBuilder();
+		for (var i = builder.Length - remaining; i < builder.Length; i++)
+        {
+			var ch = builder[i];
+			if (ch == '\n') return result.ToString();
+			if (ch != '\r') result.Append(ch);
+        }
+
+		while (filePos < Length)
+        {
+			var ch = reader.Read();
+			filePos++;
+			builder.Append((char)ch);
+			remaining++;
+			if (ch == '\n') return result.ToString();
+			if (ch != '\r') result.Append((char)ch);
+		}
+		return result.ToString();
+	}
+}
+
+
+public class StringBuffer: IBuffer
+{
+    private readonly string text;
+
+    public StringBuffer(string text) => this.text = text;
+
+	public void Dispose() => GC.SuppressFinalize(this);
+
+	public long Length => text.Length;
+
+    public int Position { get; set;}
+
+    public int Read() => (Position < text.Length) ? text[Position++] : -1;
+
+    public int Peek() => (Position < text.Length) ? text[Position] : -1;
+
+    public string GetString(int start, int end) => text[start..end];
+
+	public string PeekLine()
+	{
+		int i;
+		for (i = Position; i < text.Length; i++)
+		{
+			var ch = text[i];
+			if (ch == '\r' || ch == '\n')
+				break;
+		}
+		return text.Substring(Position, i - Position + 1);
+	}
+}
+$(endif)
+$(if !no.logger)#region Logger
+public class LogItem
+{
+    public LogItem(LogLevel level, 
+        string message,
+        Token token,
+        string line,
+        string? suggestions = null)
+    {
+        Level = level;
+        Message = message;
+        Token = token;
+        Line = line;
+        Suggestions = suggestions;
+    }
+
+    public readonly LogLevel Level;
+    public readonly string Message;
+    public readonly Token Token;
+    public readonly string Line;
+    public readonly string? Suggestions;
+}
+
+public enum LogLevel
+{
+    Error,
+    Warning,
+    Info
+}
+
+#endregion
+$(endif)$(namespace.end)

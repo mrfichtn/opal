@@ -28,13 +28,17 @@ Productions expr
             var logger = new LoggerMock();
             var inPath = "tmp.txt";
             File.WriteAllText(inPath, source);
-            var compiler = new Opal.Compiler(logger, inPath);
-            compiler.OutPath = "tmp.out";
+            var compiler = new Opal.Compiler(logger, inPath)
+            {
+                OutPath = "tmp.out"
+            };
             compiler.Compile();
 
             var msg = logger.ToString();
+            Assert.IsNotNull(msg);
 
             var result = File.ReadAllText(compiler.OutPath);
+            Assert.IsNotNull(result);
         }
 
         //[TestMethod]

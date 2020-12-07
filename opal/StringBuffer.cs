@@ -1,19 +1,20 @@
-﻿namespace Opal
+﻿using System;
+
+namespace Opal
 {
     public class StringBuffer : IBuffer
 	{
 		private readonly string text;
 
-		public StringBuffer(string text) =>
-			this.text = text;
+		public StringBuffer(string text) => this.text = text;
 
-		public void Dispose() { }
+		public void Dispose() => GC.SuppressFinalize(this);
 
 		public long Length => text.Length;
 		public int Position { get; set; }
 
 		public int Read() => (Position < text.Length) ? text[Position++] : -1;
-
+		
 		public int Peek() => (Position < text.Length) ? text[Position] : -1;
 
 		public string PeekLine()
@@ -28,7 +29,6 @@
 			return text.Substring(Position, i - Position + 1);
 		}
 
-
-		public string GetString(int start, int end) => text.Substring(start, end - start);
+		public string GetString(int start, int end) => text.Substring(start, end-start+1);
 	}
 }

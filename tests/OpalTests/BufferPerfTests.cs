@@ -28,21 +28,19 @@ namespace OpalTests
                 {
                 }
             }
-            var elapsed = sw.Elapsed;
+            //var elapsed = sw.Elapsed;
 
             sw = Stopwatch.StartNew();
             for (var i = 0; i < 10000; i++)
             {
-                using (var buffer = new FileBuffer(inFilePath))
+                using var buffer = new FileBuffer(inFilePath);
+                var scanner = new Scanner(buffer);
+                while (scanner.NextToken().State != TokenStates.Empty)
                 {
-                    var scanner = new Scanner(buffer);
-                    while (scanner.NextToken().State != TokenStates.Empty)
-                    {
-                    }
                 }
             }
 
-            var elapsed2 = sw.Elapsed;
+            //var elapsed2 = sw.Elapsed;
         }
 
         [TestMethod]
@@ -66,7 +64,7 @@ namespace OpalTests
             token = scanner.NextToken();
             Assert.AreEqual("4", token.Value);
             token = scanner.NextToken();
-            Assert.AreEqual(null, token.Value);
+            Assert.AreEqual(string.Empty, token.Value);
         }
     }
 }

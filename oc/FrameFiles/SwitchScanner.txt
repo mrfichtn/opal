@@ -1,0 +1,132 @@
+﻿public class Scanner: IDisposable
+{
+    public const int Eof = -1;
+
+    private readonly IBuffer buffer;
+    private int ch;
+    private int line;
+	private int column;
+
+	private int lastAcceptingState;
+    private int lastAcceptingPosition;
+    private int lastLine;
+    private int lastColumn;
+
+    public Scanner(string source, int line = 1, int column = 0)
+		: this(new StringBuffer(source), line, column) 
+	{}
+
+    public Scanner(IBuffer buffer, int line = 1, int column = 0)
+    {
+        this.buffer = buffer;
+        this.line = line;
+        this.column = column;
+        NextChar();
+    }
+
+	public static Scanner FromFile(string filePath, int line = 1, int column = 0)
+	{
+		var text = File.ReadAllText(filePath);
+		return new Scanner(text, line, column);
+	}
+
+	public void Dispose()
+    {
+        buffer.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public string FilePath { get; private set; }
+
+    /// <summary>Skipping ignore, returns next token</summary>
+    public Token NextToken()
+    {
+        Token token;
+        do { token = RawNextToken(); } 
+        while (token.State < TokenStates.SyntaxError);
+        return token;
+    }
+       
+	Token RawNextToken()
+	{
+		Token token;
+        if (ch == Eof)
+            return new Token(line, column, buffer.Position);
+        
+        var startPosition = new Position(line, column, buffer.Position - 1);
+		MarkAccepting(TokenStates.SyntaxError);
+
+$(dfa.states)
+	EndState:
+		if (lastAcceptingState == TokenStates.SyntaxError)
+		{
+			lastAcceptingPosition = buffer.Position - 1;
+			lastAcceptingState = -1;
+		}
+		token = new Token(startPosition, 
+            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
+            lastAcceptingState, 
+            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
+		if (buffer.Position != lastAcceptingPosition)
+		{
+			buffer.Position = lastAcceptingPosition;
+			line = lastLine;
+			column = lastColumn;
+			NextChar();
+		}
+		return token;
+
+    EndState2:
+		token = new Token(startPosition, 
+            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
+            lastAcceptingState,
+            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
+		NextChar();
+		return token;
+	}
+
+    void MarkAccepting(int type)
+    {
+        lastAcceptingState = type;
+        lastAcceptingPosition = buffer.Position;
+        lastLine = line;
+        lastColumn = column;
+    }
+
+    /// <summary>
+    /// Retrieves the next character, adjusting position information
+    /// </summary>
+    private void NextChar()
+    {
+	    ch = buffer.Read();
+	    if (ch == '\n')
+	    {
+	        ++line;
+	        column = 0;
+
+			prevLine = curLine.ToString();
+			curLine.Clear();
+	    }
+	    else if (ch == '\r')
+	    {
+			++column;
+	    }
+	    else
+	    { 
+	        ++column;
+			curLine.Append((char)ch);
+	    }
+    }
+
+	private string prevLine;
+	private StringBuilder curLine = new StringBuilder();
+
+	public string Line(int position)
+	{
+		if (position + 1 == line)
+			return prevLine;
+		if (position == line)
+			return curLine.ToString() + buffer.PeekLine();
+		return string.Empty;
+	}
+}

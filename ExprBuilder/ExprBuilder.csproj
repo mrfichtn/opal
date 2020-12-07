@@ -24,6 +24,5 @@
     <OpalTask Input="@(Opal)" Outputs="%(Opal.Filename).cs" />
   </Target>
 
-  
   <!--<Import Project="..\opal\opal\pub\opal.targets" />-->
 </Project>

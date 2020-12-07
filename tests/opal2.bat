@@ -1,2 +1,2 @@
-echo copy ..\opal\opal.parser.cs ..\opal\opal.parser.cs.bak
-copy opal.parser.cs ..\opal\opal.parser.cs
+echo copy ..\oc\opal.parser.cs ..\oc\opal.parser.cs.bak
+copy opal.parser.cs ..\oc\opal.parser.cs

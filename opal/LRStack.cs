@@ -42,8 +42,7 @@ namespace Opal
 			node = this;
 			for (; index > 0; index--)
 			{
-				if (node == null)
-					return false;
+				if (node == null) return false;
 				node = node!.Next;
 			}
 			return true;
