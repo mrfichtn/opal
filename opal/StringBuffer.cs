@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Opal
 {
@@ -7,6 +8,12 @@ namespace Opal
 		private readonly string text;
 
 		public StringBuffer(string text) => this.text = text;
+
+		public static StringBuffer FromFile(string filePath)
+        {
+			var text = File.ReadAllText(filePath);
+			return new StringBuffer(text);
+        }
 
 		public void Dispose() => GC.SuppressFinalize(this);
 
@@ -29,6 +36,7 @@ namespace Opal
 			return text.Substring(Position, i - Position + 1);
 		}
 
-		public string GetString(int start, int end) => text.Substring(start, end-start+1);
+		public string GetString(int start, int end) => 
+			text.Substring(start, end-start);
 	}
 }

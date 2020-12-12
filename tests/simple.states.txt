@@ -1,0 +1,13 @@
+S0
+    S': · expr, ＄ => 1
+    expr: · t1, ＄ => 2
+    expr: · t2, ＄ => 3
+
+S1: (Transition = expr)
+    S': expr ·, ＄
+
+S2: (Transition = t1)
+    expr: t1 ·, ＄
+
+S3: (Transition = t2)
+    expr: t2 ·, ＄

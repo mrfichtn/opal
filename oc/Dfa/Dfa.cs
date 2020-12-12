@@ -8,7 +8,9 @@ namespace Opal.Dfa
 {
     public class Dfa
     {
-        public Dfa(Matches matches, AcceptingStates acceptingStates, IEnumerable<DfaNode> states)
+        public Dfa(Matches matches, 
+            AcceptingStates acceptingStates, 
+            IEnumerable<DfaNode> states)
         {
             Matches = matches;
             AcceptingStates = acceptingStates;
@@ -24,7 +26,7 @@ namespace Opal.Dfa
         public Matches Matches { get; }
         #endregion
 
-        public void WriteMap(IGenerator language)
+        public void WriteCompressedMap(IGenerator language)
         {
             //Write map
             language.Indent();
@@ -32,6 +34,48 @@ namespace Opal.Dfa
             language.WriteCompressedArray(MaxClass, MatchToClass);
             language.UnIndent();
         }
+
+        public void WriteSparseMap(IGenerator language)
+        {
+            //(char, int)[] charClasses =
+            //{
+            //    ('a', 0), ('b', 1)
+            //};
+
+            //Write map
+            language.Indent();
+            language.WriteLine("private static readonly (char ch, int cls)[] _charToClass = ");
+            language.StartBlock();
+
+            var first = false;
+            int column = 0;
+            for (var i = 0; i < MatchToClass.Length; i++)
+            {
+                var state = MatchToClass[i];
+                if (state == 0)
+                    continue;
+                if (first)
+                    first = false;
+                else
+                    language.Write(',');
+                
+                if (column == 8)
+                {
+                    language.WriteLine();
+                    column = 0;
+                }
+                column++;
+
+                language.Write("('")
+                    .WriteEscChar(i)
+                    .Write("', ")
+                    .Write(state)
+                    .Write(")");
+            }
+
+            language.EndBlock(";");
+        }
+
 
         public string GetClassReadMethod() => GetMethod("Read", MaxClass);
 

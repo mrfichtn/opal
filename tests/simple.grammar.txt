@@ -1,0 +1,9 @@
+Symbols:
+[0] = (T)
+[1] = t1(T)
+[2] = t2(T)
+[3] = expr
+
+R0: S' -> expr
+R1: expr -> t1
+R2: expr -> t2

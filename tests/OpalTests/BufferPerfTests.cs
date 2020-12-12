@@ -13,10 +13,13 @@ namespace OpalTests
     [TestClass]
     public class BufferPerfTests
     {
+        public TestContext TestContext { get; set; }
+        
         [TestMethod]
         public void Test()
         {
-            var inFilePath = @"d:\src\opal\tests\opal.txt";
+            //var inFilePath = @"d:\src\opal\tests\opal.txt";
+            var inFilePath = @"D:\src\opal\tests\OpalTests\maple.sql.cs";
 
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 10000; i++)
@@ -28,6 +31,8 @@ namespace OpalTests
                 {
                 }
             }
+
+            TestContext.WriteLine($"ReadAll: {sw.Elapsed}");
             //var elapsed = sw.Elapsed;
 
             sw = Stopwatch.StartNew();
@@ -40,7 +45,7 @@ namespace OpalTests
                 }
             }
 
-            //var elapsed2 = sw.Elapsed;
+            TestContext.WriteLine($"FileBuffer: {sw.Elapsed}");
         }
 
         [TestMethod]

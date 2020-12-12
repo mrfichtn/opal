@@ -16,11 +16,11 @@ namespace Opal.Containers
             return result;
         }
 
-        public static bool HasOption(this IDictionary<string, object> options,
+        public static bool? HasOption(this IDictionary<string, object> options,
             string key)
         {
             if (!options.TryGetValue(key, out var value))
-                return false;
+                return null;
 
             if (value is bool b)
                 return b;

@@ -40,7 +40,7 @@ namespace Opal.Nfa
             }
             else
             {
-                var matches = this.Matches.GetMatches();
+                var matches = Matches.GetMatches();
                 var prev = -1;
 
                 foreach (var key in matches)

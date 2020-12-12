@@ -24,6 +24,7 @@ namespace Opal
         
         private bool emitTokenStates;
         private bool emitStateScanner;
+        private bool compressScanner;
 
         public Compiler(ILogger logger, string inPath)
         {
@@ -97,8 +98,10 @@ namespace Opal
             emitStateScanner = (!options.TryGetOption("scanner", out var scannerValue) ||
                     scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
 
+            compressScanner = options.HasOption("scanner.compress") ?? true;
+
             scannerWriter = emitStateScanner ?
-                    new DfaStateWriter(dfa) as IGeneratable :
+                    new DfaStateWriter(dfa, compressScanner) as IGeneratable :
                     new DfaSwitchWriter(dfa);
 
 
@@ -113,7 +116,8 @@ namespace Opal
             var statesPath = Path.ChangeExtension(inPath, ".states.txt");
             File.WriteAllText(statesPath, lr1Parser.States.ToString());
 
-            emitTokenStates = !emitStateScanner || options.HasOption("emit_token_states");
+            emitTokenStates = !emitStateScanner || 
+                (options.HasOption("emit_token_states") ?? false);
 
             using (var csharp = new Generator(OutPath))
             {
@@ -150,12 +154,9 @@ namespace Opal
             return isOk;
         }
 
-        bool ITemplateContext.Condition(string varName) => options.HasOption(varName);
+        bool ITemplateContext.Condition(string varName) => options.HasOption(varName) ?? false;
 
-        string? ITemplateContext.Include(string name)
-        {
-            return string.Empty;
-        }
+        string? ITemplateContext.Include(string name) => string.Empty;
 
         bool ITemplateContext.WriteVariable(Generator generator, string varName)
         {

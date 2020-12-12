@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{57D0DC39
 		tests\opal.parser.frame = tests\opal.parser.frame
 		tests\OpalTests\opal.scanner.frame = tests\OpalTests\opal.scanner.frame
 		tests\opal.txt = tests\opal.txt
+		tests\simple.opal = tests\simple.opal
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpalTests", "tests\OpalTests\OpalTests.csproj", "{323AFF7D-3B38-45FE-985F-ED42DB5D9977}"
