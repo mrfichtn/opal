@@ -1008,7 +1008,7 @@ namespace Opal
 	
 	
 	
-	public class Scanner: StateScanner
+	public class Scanner: StateScannerBase
 	{
 	    private static readonly int[] _charToClass;
 	    private static readonly int[,] _states;
@@ -1016,9 +1016,10 @@ namespace Opal
 		static Scanner()
 		{
 	        _charToClass = Opal.CharClasses.Decompress8(_charToClassCompressed);
-			_states = Opal.ScannerStates.Decompress8(_compressedStates,
-				maxClasses: 62,
-				maxStates: 115);
+			Opal.ScannerStates.Decompress8_compressedStates,
+	  maxClasses: 62
+	, maxStates: 115);
+	
 		}
 	
 	    public Scanner(string source, int line = 1, int column = 0)
@@ -1033,9 +1034,6 @@ namespace Opal
 	
 		public static Scanner FromFile(string filePath, int line = 1, int column = 0) =>
 			new Scanner(new FileBuffer(filePath), line, column);
-	
-		protected override int[] CharClasses => _charToClass;
-		protected override int[,] States => _states;
 	
 		private static readonly byte[] _charToClassCompressed = 
 		{

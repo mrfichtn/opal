@@ -16,12 +16,12 @@
             var rows = Rows;
             var classes = states[0].Count + 1;
             var data = new int[rows, classes];
-            for (var i = 0; i < states.Length; i++)
+            for (var row = 0; row < states.Length; row++)
             {
-                var state = states[i];
-                data[i, 0] = state.AcceptingState;
+                var state = states[row];
+                data[row, 0] = state.AcceptingState;
                 for (var j = 0; j < state.Count; j++)
-                    data[i, j + 1] = state[j];
+                    data[row, j + 1] = state[j];
             }
             return data;
         }

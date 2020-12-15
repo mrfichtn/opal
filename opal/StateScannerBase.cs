@@ -68,8 +68,8 @@ namespace Opal
 				var nextState = GetNextState(stateIndex);
 				if (nextState <= 0)
 				{
-					if (lastAcceptingState == -1)
-						lastAcceptingPosition = buffer.Position - 1;
+					if (lastAcceptingPosition == -1)
+						lastAcceptingPosition = buffer.Position;
 
 					var value = buffer.GetString(startPosition.Ch,
 						lastAcceptingPosition);

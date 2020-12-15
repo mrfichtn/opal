@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F470BC51
 		build\build.props = build\build.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "perftests", "tests\perftests\perftests.csproj", "{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1E14E1F-F73E-42B4-8AF0-DACC2F1E580B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{323AFF7D-3B38-45FE-985F-ED42DB5D9977} = {57D0DC39-872C-487D-81A5-33F97D599D20}
 		{BF47A5DF-0B5F-4AE1-B684-E3EDDD06EE10} = {57D0DC39-872C-487D-81A5-33F97D599D20}
+		{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8} = {57D0DC39-872C-487D-81A5-33F97D599D20}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {00222FFF-A92B-4AE9-9933-32FB31ABC85F}

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 
 
+#nullable enable
+
 namespace Words
 {
 	
@@ -124,7 +126,7 @@ namespace Words
 			token = new Token(startPosition, 
 	            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
 	            lastAcceptingState, 
-	            buffer.GetString(token.Beg, lastAcceptingPosition));
+	            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
 			if (buffer.Position != lastAcceptingPosition)
 			{
 				buffer.Position = lastAcceptingPosition;
@@ -138,7 +140,7 @@ namespace Words
 			token = new Token(startPosition, 
 	            new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
 	            lastAcceptingState,
-	            buffer.GetString(token.Beg, lastAcceptingPosition));
+	            buffer.GetString(startPosition.Ch, lastAcceptingPosition));
 			NextChar();
 			return token;
 		}
@@ -156,24 +158,37 @@ namespace Words
 	    /// </summary>
 	    private void NextChar()
 	    {
-	        ch = buffer.Read();
-	        if (ch == '\n')
-	        {
-	            ++line;
-	            column = 0;
-	        }
-	        //Normalize \r\n -> \n
-	        else if (ch == '\r' && buffer.Peek() == '\n')
-	        {
-	            ch = buffer.Read();
-	            ++line;
-	            column = 0;
-	        }
-	        else
-	        { 
-	            ++column;
-	        }
+		    ch = buffer.Read();
+		    if (ch == '\n')
+		    {
+		        ++line;
+		        column = 0;
+	
+				prevLine = curLine.ToString();
+				curLine.Clear();
+		    }
+		    else if (ch == '\r')
+		    {
+				++column;
+		    }
+		    else
+		    { 
+		        ++column;
+				curLine.Append((char)ch);
+		    }
 	    }
+	
+		private string prevLine;
+		private StringBuilder curLine = new StringBuilder();
+	
+		public string Line(int position)
+		{
+			if (position + 1 == line)
+				return prevLine;
+			if (position == line)
+				return curLine.ToString() + buffer.PeekLine();
+			return string.Empty;
+		}
 	}
 	
 	public class TokenStates

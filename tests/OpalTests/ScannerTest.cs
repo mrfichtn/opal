@@ -19,18 +19,20 @@ namespace OpalTests
 
 			int[,] states =
 			{
-			{ 0, 0, 1, 2, 0 },
-			{ 0, 0, 5, 0, 0 },
-			{ 0, 0, 0, 3, 0 },
-			{ 0, 0, 0, 4, 0 },
-			{ 2, 0, 0, 0, 0 },
-			{ 0, 0, 6, 0, 0 },
-			{ 1, 0, 0, 7, 0 },
-			{ 0, 0, 0, 8, 0 },
-			{ 0, 0, 0, 9, 0 },
-			{ 0, 0, 0, 10, 0 },
-			{ 1, 0, 0, 0, 0 }
-		};
+			//	 Acc      a  b  
+				{ 0,   0, 1, 2 }, //0
+				{ 0,   0, 5, 0 }, // 1 'a'
+				{ 0,   0, 0, 3 }, // 2 'b'
+				{ 0,   0, 0, 4 }, // 3 'bb'
+				{ 2,   0, 0, 0 }, // 4
+				{ 0,   0, 6, 0 }, // 5 'aa'
+				{ 1,   0, 0, 7 }, // 6 'aaa'
+				{ 0,   0, 0, 8 }, // 7 'aaab'
+				{ 0,   0, 0, 9 }, // 8 'aaabb'
+				{ 0,   0, 0, 10},// 9 'aaabbb'
+				{ 1,   0, 0, 0 },  //10 'aaabbbb'
+				{-1,  11, 0, 0 }
+			};
 
 			var source = "aaabbb";
 			var buffer = new StringBuffer(source);
@@ -53,7 +55,58 @@ namespace OpalTests
 
 			var t1 = scanner.RawNextToken();
 			var t2 = scanner.RawNextToken();
+
+			scanner = new StateScannerBase(
+				classes,
+				states,
+				new StringBuffer("xxxaaa"));
+
+			t1 = scanner.NextToken();
+			t2 = scanner.NextToken();
+			var t3 = scanner.NextToken();
 		}
+
+		[TestMethod]
+		public void SyntaxErrorTest()
+		{
+			(char ch, int cls)[] sparseClasses = { ('a', 1), ('b', 2) };
+
+			int[,] states =
+			{
+			//	 Acc      a  b  
+				{ 0,  11, 1, 2 }, //0
+				{ 0,   0, 5, 0 }, // 1 'a'
+				{ 0,   0, 0, 3 }, // 2 'b'
+				{ 0,   0, 0, 4 }, // 3 'bb'
+				{ 2,   0, 0, 0 }, // 4
+				{ 0,   0, 6, 0 }, // 5 'aa'
+				{ 1,   0, 0, 7 }, // 6 'aaa'
+				{ 0,   0, 0, 8 }, // 7 'aaab'
+				{ 0,   0, 0, 9 }, // 8 'aaabb'
+				{ 0,   0, 0, 10},// 9 'aaabbb'
+				{ 1,   0, 0, 0 },  //10 'aaabbbb'
+				{-1,  11, 0, 0 }
+			};
+
+			var classes = CharClasses.ToArray(sparseClasses);
+			var scanner = new StateScannerBase(
+				classes,
+				states,
+				new StringBuffer("xxxaaa"));
+
+			var token = scanner.NextToken();
+			Assert.AreEqual(-1, token.State);
+			Assert.AreEqual("xxx", token.Value);
+			
+			token = scanner.NextToken();
+			Assert.AreEqual(1, token.State);
+			Assert.AreEqual("aaa", token.Value);
+			
+			token = scanner.NextToken();
+			Assert.AreEqual(0, token.State);
+			Assert.AreEqual(string.Empty, token.Value);
+		}
+
 
 		private static readonly byte[] _charToClassCompressed =
 		{

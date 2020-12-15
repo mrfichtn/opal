@@ -15,7 +15,7 @@ namespace OpalTests
     {
         public TestContext TestContext { get; set; }
         
-        [TestMethod]
+        // [TestMethod]
         public void Test()
         {
             //var inFilePath = @"d:\src\opal\tests\opal.txt";
