@@ -50,18 +50,9 @@ namespace Opal.Nfa
             return match;
         }
 
-        public IMatch Invert(Token t)
-        {
-            var result = new CharClass(this);
-            return result.Invert(t);
-        }
+        public IMatch Invert(Token t) => new AllMatch(t);
 
-        public IMatch Invert()
-        {
-            var result = new CharClass(this);
-            return result.Invert();
-        }
-
+        public IMatch Invert() => new AllMatch();
 
         public bool IsMatch(char ch) => false;
 
@@ -71,8 +62,12 @@ namespace Opal.Nfa
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Write(IGenerator generator, string varName)
-        {}
+        public void Write(IGenerator generator, string varName) =>
+            generator.Write("false");
+
+        public string SwitchWriter(string varName) =>
+            "false";
+
 
         public override string ToString() => "Ø";
     }

@@ -39,6 +39,10 @@ namespace perftests
 			var tokens1 = StateScannerTest.States(mapleSource.Source);
 			var tokens2 = SwitchScannerTest.States(mapleSource.Source);
 
+			var scanner = new OpalSwitchScanner("&&a");
+			var t = scanner.RawNextToken();
+
+
 			Console.WriteLine("Comparing token streams");
 			int length;
 			if (tokens1.Length != tokens2.Length)
@@ -52,22 +56,22 @@ namespace perftests
 				length = tokens2.Length;
 				Console.WriteLine($"Lengths:  {length}");
 			}
-			for (var i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
-				var t1 = tokens1[i];
-				var t2 = tokens2[i];
+                var t1 = tokens1[i];
+                var t2 = tokens2[i];
 
-				if (t1.State != t2.State ||
-					t1.Value != t2.Value)
+                if (t1.State != t2.State ||
+                    t1.Value != t2.Value)
                 {
-					Console.WriteLine(i);
-					Console.WriteLine("  t1: {0}", tokens1[i]);
-					Console.WriteLine("  t2: {0}", tokens2[i]);
+                    Console.WriteLine(i);
+                    Console.WriteLine("  t1: {0}", tokens1[i]);
+                    Console.WriteLine("  t2: {0}", tokens2[i]);
                 }
             }
 
-			//foreach (var test in tests)
-			//	test.Test(testArgs);
+            foreach (var test in tests)
+				test.Test(testArgs);
 		}
 	}
 }

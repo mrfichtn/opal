@@ -2,7 +2,7 @@
   "profiles": {
     "opal": {
       "commandName": "Project",
-      "commandLineArgs": "word.opal",
+      "commandLineArgs": "opal.txt",
       "workingDirectory": "D:\\src\\opal\\tests"
     }
   }

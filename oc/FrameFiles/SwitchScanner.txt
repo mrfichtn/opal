@@ -47,7 +47,7 @@
         return token;
     }
        
-	Token RawNextToken()
+	public Token RawNextToken()
 	{
 		Token token;
         if (ch == Eof)
@@ -58,10 +58,9 @@
 
 $(dfa.states)
 	EndState:
-		if (lastAcceptingState == TokenStates.SyntaxError)
+		if (lastAcceptingPosition == -1)
 		{
-			lastAcceptingPosition = buffer.Position - 1;
-			lastAcceptingState = -1;
+			lastAcceptingPosition = buffer.Position;
 		}
 		token = new Token(startPosition, 
             new Position(lastLine, lastColumn, lastAcceptingPosition - 1),

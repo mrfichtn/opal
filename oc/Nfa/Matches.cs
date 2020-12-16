@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Opal.Nfa
 {
-    public class Matches
+    public class Matches: IEnumerable<IMatch>
     {
         private readonly Dictionary<IMatch, int> _data;
 
@@ -70,5 +71,10 @@ namespace Opal.Nfa
             }
             return result;
         }
+
+        public IEnumerator<IMatch> GetEnumerator() => 
+            _data.Select(x => x.Key).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

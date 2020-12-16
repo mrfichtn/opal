@@ -12,11 +12,12 @@ namespace Opal.Dfa
     {
         public void WriteInit(Dfa dfa, Generator generator)
         {
-            generator.Write("Opal.ScannerStates.")
+            generator
+                .Write("_states = Opal.ScannerStates.")
                 .Write(dfa.GetStatesDecompressMethod())
-                .WriteLine("_compressedStates,")
-                .Write("  maxClasses: ").Write(dfa.MaxClass + 1).WriteLine()
-                .Write(", maxStates: ").Write(dfa.States.Length).WriteLine(");");
+                .WriteLine("(_compressedStates,")
+                .Write("  maxClasses: ").Write(dfa.MaxClass + 1).Write(',').WriteLine()
+                .Write("  maxStates: ").Write(dfa.States.Length).WriteLine(");");
         }
 
         public void WriteData(Dfa dfa, Generator generator, bool addSyntaxError)

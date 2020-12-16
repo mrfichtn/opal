@@ -1016,9 +1016,9 @@ namespace Opal
 		static Scanner()
 		{
 	        _charToClass = Opal.CharClasses.Decompress8(_charToClassCompressed);
-			Opal.ScannerStates.Decompress8_compressedStates,
-	  maxClasses: 62
-	, maxStates: 115);
+			_states = Opal.ScannerStates.Decompress8(_compressedStates,
+	  maxClasses: 62,
+	  maxStates: 115);
 	
 		}
 	
@@ -1028,7 +1028,7 @@ namespace Opal
 	    }
 	
 		public Scanner(IBuffer buffer, int line = 1, int column = 0)
-			: base(buffer, line, column)
+			: base(_charToClass, _states, buffer, line, column)
 		{
 		}
 	

@@ -99,10 +99,11 @@ namespace Opal
                     scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
 
             compressScanner = options.HasOption("scanner.compress") ?? true;
+            var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
 
             scannerWriter = emitStateScanner ?
                     new DfaStateWriter(dfa, compressScanner) as IGeneratable :
-                    new DfaSwitchWriter(dfa);
+                    new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
 
             logger.LogMessage(Importance.Normal, "Building LR1");

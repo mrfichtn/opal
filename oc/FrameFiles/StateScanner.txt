@@ -15,7 +15,7 @@
     }
 
 	public Scanner(IBuffer buffer, int line = 1, int column = 0)
-		: base(buffer, line, column)
+		: base(_charToClass, _states, buffer, line, column)
 	{
 	}
 

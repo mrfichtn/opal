@@ -132,24 +132,13 @@ namespace Opal.Containers
             return builder.ToString();
         }
 
-        public static StringBuilder AppendEsc(this StringBuilder builder, char ch)
-        {
-            switch (ch)
-            {
-                case '\a': builder.Append("\\a"); break;
-                case '\b': builder.Append("\\b"); break;
-                case '\f': builder.Append("\\f"); break;
-                case '\n': builder.Append("\\n"); break;
-                case '\r': builder.Append("\\r"); break;
-                case '\t': builder.Append("\\t"); break;
-                case '\v': builder.Append("\\v"); break;
-                case '\0': builder.Append("\\0"); break;
-                case '\'': builder.Append("\\\'"); break;
-                case '\"': builder.Append("\\\""); break;
-                default: builder.Append(ch); break;
-            }
-            return builder;
-        }
+        public static StringBuilder AppendEsc(this StringBuilder builder, char ch) =>
+            builder.Append(ch.ToEsc());
+
+        public static StringBuilder AppendEscString(this StringBuilder builder, char ch) =>
+            builder.Append('\'')
+                .Append(ch.ToEsc())
+                .Append('\'');
 
         public static void ToEsc(this string text, StringBuilder result)
         {
@@ -171,6 +160,28 @@ namespace Opal.Containers
                 }
             }
         }
+
+        public static string ToEsc(this char ch)
+        {
+            return ch switch
+            {
+                '\a' => "\\a",
+                '\b' => "\\b",
+                '\f' => "\\f",
+                '\n' => "\\n",
+                '\r' => "\\r",
+                '\t' => "\\t",
+                '\v' => "\\v",
+                '\0' => "\\0",
+                '\\' => "\\\\",
+                '\'' => "\\\'",
+                '\"' => "\\\"",
+                _ => new string(ch, 1)
+            };
+        }
+
+        public static string ToEscString(this char ch) =>
+            $"'{ch.ToEsc()}'";
 
         public static bool FromHexDigit(char ch, out int value)
         {

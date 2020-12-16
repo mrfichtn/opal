@@ -56,6 +56,8 @@ namespace Opal.Nfa
                 .Write("==")
                 .WriteCharString(Ch);
 
+        public string SwitchWriter(string varName) =>
+            $"{varName}=='{Ch.ToEsc()}'";
 
         public override string ToString()
         {

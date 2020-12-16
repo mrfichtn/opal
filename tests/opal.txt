@@ -7,7 +7,8 @@ Options
 	//frame					= "opal.parser.frame"
 	no_action				= "null"
 	//nfa					= "opal.nfa.txt"
-	scanner					= "state" //"switch"
+	//scanner					= "switch"
+	scanner					= "state"
 	emit_token_states		= false
 	no.token				= true
 	no.buffer				= true

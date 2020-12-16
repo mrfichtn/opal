@@ -10,8 +10,14 @@ namespace Opal.Dfa
     public class DfaSwitchWriter: IGeneratable, ITemplateContext
     {
         private readonly Dfa dfa;
-        public DfaSwitchWriter(Dfa dfa) => 
+        private readonly IEnumerable<DfaNode> states;
+        public DfaSwitchWriter(Dfa dfa, bool syntaxErrorTokens)
+        {
             this.dfa = dfa;
+            this.states = syntaxErrorTokens ?
+                dfa.States.AddSyntaxError() :
+                dfa.States;
+        }
 
         public void Write(Generator generator) =>
             TemplateProcessor2.FromAssembly(generator, this, "Opal.FrameFiles.SwitchScanner.txt");
@@ -22,52 +28,62 @@ namespace Opal.Dfa
             var nextStates = new HashSet<int>();
             var edges = dfa.MaxClass;
 
-            foreach (var state in dfa.States)
+            IMatch emptyMatches = new AllMatch();
+            foreach (var item in dfa.Matches)
+                emptyMatches = emptyMatches.Difference(item);
+
+            foreach (var state in states)
             {
                 if (state.Index != 0)
                     generator.WriteLine().WriteLine($"State{state.Index}:");
                 generator.Indent();
-
-                if (state.IsAccepting && dfa.TryGetAccepting(state.AcceptingState, out string name))
-                    generator.WriteLine($"MarkAccepting(TokenStates.{name});");
+                if (state.IsAccepting)
+                {
+                    if (dfa.TryGetAccepting(state.AcceptingState, out string name))
+                        generator.WriteLine($"MarkAccepting(TokenStates.{name});");
+                    else if (state.AcceptingState == -1)
+                        generator.WriteLine($"MarkAccepting(TokenStates.SyntaxError);");
+                }
 
                 if (state.Index != 0)
                     generator.WriteLine("NextChar();");
 
+                if (state.Index != 0)
+                    generator.WriteLine("if (ch == -1) goto EndState;");
+                
                 state.CopyNextStatesTo(nextStates);
-                var remaining = new EmptyMatch().Invert();
-                var pairs = new List<KeyValuePair<int, IMatch>>
-                {
-                    new KeyValuePair<int, IMatch>(0, remaining)
-                };
+                var pairs = new List<KeyValuePair<int, string>>();
 
                 int i;
-                foreach (var nextState in nextStates.Where(x => (x != 0)))
+                foreach (var nextState in nextStates)
                 {
                     IMatch match = new EmptyMatch();
                     for (i = 0; i < edges; i++)
                     {
                         if (state[i] == nextState)
                         {
-                            var transMatch = dfa.Matches.Find(i);
+                            var transMatch = (i == 0) ? 
+                                emptyMatches :
+                                dfa.Matches.Find(i);
                             if (transMatch != null)
                                 match = match.Union(transMatch);
                         }
                     }
                     match = match.Reduce();
-                    pairs.Add(new KeyValuePair<int, IMatch>(nextState, match));
+                    pairs.Add(new KeyValuePair<int, string>(nextState, match.SwitchWriter("ch")));
                 }
 
                 i = 0;
                 var last = pairs.Count - 1;
-                foreach (var item in pairs.OrderBy(x => x.Value.Count))
+                foreach (var item in pairs.OrderBy(x => x.Value.Length))
                 {
                     if (i > 0)
                         generator.WriteLine();
                     if (i < last)
                     {
                         generator.Write("if (");
-                        item.Value.Write(generator, "ch");
+                        //item.Value.Write(generator, "ch");
+                        generator.Write(item.Value);
                         generator.Write(") ");
                     }
 

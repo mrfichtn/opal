@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Opal.Containers;
 
 namespace Opal.Nfa
 {
@@ -324,11 +325,6 @@ namespace Opal.Nfa
                             .Write("<=")
                             .WriteCharString(i - 1)
                             .Write(')');
-
-                        //AppendTo(builder, (char)start);
-                        //if (start < i + 2)
-                        //    builder.Append('-');
-                        //AppendTo(builder, (char)(i - 1));
                     }
 
                     start = -1;
@@ -338,6 +334,84 @@ namespace Opal.Nfa
             if (invert)
                 generator.Write(")");
         }
+
+        public string SwitchWriter(string varName)
+        {
+            var builder = new StringBuilder();
+            if (invert)
+                builder.Append($"!(");
+
+            int start = -1;
+            var isFirst = true;
+            for (var i = 0; i <= char.MaxValue; i++)
+            {
+                if (GetBit(i))
+                {
+                    if (start == -1)
+                        start = i;
+                }
+                else
+                {
+                    if (start == -1)
+                    {
+                        continue;
+                    }
+                    else if (start == i - 1)
+                    {
+                        if (isFirst)
+                            isFirst = false;
+                        else
+                            builder.Append(" || ");
+                        builder.Append(varName)
+                            .Append(" == ")
+                            .AppendEscString((char)start);
+                    }
+                    else if (start == i - 2)
+                    {
+                        if (isFirst)
+                            isFirst = false;
+                        else
+                            builder.Append(" || ");
+
+                        builder .Append(varName)
+                                .Append("==")
+                                .AppendEscString((char)start);
+
+                        builder.Append(" || ")
+                            .Append(varName)
+                            .Append("==")
+                            .AppendEscString((char)(i - 1));
+                    }
+                    else
+                    {
+                        if (isFirst)
+                            isFirst = false;
+                        else
+                            builder.Append(" || ");
+
+                        builder
+                            .Append('(')
+                            .Append(varName)
+                            .Append(">=")
+                            .AppendEscString((char) start);
+
+                        builder.Append(" && ");
+                        builder.Append(varName)
+                            .Append("<=")
+                            .AppendEscString((char)(i - 1))
+                            .Append(')');
+                    }
+
+                    start = -1;
+                }
+            }
+
+            if (invert)
+                builder.Append(')');
+
+            return builder.ToString();
+        }
+
 
         public override string ToString()
         {
@@ -418,7 +492,7 @@ namespace Opal.Nfa
             return (int)hash;
         }
 
-        public static char ConvertEsc(char val) => Strings.ConvertEsc(val);
+        public static char ConvertEsc(char val) => Opal.Containers.Strings.ConvertEsc(val);
 
         public bool IsMatch(char ch) => GetBit(ch) ^ invert;
 
@@ -645,10 +719,7 @@ namespace Opal.Nfa
             return result;
         }
 
-        public int GetCount()
-        {
-            return GetCount(matches);
-        }
+        public int GetCount() => GetCount(matches);
 
         public static int GetCount(uint[] data)
         {
@@ -775,9 +846,6 @@ namespace Opal.Nfa
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

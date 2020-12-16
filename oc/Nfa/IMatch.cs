@@ -1,9 +1,6 @@
 ﻿using Generators;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Opal.Nfa
 {
@@ -20,6 +17,8 @@ namespace Opal.Nfa
         IMatch Difference(IMatch match);
         IMatch Union(IMatch match);
         void Write(IGenerator generator, string varName);
+
+        string SwitchWriter(string varName);
     }
 
     public static class Match

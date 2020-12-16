@@ -7,13 +7,13 @@ namespace Opal.Dfa
 {
     public class DfaNode
     {
-        private int[] _next;
+        private readonly int[] next;
         
 		public DfaNode(int acceptingState, int index, int[] next)
 		{
 			AcceptingState = acceptingState;
 			Index = index;
-			_next = next;
+			this.next = next;
 		}
 
         #region Properties
@@ -21,14 +21,14 @@ namespace Opal.Dfa
         public int AcceptingState { get; }
         public bool IsAccepting => (AcceptingState != 0);
 		public bool NonAccepting => (AcceptingState == 0);
-        public int Count => _next.Length;
-        public IEnumerable<int> Next => _next;
+        public int Count => next.Length;
+        public IEnumerable<int> Next => next;
 
         #region Indexer
         public int this[int index]
 		{
-			get { return _next[index]; }
-			internal set { _next[index] = value; }
+			get { return next[index]; }
+			internal set { next[index] = value; }
 		}
         #endregion
 
@@ -38,7 +38,7 @@ namespace Opal.Dfa
         {
             language.Write("State({0}", AcceptingState);
 
-            foreach (var next in _next)
+            foreach (var next in next)
                 language.Write(", {0}", next);
             
             language.WriteLine("),");
@@ -47,7 +47,7 @@ namespace Opal.Dfa
 		public void WriteAsArray(IGenerator language)
 		{
 			language.Write(AcceptingState.ToString());
-			foreach (var item in _next)
+			foreach (var item in next)
 				language.Write(", {0}", item);
 		}
 
@@ -56,8 +56,8 @@ namespace Opal.Dfa
             var builder = new StringBuilder();
             builder.AppendFormat("{0,5}", Index);
             builder.AppendFormat(" [{0}]  ", IsAccepting ? AcceptingState.ToString("000") : "   ");
-            for (int i = 1; i < _next.Length; i++)
-                builder.AppendFormat("{0,10}", _next[i]);
+            for (int i = 1; i < next.Length; i++)
+                builder.AppendFormat("{0,10}", next[i]);
             return builder.ToString();
         }
 
@@ -66,10 +66,10 @@ namespace Opal.Dfa
             if (AcceptingState != node.AcceptingState)
                 return false;
 
-            var next = node._next;
-            for (int i = 0; i < _next.Length; i++)
+            var next = node.next;
+            for (int i = 0; i < this.next.Length; i++)
             {
-                if (_next[i] != next[i])
+                if (this.next[i] != next[i])
                     return false;
             }
             
@@ -82,12 +82,12 @@ namespace Opal.Dfa
         /// </summary>
         public void RemoveState(int oldNext, int newNext)
         {
-            for (int i = 0; i < _next.Length; i++)
+            for (int i = 0; i < next.Length; i++)
             {
-                if (_next[i] > oldNext)
-                    _next[i]--;
-                else if (_next[i] == oldNext)
-                    _next[i] = newNext;
+                if (next[i] > oldNext)
+                    next[i]--;
+                else if (next[i] == oldNext)
+                    next[i] = newNext;
             }
             if (Index > oldNext)
                 Index--;
@@ -98,12 +98,12 @@ namespace Opal.Dfa
         /// </summary>
         public void RemoveState(int oldNext)
         {
-            for (int i = 0; i < _next.Length; i++)
+            for (int i = 0; i < next.Length; i++)
             {
-                if (_next[i] > oldNext)
-                    _next[i]--;
-                else if (_next[i] == oldNext)
-                    _next[i] = 0;
+                if (next[i] > oldNext)
+                    next[i]--;
+                else if (next[i] == oldNext)
+                    next[i] = 0;
             }
             if (Index > oldNext)
                 Index--;
@@ -112,8 +112,8 @@ namespace Opal.Dfa
         public void CopyNextStatesTo(ICollection<int> set)
         {
             set.Clear();
-            for (var i = 1; i < _next.Length; i++)
-                set.Add(_next[i]);
+            for (var i = 1; i < next.Length; i++)
+                set.Add(next[i]);
         }
     }
 }
