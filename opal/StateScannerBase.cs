@@ -59,7 +59,7 @@ namespace Opal
 			var startPosition = new Position(line, column, buffer.Position - 1);
 			var lastLine = line;
 			var lastColumn = column;
-			var lastAcceptingPosition = -1;
+			var lastAcceptingPosition = buffer.Position;
 			var lastAcceptingState = -1;
 			var stateIndex = 0;
 
@@ -68,9 +68,6 @@ namespace Opal
 				var nextState = GetNextState(stateIndex);
 				if (nextState <= 0)
 				{
-					if (lastAcceptingPosition == -1)
-						lastAcceptingPosition = buffer.Position;
-
 					var value = buffer.GetString(startPosition.Ch,
 						lastAcceptingPosition);
 

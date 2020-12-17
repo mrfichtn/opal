@@ -45,11 +45,10 @@ namespace Opal.Nfa
 
         public IMatch Union(IMatch match) => this;
 
-        public void Write(IGenerator generator, string varName) =>
-            generator.Write("true");
-
-        public string SwitchWriter(string varName) =>
+        public string SwitchCondition(string varName) =>
             "true";
+
+        public override string ToString() => "𝕌";
 
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

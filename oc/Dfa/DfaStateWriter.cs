@@ -11,7 +11,9 @@ namespace Opal.Dfa
         private readonly IClassWriter classWriter;
         private readonly IStateWriter stateWriter;
 
-        public DfaStateWriter(Dfa dfa, bool compress)
+        public DfaStateWriter(Dfa dfa, 
+            bool compress,
+            bool addSyntaxError = false)
         {
             this.dfa = dfa ?? throw new ArgumentNullException(nameof(dfa));
 
@@ -19,26 +21,19 @@ namespace Opal.Dfa
                 new CompressClassWriter() :
                 new SparseClassWriter();
 
+            var tableFactory = !addSyntaxError ?
+                new ScannerStateTable(dfa.States) :
+                new ScannerStateTableWithSyntaxErrors(dfa.States);
+
+
             stateWriter = compress ?
-                new CompressStateWriter() :
-                new StateWriter();
+                new CompressStateWriter(dfa, tableFactory) :
+                new StateWriter(tableFactory);
         }
 
         public void Write(Generator generator) =>
             TemplateProcessor2.FromAssembly(generator, this, "Opal.FrameFiles.StateScanner.txt");
 
-        private void WriteStates(IGenerator generator, bool addSyntaxError = false)
-        {
-            generator.Indent();
-            generator.WriteLine("private static readonly byte[] _compressedStates = ");
-
-            var tableFactory = !addSyntaxError ?
-                new ScannerStateTable(dfa.States) :
-                new ScannerStateTableWithSyntaxErrors (dfa.States);
-            var table = tableFactory.Create();
-            generator.WriteCompressedArray(table);
-            generator.UnIndent();
-        }
 
         bool ITemplateContext.WriteVariable(Generator generator, string varName)
         {
@@ -48,17 +43,9 @@ namespace Opal.Dfa
                 case "dfa.class.init": classWriter.WriteInit(dfa, generator); break;
                 case "dfa.class.data": classWriter.WriteData(dfa, generator); break;
 
-                case "dfa.state.init": stateWriter.WriteInit(dfa, generator); break;
-                case "dfa.state.data": stateWriter.WriteData(dfa, generator, false); break;
+                case "dfa.state.init": stateWriter.WriteInit(generator); break;
+                case "dfa.state.data": stateWriter.WriteData(generator); break;
 
-                case "dfa.class.decompress": generator.Write(dfa.GetClassDecompressMethod()); break;
-                
-                case "dfa.maxClass": generator.Write((dfa.MaxClass + 1).ToString()); break;
-                case "dfa.states.read": generator.Write(dfa.GetStatesReadMethod()); break;
-                case "dfa.states.decompress": generator.Write(dfa.GetStatesDecompressMethod()); break;
-                case "dfa.maxStates": generator.Write(dfa.States.Length.ToString()); break;
-                case "scanner.char.map": dfa.WriteCompressedMap(generator); break;
-                case "scanner.states": WriteStates(generator); break;
                 default: found = false; break;
             }
             return found;

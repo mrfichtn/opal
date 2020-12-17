@@ -9,7 +9,7 @@
 
         public ScannerStateTable(DfaNode[] states) => this.states = states;
 
-        protected virtual int Rows => states.Length;
+        public virtual int Rows => states.Length;
 
         public virtual int[,] Create()
         {
@@ -31,7 +31,7 @@
     {
         public ScannerStateTableWithSyntaxErrors (DfaNode[] states) : base(states) { }
         
-        protected override int Rows => base.Rows + 1;
+        public override int Rows => base.Rows + 1;
         
         public override int[,] Create()
         {

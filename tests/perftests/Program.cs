@@ -39,8 +39,14 @@ namespace perftests
 			var tokens1 = StateScannerTest.States(mapleSource.Source);
 			var tokens2 = SwitchScannerTest.States(mapleSource.Source);
 
-			var scanner = new OpalSwitchScanner("&&a");
+			var sourceSlice = "\"SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, DATA_TYPE, IS_NULLABLE ";
+
+			var ch = sourceSlice[0];
+			var scanner = new OpalSwitchScanner(sourceSlice);
 			var t = scanner.RawNextToken();
+
+			var scanner2 = new OpalStateScanner(sourceSlice);
+			t = scanner2.RawNextToken();
 
 
 			Console.WriteLine("Comparing token streams");
@@ -65,8 +71,8 @@ namespace perftests
                     t1.Value != t2.Value)
                 {
                     Console.WriteLine(i);
-                    Console.WriteLine("  t1: {0}", tokens1[i]);
-                    Console.WriteLine("  t2: {0}", tokens2[i]);
+                    Console.WriteLine("  state : {0}", tokens1[i]);
+                    Console.WriteLine("  switch: {0}", tokens2[i]);
                 }
             }
 

@@ -28,9 +28,10 @@ namespace Opal.Dfa
             var nextStates = new HashSet<int>();
             var edges = dfa.MaxClass;
 
-            IMatch emptyMatches = new AllMatch();
-            foreach (var item in dfa.Matches)
-                emptyMatches = emptyMatches.Difference(item);
+            var emptyMatches = dfa.Matches.Remaining();
+            //IMatch emptyMatches = new AllMatch();
+            //foreach (var item in dfa.Matches)
+            //    emptyMatches = emptyMatches.Difference(item);
 
             foreach (var state in states)
             {
@@ -70,7 +71,8 @@ namespace Opal.Dfa
                         }
                     }
                     match = match.Reduce();
-                    pairs.Add(new KeyValuePair<int, string>(nextState, match.SwitchWriter("ch")));
+                    if (match.Count > 0)
+                        pairs.Add(new KeyValuePair<int, string>(nextState, match.SwitchCondition("ch")));
                 }
 
                 i = 0;

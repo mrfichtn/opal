@@ -16,9 +16,8 @@ namespace Opal.Nfa
         IMatch? Intersect(IMatch match);
         IMatch Difference(IMatch match);
         IMatch Union(IMatch match);
-        void Write(IGenerator generator, string varName);
 
-        string SwitchWriter(string varName);
+        string SwitchCondition(string varName);
     }
 
     public static class Match

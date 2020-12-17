@@ -4,30 +4,35 @@ namespace Opal.Dfa
 {
     public interface IStateWriter
     {
-        void WriteData(Dfa dfa, Generator generator, bool addSyntaxError);
-        void WriteInit(Dfa dfa, Generator generator);
+        void WriteData(Generator generator);
+        void WriteInit(Generator generator);
     }
 
     public class CompressStateWriter: IStateWriter
     {
-        public void WriteInit(Dfa dfa, Generator generator)
+        private readonly Dfa dfa;
+        private readonly ScannerStateTable tableFactory;
+
+        public CompressStateWriter(Dfa dfa, ScannerStateTable tableFactory)
+        {
+            this.dfa = dfa;
+            this.tableFactory = tableFactory;
+        }
+
+        public void WriteInit(Generator generator)
         {
             generator
                 .Write("_states = Opal.ScannerStates.")
                 .Write(dfa.GetStatesDecompressMethod())
                 .WriteLine("(_compressedStates,")
                 .Write("  maxClasses: ").Write(dfa.MaxClass + 1).Write(',').WriteLine()
-                .Write("  maxStates: ").Write(dfa.States.Length).WriteLine(");");
+                .Write("  maxStates: ").Write(tableFactory.Rows).WriteLine(");");
         }
 
-        public void WriteData(Dfa dfa, Generator generator, bool addSyntaxError)
+        public void WriteData(Generator generator)
         {
             generator.Indent();
             generator.WriteLine("private static readonly byte[] _compressedStates = ");
-
-            var tableFactory = !addSyntaxError ?
-                new ScannerStateTable(dfa.States) :
-                new ScannerStateTableWithSyntaxErrors(dfa.States);
             var table = tableFactory.Create();
             generator.WriteCompressedArray(table);
             generator.UnIndent();
@@ -37,18 +42,21 @@ namespace Opal.Dfa
 
     public class StateWriter: IStateWriter
     {
-        public void WriteInit(Dfa dfa, Generator generator)
+        private readonly ScannerStateTable tableFactory;
+
+        public StateWriter(ScannerStateTable tableFactory)
+        {
+            this.tableFactory = tableFactory;
+        }
+        
+        public void WriteInit(Generator generator)
         {
         }
 
 
-        public void WriteData(Dfa dfa, Generator generator, bool addSyntaxError)
+        public void WriteData(Generator generator)
         {
-            var tableFactory = !addSyntaxError ?
-                new ScannerStateTable(dfa.States) :
-                new ScannerStateTableWithSyntaxErrors(dfa.States);
             var table = tableFactory.Create();
-
             generator.Indent();
             generator.WriteLine("int[,] _states = ");
             generator.StartBlock();

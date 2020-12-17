@@ -51,12 +51,7 @@ namespace Opal.Nfa
 
         public bool Equals(SingleChar ch) => (Ch == ch.Ch);
 
-        public void Write(IGenerator generator, string varName) =>
-            generator.Write(varName)
-                .Write("==")
-                .WriteCharString(Ch);
-
-        public string SwitchWriter(string varName) =>
+        public string SwitchCondition(string varName) =>
             $"{varName}=='{Ch.ToEsc()}'";
 
         public override string ToString()

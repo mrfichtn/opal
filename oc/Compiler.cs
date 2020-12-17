@@ -102,7 +102,7 @@ namespace Opal
             var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
 
             scannerWriter = emitStateScanner ?
-                    new DfaStateWriter(dfa, compressScanner) as IGeneratable :
+                    new DfaStateWriter(dfa, compressScanner, syntaxErrorTokens) as IGeneratable :
                     new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
 

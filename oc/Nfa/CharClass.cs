@@ -15,6 +15,11 @@ namespace Opal.Nfa
         private bool invert;
         private readonly uint[] matches;
 
+        public CharClass()
+        {
+            matches = new uint[size];
+        }
+
         public CharClass(Segment s)
             : base(s)
         {
@@ -250,7 +255,7 @@ namespace Opal.Nfa
                 if (!right.invert)
                     OrFrom(right.matches);
                 else
-                    NotAndFrom(right.matches);
+                    NotOrFrom(right.matches);
             }
             else if (!right.invert)
             {
@@ -262,80 +267,27 @@ namespace Opal.Nfa
             }
         }
 
-        public void Write(IGenerator generator, string varName)
+        public void AddTo(IMatch match)
         {
-            if (invert)
-                generator.Write($"!(({varName}==-1) ||");
-
-            int start = -1;
-            var isFirst = true;
-            for (var i = 0; i <= char.MaxValue; i++)
+            if (match is CharClass cc)
             {
-                if (GetBit(i))
-                {
-                    if (start == -1)
-                        start = i;
-                }
-                else
-                {
-                    if (start == -1)
-                    {
-                        continue;
-                    }
-                    else if (start == i - 1)
-                    {
-                        if (isFirst)
-                            isFirst = false;
-                        else
-                            generator.Write(" || ");
-                        generator.Write(varName)
-                            .Write(" == ")
-                            .WriteCharString((char)start);
-                    }
-                    else if (start == i - 2)
-                    {
-                        if (isFirst)
-                            isFirst = false;
-                        else
-                            generator.Write(" || ");
-                        generator.Write(varName)
-                            .Write("==")
-                            .WriteCharString((char)start);
-
-                        generator.Write(" || ")
-                            .Write(varName)
-                            .Write("==")
-                            .WriteCharString(i - 1);
-                    }
-                    else
-                    {
-                        if (isFirst)
-                            isFirst = false;
-                        else
-                            generator.Write(" || ");
-
-                        generator
-                            .Write('(')
-                            .Write(varName)
-                            .Write(">=")
-                            .WriteCharString(start);
-
-                        generator.Write(" && ");
-                        generator.Write(varName)
-                            .Write("<=")
-                            .WriteCharString(i - 1)
-                            .Write(')');
-                    }
-
-                    start = -1;
-                }
+                AddTo(cc);
             }
-
-            if (invert)
-                generator.Write(")");
+            else if (match is SingleChar sc)
+            {
+                if (invert)
+                    ClrBit(sc.Ch);
+                else
+                    SetBit(sc.Ch);
+            }
+            else if (match is AllMatch)
+            {
+                for (var i = 0; i < matches.Length; i++)
+                    matches[i] = uint.MaxValue;
+            }
         }
 
-        public string SwitchWriter(string varName)
+        public string SwitchCondition(string varName)
         {
             var builder = new StringBuilder();
             if (invert)
@@ -343,7 +295,8 @@ namespace Opal.Nfa
 
             int start = -1;
             var isFirst = true;
-            for (var i = 0; i <= char.MaxValue; i++)
+            int i;
+            for (i = 0; i <= char.MaxValue; i++)
             {
                 if (GetBit(i))
                 {
@@ -405,6 +358,48 @@ namespace Opal.Nfa
                     start = -1;
                 }
             }
+            if (start != -1)
+            {
+                if (start == i - 1)
+                {
+                    if (!isFirst)
+                        builder.Append(" || ");
+                    builder.Append(varName)
+                        .Append(" == ")
+                        .AppendEscString((char)start);
+                }
+                else if (start == i - 2)
+                {
+                    if (!isFirst)
+                        builder.Append(" || ");
+
+                    builder.Append(varName)
+                            .Append("==")
+                            .AppendEscString((char)start);
+
+                    builder.Append(" || ")
+                        .Append(varName)
+                        .Append("==")
+                        .AppendEscString((char)(i - 1));
+                }
+                else
+                {
+                    if (!isFirst)
+                        builder.Append(" || ");
+
+                    builder
+                        .Append('(')
+                        .Append(varName)
+                        .Append(">=")
+                        .AppendEscString((char)start);
+
+                    builder.Append(" && ");
+                    builder.Append(varName)
+                        .Append("<=")
+                        .AppendEscString((char)(i - 1))
+                        .Append(')');
+                }
+            }
 
             if (invert)
                 builder.Append(')');
@@ -421,7 +416,8 @@ namespace Opal.Nfa
                 builder.Append('^');
 
             int start = -1;
-            for (int i = 0; i <= char.MaxValue; i++)
+            int i;
+            for (i = 0; i <= char.MaxValue; i++)
             {
                 if (GetBit(i))
                 {
@@ -450,11 +446,36 @@ namespace Opal.Nfa
                             builder.Append('-');
                         AppendTo(builder, (char)(i - 1));
                     }
-
                     start = -1;
                 }
             }
-            builder.Append(']');
+            if (start != -1)
+            {
+                if (start == i - 1)
+                {
+                    AppendTo(builder, (char)start);
+                }
+                else if (start == i - 2)
+                {
+                    AppendTo(builder, (char)start);
+                    AppendTo(builder, (char)(i - 1));
+                }
+                else
+                {
+                    AppendTo(builder, (char)start);
+                    if (start < i + 2)
+                        builder.Append('-');
+                    AppendTo(builder, (char)(i - 1));
+                }
+            }
+
+            
+            if (invert && builder.Length == 2)
+            {
+                return "Ø";
+            }
+            else
+                builder.Append(']');
             return builder.ToString();
         }
 
@@ -492,7 +513,8 @@ namespace Opal.Nfa
             return (int)hash;
         }
 
-        public static char ConvertEsc(char val) => Opal.Containers.Strings.ConvertEsc(val);
+        public static char ConvertEsc(char val) => 
+            Containers.Strings.ConvertEsc(val);
 
         public bool IsMatch(char ch) => GetBit(ch) ^ invert;
 
@@ -525,18 +547,10 @@ namespace Opal.Nfa
             for (var i = 0; i < this.matches.Length; i++)
                 this.matches[i] |= matches[i];
         }
-        private void NotAndFrom(uint[] matches)
+        private void NotOrFrom(uint[] matches)
         {
             for (var i = 0; i < this.matches.Length; i++)
-            {
-                var left = this.matches[i];
-                var right = matches[i];
-                if (left == 0)
-                    this.matches[i] = right;
-                else
-                    this.matches[i] = right & (~left);
-            }
-            invert = true;
+                this.matches[i] |= ~matches[i];
         }
 
         private void AndNotFrom(uint[] matches)
@@ -763,6 +777,8 @@ namespace Opal.Nfa
                 result = new SingleChar(this.FirstOrDefault());
             else if (count == 0)
                 result = EmptyMatch.Instance;
+            else if (count == char.MaxValue + 1)
+                result = new AllMatch();
             else
                 result = this;
             return result;

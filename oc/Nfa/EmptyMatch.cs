@@ -62,10 +62,7 @@ namespace Opal.Nfa
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Write(IGenerator generator, string varName) =>
-            generator.Write("false");
-
-        public string SwitchWriter(string varName) =>
+        public string SwitchCondition(string varName) =>
             "false";
 
 
