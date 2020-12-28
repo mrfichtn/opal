@@ -1,4 +1,6 @@
-﻿namespace Opal.ParseTree
+﻿using Opal.Productions;
+
+namespace Opal.ParseTree
 {
     public class ActionMember : ActionExpr
     {

@@ -1,31 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
+﻿using Opal;
 $(usings)
-
 #nullable enable
 
 $(namespace.start)
-$(if !no.parser)public partial class Parser: IDisposable
+$(if !no.parser)public partial class Parser: ParserBase
 {
-	private readonly Scanner _scanner;
-	private LRStack _stack;
-	private bool _hasErrors;
-	private int items;
-	private ImmutableQueue<LogItem> log;
-		
 	public Parser(Scanner scanner)
-	{
-		_scanner = scanner;
-		_stack = LRStack.Root;
-		log = ImmutableQueue<LogItem>.Empty;
-		Init();
-	}
+		: base(scanner, _maxTerminal, _symbols, _actions)
+	{}
 
 	public Parser(string filePath)
 		: this(Scanner.FromFile(filePath)) 
@@ -37,111 +19,7 @@ $(if !no.parser)public partial class Parser: IDisposable
 		return new Parser(scanner);
 	}
 
-	public void Dispose()
-	{
-		_scanner.Dispose();
-		GC.SuppressFinalize(this);
-	}
-
-	public object? Root { get; private set; }
-
-	public IEnumerable<LogItem> Log => log.ToArray();
-
-	partial void Init();
-
-	public bool Parse()
-	{
-		var token = NextToken();
-		var errorState = 0U;
-		var suppressError = 0;
-
-		while (true)
-		{
-            if (suppressError > 0) --suppressError;
-			
-			var state = _stack.State;
-			var actionType = GetAction(state, (uint) token.State, out var result);
-
-			switch (actionType)
-			{
-				case ActionType.Error:
-                    _hasErrors = true;
-                    if (!TryRecover(state, ref token, (suppressError > 0)))
-                        return false;
-                    if (token.State == 0)
-                    {
-                        if (errorState == state)
-                            return false;
-                        else
-                            errorState = state;
-                    }
-                    suppressError = 2;
-	                break;
-
-				case ActionType.Reduce:
-					var rule = result;
-					var reducedState = Reduce(rule);
-					if (rule == 0)
-					{
-						Root = _stack.Value;
-						return !_hasErrors;
-					}
-					if (GetAction(reducedState, _stack.State, out result) == ActionType.Error)
-						goto case ActionType.Error;
-					_stack = _stack.Replace((uint)result);
-					break;
-
-				case ActionType.Shift:
-					_stack = _stack.Shift(result, token);
-					token = NextToken();
-					break;
-			}
-		}
-	}
-
-	private Token NextToken()
-	{
-		while (!peekToken.IsEmpty)
-	    {
-			peekToken = peekToken.Dequeue(out var token);
-			if (token.State >= 0)
-				return token;
-			SyntaxError(token);
-		}
-	
-		while (true)
-		{
-		    var token = _scanner.NextToken();
-		    if (token.State >= 0)
-		        return token;
-			SyntaxError(token);
-		}
-	}
-
-	private void SyntaxError(Token token)
-	{
-		var logItem = new LogItem(LogLevel.Error,
-			message:$"Syntax error",
-			token:token,
-			line:_scanner.Line(token.Start.Ln));
-		log = log.Enqueue(logItem);
-		_hasErrors = true;
-	}
-		
-	private ImmutableQueue<Token> peekToken = ImmutableQueue<Token>.Empty;
-			
-	private Token PeekToken()
-	{
-		while (true)
-	    {
-			var token = _scanner.NextToken();
-			peekToken = peekToken.Enqueue(token);
-			if (token.State >= 0)
-				return token;
-	    }
-	}
-
-	private uint Reduce(uint rule)
+	protected override uint Reduce(uint rule)
 	{
 		uint state = 0;
 
@@ -152,171 +30,11 @@ $(productions)
 		return state;
 	}
 
-	private enum ActionType { Shift, Reduce, Error }
-
-	private ActionType GetAction(uint state, uint token, out uint arg)
-	{
-		var action = _actions[state, token];
-		ActionType actionType;
-		if (action == -1)
-		{
-			actionType = ActionType.Error;
-		}
-		else if (action >= 0)
-		{
-			actionType = ActionType.Shift;
-		}
-		else
-		{
-			actionType = ActionType.Reduce;
-			action = -2 - action;
-		}
-		arg = (uint)action;
-		return actionType;
-	}
-
 	#region Actions Table
 $(actions)
 	#endregion
 $(parser.symbols)
-	
-	private bool TryRecover(uint state, ref Token token, bool suppress)
-	{
-		var isOk = false;
-		var builder = new StringBuilder("  Expecting one of the following token type(s):");
-		var count = 0;
-		for (var i = 0; i < _maxTerminal; i++)
-		{
-			if (_actions[state, i] != -1)
-			{
-				builder.Append("\n      ").Append(_symbols[i]);
-				count++;
-			}
-		}
-
-		var logItem = new LogItem(LogLevel.Error,
-			(token.State != 0) ? $"Unexpected token" :
-				$"Unexpected token [EOF]",
-			token,
-			_scanner.Line(token.Start.Ln),
-			count > 0 ? builder.ToString() : null
-			);
-		log = log.Enqueue(logItem);
-			
-		if (token.State != 0)
-		{
-			var nextToken = PeekToken();
-			if (nextToken.State >= 0)
-			{
-			    _stack.GetState(0, out var newState);
-			    if (_actions[newState, nextToken.State] != -1)
-			    {
-			        token = NextToken();
-			        return true;
-			    }
-			}
-		}
-			
-		while (true)
-		{
-			for (var i = 0; _stack.GetState(i, out var newState); i++)
-			{
-				if (_actions[newState, token.State] != -1)
-				{
-					_stack = _stack.Pop(i);
-					return true;
-				}
-			}
-			if (token.State == 0)
-				break;
-			token = NextToken();
-		}
-		return isOk;
-	}
-	
-	
-	private T? At<T>(int index) => (T)At(index);
-	
-	private object? At(int index) => _stack[items - index - 1].Value;	
-			
-	private uint Reduce(uint state, object? value)
-	{
-		var oldStack = _stack[items];
-		var newState = oldStack.State;
-		_stack = new LRStack(state, value, oldStack);
-		return newState;
-	}
-	
-	private uint Push(uint state, object? value)
-	{
-		var oldState = _stack.State;
-		_stack = new LRStack(state, value, _stack);
-		return oldState;
-	}
 }
-
-$(if !no.lrstack)public class LRStack
-{
-	public static readonly LRStack Root = new LRStack(0, null, null!);
-
-	public readonly uint State;
-	public readonly object? Value;
-	public readonly LRStack? Next;
-
-	public LRStack(uint state, object? value, LRStack next)
-	{
-		State = state;
-		Value = value;
-		Next = next;
-	}
-
-	public LRStack Push(uint state, object value, out uint oldState)
-	{
-		oldState = State;
-		return new LRStack(state, value, this);
-	}
-
-	public LRStack Replace(uint state) => new LRStack(state, Value, Next!);
-		
-	public LRStack Shift(uint state, object value) => new LRStack(state, value, this);
-
-	public LRStack this[int index] => Find(index);
-
-	private LRStack Find(int index)
-    {
-		var node = this;
-		for (; (index > 0) && (node != null); index--)
-			node = node!.Next;
-		return node ?? throw new ArgumentOutOfRangeException(nameof(index));
-	}
-
-	private bool TryFind(int index, out LRStack? node)
-    {
-		node = this;
-		for (; index > 0; index--)
-		{
-			if (node == null) return false;
-			node = node!.Next;
-		}
-		return true;
-	}
-
-	public bool GetState(int index, out uint state)
-	{
-		var result = TryFind(index, out var node);
-		state = result ? node!.State : 0;
-		return result;
-	}
-
-	public LRStack Pop(int items)
-	{
-		var node = this;
-		for (; items > 0; items--)
-			node = node!.Next;
-		return node!;
-	}
-}
-$(endif)
 $(endif)
 $(scanner)
 $(scanner.states)

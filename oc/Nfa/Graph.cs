@@ -1,8 +1,6 @@
-﻿using Opal.Containers;
-using Opal.ParseTree;
+﻿using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Opal.Nfa
@@ -106,6 +104,14 @@ namespace Opal.Nfa
         }
 
         public static Graph MarkEnd(Token id, Token attr, Graph g)
+        {
+            var ignore = (attr?.Value == "ignore");
+            if (!g.Machine.AcceptingStates.TryAdd(id.Value!, ignore, g.end, out _))
+                throw new Exception(string.Format("Duplicate symbol {0}", id.Value));
+            return g;
+        }
+
+        public static Graph MarkEnd(Identifier id, Token attr, Graph g)
         {
             var ignore = (attr?.Value == "ignore");
             if (!g.Machine.AcceptingStates.TryAdd(id.Value!, ignore, g.end, out _))

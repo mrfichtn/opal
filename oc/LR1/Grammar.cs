@@ -11,16 +11,16 @@ namespace Opal.LR1
 	{
         private readonly List<Rule> rules;
 
-		public Grammar(ProductionList productions)
+		public Grammar(Productions.Grammar grammar)
 		{
 			Symbols = new Symbols();
 
-			Symbols.AddSymbols(productions.Symbols);
+			Symbols.AddSymbols(grammar.Symbols);
 
-			if (!Symbols.TryFind(productions.Language!.Value, out var startSym))
+			if (!Symbols.TryFind(grammar.Start, out var startSym))
 			{
 				startSym = Symbols.Create(
-					name: productions[0].Left.Value,
+					name: grammar.Productions[0].Name,
 					isTerminal: false);
 			}
 
@@ -31,11 +31,11 @@ namespace Opal.LR1
             var rule = new Rule(this, 0, languageSymbol, new[] { startSym });
             rules = new List<Rule> { rule };
 
-            foreach (var prod in productions)
+            foreach (var prod in grammar.Productions)
 			{
-				var left = Symbols.Create(prod.Left.Value, false);
+				var left = Symbols.Create(prod.Name, false);
 				var right = prod.Right
-					.Select(x => Symbols[x.Id])
+					.Select(x => Symbols[x.Name])
 					.ToArray();
                 prod.RuleId = rules.Count;
 				rules.Add(new Rule(this, rules.Count, left, right));
@@ -99,7 +99,7 @@ namespace Opal.LR1
             
 			for (int i = 0; i < rules.Count; i++)
             {
-                builder.Append("R")
+                builder.Append('R')
                     .Append(i)
                     .Append(": ");
                 rules[i].AppendTo(builder);

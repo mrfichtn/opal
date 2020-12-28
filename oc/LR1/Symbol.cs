@@ -39,9 +39,7 @@ namespace Opal.LR1
 		public override bool Equals(object? other) => Equals(other as Symbol);
 
 
-		public override int GetHashCode()
-		{
-			return Id.GetHashCode();
-		}
+		public override int GetHashCode() =>
+			Id.GetHashCode();
 	}
 }

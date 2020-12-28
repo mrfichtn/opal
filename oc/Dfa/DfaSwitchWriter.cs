@@ -20,7 +20,9 @@ namespace Opal.Dfa
         }
 
         public void Write(Generator generator) =>
-            TemplateProcessor2.FromAssembly(generator, this, "Opal.FrameFiles.SwitchScanner.txt");
+            TemplateProcessor2.FromAssembly(generator, 
+                this, 
+                "Opal.FrameFiles.SwitchScanner.txt");
 
         private void WriteStates(IGenerator generator)
         {

@@ -19,7 +19,7 @@ namespace Opal.ParseTree
             return list;
         }
 
-        public static ProdDefList Add(ProdDefList list, ProductionExprs exprs)
+        public static ProdDefList Add(ProdDefList list, ProductionExprList exprs)
         {
             return Add(list, new ProdDef(exprs));
         }

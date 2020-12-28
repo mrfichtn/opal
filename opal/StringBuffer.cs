@@ -26,6 +26,8 @@ namespace Opal
 
 		public string PeekLine()
 		{
+			if (Position >= text.Length)
+				return string.Empty;
 			int i;
 			for (i = Position; i < text.Length; i++)
 			{
@@ -33,10 +35,26 @@ namespace Opal
 				if (ch == '\r' || ch == '\n')
 					break;
 			}
-			return text.Substring(Position, i - Position + 1);
+			return text.Substring(Position, i - Position);
 		}
 
 		public string GetString(int start, int end) => 
 			text.Substring(start, end-start);
+
+		public string Line(Position position)
+        {
+			int i;
+			for (i = position.Ch; i < text.Length; i++)
+            {
+				var ch = text[i];
+				if (ch == '\r' || ch == '\n')
+					break;
+            }
+			var start = position.Ch - position.Col + 1;
+			var length = i - start;
+			return (length > 0) ?
+				text.Substring(start, length) :
+				string.Empty;
+        }
 	}
 }

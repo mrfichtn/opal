@@ -1,17 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\build\build.props" />
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net5.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<Description>LR(1) compiler-compiler</Description>
-		<Version>1.0.14</Version>
-		<Copyright>Copyright© 2018-2020</Copyright>
 		<RootNamespace>Opal</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <IsTool>True</IsTool>
-    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
-    <LangVersion>9</LangVersion>
-    <Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="Logging\ConsoleLogger.cs" />

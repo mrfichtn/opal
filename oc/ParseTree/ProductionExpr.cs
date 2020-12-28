@@ -1,35 +1,49 @@
 ﻿using Generators;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Opal.ParseTree
 {
-    public class ProductionExpr: Segment
+    public abstract class ProductionExpr: Segment
     {
-        public ProductionExpr(Segment s)
-            : base(s)
+        private ProductionAttr? attr;
+
+        public ProductionExpr(Segment segment)
+            : base(segment)
+        {}
+
+        public abstract string Name { get; }
+
+        public virtual void DeclareToken(DeclareTokenContext context)
+        {}
+
+        public Productions.Symbol? Build(ProductionContext context)
         {
-            _quantifier = Quantifier.One;
+            var symbol = Create(context);
+            if (symbol != null && attr != null)
+            {
+                switch (attr.Option.Value)
+                {
+                    case "ignore": symbol.Ignore = true; break;
+                    default: symbol.PropName = attr.Option.Value; break;
+                }
+                if (attr.IsMethod)
+                {
+                    symbol.CallMethod = true;
+                    if (attr.ArgType != null)
+                        symbol.Type = attr.ArgType;
+                }
+            }
+            return symbol;
         }
+
+        public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
+        {}
+
+        protected abstract Productions.Symbol? Create(ProductionContext context);
 
         #region Properties
 
-        #region Quantifier Property
-        public Quantifier Quantifier
-        {
-            get { return _quantifier; }
-            set { _quantifier = value; }
-        }
-        private Quantifier _quantifier;
-        #endregion
-
-        #region Id Property
-        public int Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
-        private int _id;
-        #endregion
 
         #region Ignore Property
         public bool Ignore { get; protected set; }
@@ -47,34 +61,40 @@ namespace Opal.ParseTree
 
         #endregion
 
+
         public static ProductionExpr SetAttributes(ProductionExpr expr, ProductionAttr attr)
         {
-            if (attr != null)
-            {
-                expr.SetOption(attr.Option);
-                if (attr.IsMethod)
-                {
-                    expr.CallMethod = true;
-                    if (attr.ArgType != null)
-                        expr.Type = attr.ArgType;
-                }
-            }
+            expr.attr = attr;
             return expr;
         }
 
-        public override string ToString()
+        public void AddAttributeType(Productions.TypeTable typeTable)
         {
-            return _quantifier switch
+            if ((attr != null) && (attr.Option != null) &&
+                (attr.Option.Value != "ignore") && !attr.IsMethod)
             {
-                Quantifier.Plus => "+",
-                Quantifier.Question => "?",
-                Quantifier.Star => "*",
-                _ => string.Empty,
-            };
+                AddAttributeType(typeTable, attr.Option.Value);
+            }
         }
 
-        public virtual bool WriteSignature(IGenerator generator, bool wroteArg) =>
-            wroteArg;
+        protected virtual void AddAttributeType(Productions.TypeTable typeTable,
+            string option)
+        {
+        }
+
+        //public override string ToString()
+        //{
+        //    return _quantifier switch
+        //    {
+        //        Quantifier.Plus => "+",
+        //        Quantifier.Question => "?",
+        //        Quantifier.Star => "*",
+        //        _ => string.Empty,
+        //    };
+        //}
+
+        //public virtual bool WriteSignature(IGenerator generator, bool wroteArg) =>
+        //    wroteArg;
 
         public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type) =>
             wroteArg;
@@ -82,50 +102,44 @@ namespace Opal.ParseTree
         public virtual void WriteType(StringBuilder builder, string? @default)
         {
         }
-
-
-        public bool SetOption(Identifier option)
-        {
-            bool isOk = true;
-            switch (option.Value)
-            {
-                case "ignore": Ignore = true; break;
-                default: PropName = option.Value; break;
-            }
-            return isOk;
-        }
     }
 
-    public class SymbolProd : ProductionExpr
+    public class SymbolProdExpr : ProductionExpr
     {
-        public SymbolProd(Token t)
+        public Identifier name;
+
+        public SymbolProdExpr(Token t)
             : base(t)
         {
-            Name = t.Value!;
+            name = new Identifier(t);
         }
 
-        public SymbolProd(Segment s, string name, int id = 0)
+        public SymbolProdExpr(Segment s, string name)
             : base(s)
         {
-            Name = name;
-            Id = id;
+            this.name = new Identifier(s, name);
         }
 
-        public string Name { get; }
+        public override string Name => name.Value;
 
-        public void SetTerminal(int state)
+        protected override Productions.Symbol Create(ProductionContext context)
         {
-            Id = state;
-            IsTerminal = true;
+            if (context.TryFind(name.Value, out var id, out var isTerminal))
+            {
+                return isTerminal ?
+                new Productions.TerminalSymbol(name, id) :
+                new Productions.NonTerminalSymbol(name, id);
+            }
+            return context.MissingSymbol(name);
         }
 
-        public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        {
-            if (wroteArg)
-                generator.Write(", ");
-            generator.Write($"{Name} {PropName}");
-            return true;
-        }
+        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
+        //{
+        //    if (wroteArg)
+        //        generator.Write(", ");
+        //    generator.Write($"{Name} {PropName}");
+        //    return true;
+        //}
 
         public override bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
         {
@@ -146,53 +160,53 @@ namespace Opal.ParseTree
                 builder.Append("<Token>");
         }
 
-        public override string ToString() => Name + base.ToString();
-    }
+        protected override void AddAttributeType(Productions.TypeTable typeTable, string option)
+        {
+            typeTable.AddSecondary(Name, option);
+        }
+
+    //public override bool Resolve(ITypeTable typeTable)
+    //{
+    //    if (Type != null)
+    //    {
+    //        typeTable.AddSecondary(Name, Type.Value);
+    //    }
+    //    return true;
+    //}
+}
 
     public class StringTokenProd : ProductionExpr
     {
-        public StringTokenProd(Segment seg, string token, int id = 0)
-            : base(seg)
+        private readonly StringConst text;
+        private string? name;
+        private int id;
+
+        public StringTokenProd(StringConst text)
+            : base(text)
         {
-            Text = token;
-            Id = id;
-            IsTerminal = true;
+            this.text = text;
         }
 
-        public StringTokenProd(StringConst str, int id)
-            : base(str)
-        {
-            Text = str.Value;
-            Id = id;
-            IsTerminal = true;
-        }
+        public override string Name => name!;
 
-        public string Text { get; }
 
-        public override string ToString() => $"\"{Text.ToEsc()}\"";
+        public override void DeclareToken(DeclareTokenContext context) =>
+            (name, id) = context.AddDefinition(text);
 
-        public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        {
-            if (!Ignore)
-            {
-                generator.Write($"Token {PropName}");
-                wroteArg = true;
-            }
-            return wroteArg;
-        }
+        protected override Productions.Symbol Create(ProductionContext context) =>
+            new Productions.TerminalString(text, name!, id);
 
-        public override bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
-        {
-            if (!Ignore)
-            {
-                if (wroteArg)
-                    generator.Write(", ");
-                wroteArg = true;
-                generator.Write("a{0}", index);
-            }
+        public override string ToString() => $"\"{text.Value.ToEsc()}\"";
 
-            return wroteArg;
-        }
+        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
+        //{
+        //    if (!Ignore)
+        //    {
+        //        generator.Write($"Token {PropName}");
+        //        wroteArg = true;
+        //    }
+        //    return wroteArg;
+        //}
 
         public override void WriteType(StringBuilder builder, string? @default)
         {
@@ -201,5 +215,151 @@ namespace Opal.ParseTree
             else
                 builder.Append("<Token>");
         }
+    }
+
+    public class CharTokenProd: ProductionExpr
+    {
+        private readonly CharConst ch;
+        private readonly StringConst text;
+        private string? name;
+        private int id;
+
+        public CharTokenProd(CharConst ch)
+            : base(ch)
+        {
+            this.ch = ch;
+            text = new StringConst(ch, new string(ch.Value, 1));
+        }
+
+        public override string Name => name!;
+
+        public override void DeclareToken(DeclareTokenContext context) =>
+            (name, id) = context.AddDefinition(text);
+
+        protected override Productions.Symbol Create(ProductionContext context) =>
+            new Productions.TerminalString(text,
+                name!, 
+                id);
+
+        public override string ToString() => $"\'{Opal.Containers.Strings.ToEsc(ch.Value)}\'";
+
+        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
+        //{
+        //    if (!Ignore)
+        //    {
+        //        generator.Write($"Token {PropName}");
+        //        wroteArg = true;
+        //    }
+        //    return wroteArg;
+        //}
+
+        public override void WriteType(StringBuilder builder, string? @default)
+        {
+            if (!string.IsNullOrEmpty(@default))
+                builder.Append('<').Append(@default).Append('>');
+            else
+                builder.Append("<Token>");
+        }
+    }
+
+    public abstract class UnaryProdExpr: ProductionExpr
+    {
+        protected readonly ProductionExpr expr;
+
+        public UnaryProdExpr(ProductionExpr expr, Segment segment)
+            : base(new Segment(expr, segment))
+        {
+            this.expr = expr;
+        }
+
+        public override void DeclareToken(DeclareTokenContext context) =>
+            expr.DeclareToken(context);
+
+        protected sealed override Productions.Symbol Create(ProductionContext context)
+        {
+            var symbol = expr.Build(context);
+            if (symbol == null)
+                return null;
+            return Create(context, symbol);
+        }
+
+        protected abstract Productions.Symbol Create(ProductionContext context,
+            Productions.Symbol symbol);
+    }
+    
+    public class QuestionProdExpr: UnaryProdExpr
+    {
+        public QuestionProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        {}
+
+        public override string Name => expr.Name + "_option";
+
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
+        {
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
+
+            var definitions = new ProdDefList(
+                new ProdDef(new ProductionExprList(
+                    new SymbolProdExpr(expr, expr.Name))));
+            definitions.Add(new ProdDef());
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
+        }
+
+
+        protected override Productions.Symbol Create(ProductionContext context, 
+            Productions.Symbol symbol)
+        {
+            var baseName = symbol.Name + "_option";
+            string name = baseName;
+            int id;
+            while (true)
+            {
+                var found = context.TryFind(name, out id, out var isTerminal);
+                if (found)
+                {
+                    if (!isTerminal)
+                        return new Productions.NonTerminalSymbol(this,
+                            name,
+                            id);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            //if (!context.TryFindProd(name, out var id))
+            //{
+            //    internalProds.AddOption(name, expr);
+            //}
+
+            //var segment = new Segment(expr.Start, qualifier.End);
+            //if (!productions.Any(x => x.Name == optionName))
+            //    internalProds.AddOption(optionName, expr);
+            //return new SymbolProdExpr(segment, optionName);
+
+
+            return new Productions.TerminalSymbol(this, name, id);
+        }
+
+        //public static ProductionExpr CreateOption(ProductionExpr expr, Token qualifier)
+        //{
+        //    var optionName = expr.Name + "_option";
+        //    var segment = new Segment(expr.Start, qualifier.End);
+        //    if (!productions.Any(x => x.Name == optionName))
+        //        internalProds.AddOption(optionName, expr);
+        //    return new SymbolProdExpr(segment, optionName);
+        //}
+
+
     }
 }

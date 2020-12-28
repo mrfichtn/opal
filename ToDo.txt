@@ -1,0 +1,3 @@
+Implement action type resolution
+Redesign LogItems so tokens and lines are not needed
+Redesign FileBuffer so that it position can be changed (i.e. integrating unicode translation)

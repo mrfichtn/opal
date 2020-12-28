@@ -11,24 +11,24 @@ using System.Text;
 
 namespace Opal
 {
-    public sealed class Compiler : ITemplateContext
+    public sealed class Compiler
     {
         private readonly ILogger logger;
         private readonly string inPath;
         private Parser? parser;
         private Dfa.Dfa? dfa;
-        private ProductionList? prods;
         private LR1.LR1Parser? lr1Parser;
-        private readonly Dictionary<string, object> options;
+        private readonly Options options;
         private IGeneratable? scannerWriter;
+
+        private Productions.Grammar grammar;
         
-        private bool emitTokenStates;
         private bool emitStateScanner;
         private bool compressScanner;
 
         public Compiler(ILogger logger, string inPath)
         {
-            options = new Dictionary<string, object>();
+            options = new Options();
             this.logger = logger;
             this.inPath = inPath;
             outPath = Path.ChangeExtension(this.inPath, ".Parser.cs");
@@ -46,7 +46,7 @@ namespace Opal
         {
             get
             {
-                options.TryGetOption("frame", out var value);
+                options.TryGet("frame", out var value);
                 return value;
             }
             set 
@@ -59,7 +59,7 @@ namespace Opal
         }
 
         public IEnumerable<LogItem> Log => 
-            (parser != null) ? parser.Log : Enumerable.Empty<LogItem>();
+            (parser != null) ? parser.Logger : Enumerable.Empty<LogItem>();
 
         public bool Compile()
         {
@@ -67,7 +67,6 @@ namespace Opal
             var fileName = Path.GetFileName(inPath);
             var fileDir = Path.GetDirectoryName(fileName) ?? ".";
             parser = new Parser(inPath);
-            parser.SetOptions(options);
             logger.LogMessage(Importance.Normal, "Parsing {0}", fileName);
             var isOk = parser.Parse();
             if (!isOk)
@@ -79,13 +78,15 @@ namespace Opal
                 logger.LogError("Failed to return language element from root");
                 return false;
             }
-            prods = lang.Productions;
 
-            var nfa = parser.Graph;
-            if (!prods.SetStates(logger, parser.Graph.Machine.AcceptingStates))
-                return false;
+            lang.MergeOptions(options);
+            var nfa = lang.BuildGraph(parser.Logger, options, inPath);
+            grammar = lang.BuildGrammar(parser.Logger, nfa);
 
-            if (options.TryGetOption("nfa", out var nfaPath))
+            //if (!prods.SetStates(logger, parser.Graph.Machine.AcceptingStates))
+            //    return false;
+
+            if (options.TryGet("nfa", out var nfaPath))
             {
                 if (string.IsNullOrEmpty(nfaPath))
                     nfaPath = Path.ChangeExtension(inPath, ".nfa.txt");
@@ -95,7 +96,7 @@ namespace Opal
             logger.LogMessage(Importance.Normal, "Building dfa");
             dfa = nfa.ToDfa();
 
-            emitStateScanner = (!options.TryGetOption("scanner", out var scannerValue) ||
+            emitStateScanner = (!options.TryGet("scanner", out var scannerValue) ||
                     scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
 
             compressScanner = options.HasOption("scanner.compress") ?? true;
@@ -107,18 +108,17 @@ namespace Opal
 
 
             logger.LogMessage(Importance.Normal, "Building LR1");
-            var grammar = new LR1.Grammar(lang.Productions);
+            
+            
+            var lr1 = new LR1.Grammar(grammar);
             var grammarPath = Path.ChangeExtension(inPath, ".grammar.txt");
-            var grammarText = grammar.ToString();
+            var grammarText = lr1.ToString();
             File.WriteAllText(grammarPath, grammarText);
 
-            lr1Parser = new LR1.LR1Parser(logger, grammar, lang.Conflicts);
+            lr1Parser = new LR1.LR1Parser(logger, lr1, lang.Conflicts);
 
             var statesPath = Path.ChangeExtension(inPath, ".states.txt");
             File.WriteAllText(statesPath, lr1Parser.States.ToString());
-
-            emitTokenStates = !emitStateScanner || 
-                (options.HasOption("emit_token_states") ?? false);
 
             using (var csharp = new Generator(OutPath))
             {
@@ -126,7 +126,7 @@ namespace Opal
                     lang.Namespace = new ParseTree.Identifier(Namespace!);
 
                 var frameSpecified = false;
-                if (options.TryGetOption("frame", out var frameFile) && 
+                if (options.TryGet("frame", out var frameFile) && 
                     !string.IsNullOrEmpty(frameFile))
                 {
                     frameSpecified = File.Exists(frameFile);
@@ -138,65 +138,29 @@ namespace Opal
                             logger.LogWarning("Unable to find frame file {0}", frameFile);
                     }
                 }
+                
                 if (frameSpecified)
                 {
                     logger.LogMessage(Importance.Normal, "Using frame file {0}", frameFile!);
-                    logger.LogMessage(Importance.Normal, "Writing output {0}", OutPath);
-                    TemplateProcessor2.FromFile(csharp, this, frameFile!);
                 }
                 else
                 {
                     logger.LogMessage(Importance.Normal, "Using internal frame file");
-                    logger.LogMessage(Importance.Normal, "Writing output {0}", OutPath);
-                    TemplateProcessor2.FromAssembly(csharp, this, "Opal.FrameFiles.Parser.txt");
+                    frameFile = "Opal.FrameFiles.Parser.txt";
                 }
+                logger.LogMessage(Importance.Normal, "Writing output {0}", OutPath);
+
+                var templContext = new ParserTemplateContext(options,
+                    Namespace,
+                    lang,
+                    grammar,
+                    lr1Parser,
+                    scannerWriter,
+                    dfa);
+                TemplateProcessor2.FromAssembly(csharp, templContext, frameFile);
             }
 
             return isOk;
-        }
-
-        bool ITemplateContext.Condition(string varName) => options.HasOption(varName) ?? false;
-
-        string? ITemplateContext.Include(string name) => string.Empty;
-
-        bool ITemplateContext.WriteVariable(Generator generator, string varName)
-        {
-            bool result = true;
-            switch (varName)
-            {
-                case "usings":              generator.Write(parser!.Usings);    break;
-                case "namespace.start":
-                    if (parser!.Language!.Namespace != null)
-                    {
-                        generator.WriteLine("namespace {0}", parser.Language.Namespace)
-                            .Write("{")
-                            .Indent();
-                    }
-                    break;
-                case "productions":
-                    generator.Indent(2);
-                    options.TryGetOption("no_action", out var noAction);
-                    if (prods != null)
-                        prods.Write(generator, noAction!);
-                    generator.UnIndent(2);
-                    break;
-                case "actions":                 lr1Parser!.Actions.Write(generator); break;
-                case "parser.symbols":          lr1Parser!.WriteSymbols(generator); break;
-                case "scanner":                 scannerWriter!.Write(generator); break;
-                case "scanner.states":          dfa!.WriteTokenEnum(generator, emitTokenStates); break;
-                case "namespace.end":
-                    if (parser!.Language!.Namespace != null)
-                        generator.EndBlock();
-                    break;
-                case "namespace":               generator.Write(parser!.Language!.Namespace); break;
-                default:
-                    if (options.TryGetOption(varName, out var value))
-                        generator.Write(value!);
-                    else
-                        result = false;
-                    break;
-            }
-            return result;
         }
     }
 }

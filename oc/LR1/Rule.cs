@@ -40,10 +40,7 @@ namespace Opal.LR1
         /// <summary>
         /// Returns true if rule is an ε (empty) production
         /// </summary>
-        public bool IsEpsilon
-        {
-            get { return Right.Length == 0; }
-        }
+        public bool IsEpsilon => (Right.Length == 0); 
 
         /// <summary>
         /// Find all terminals that may follow pos

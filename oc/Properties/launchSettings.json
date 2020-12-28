@@ -3,7 +3,7 @@
     "opal": {
       "commandName": "Project",
       "commandLineArgs": "opal.txt",
-      "workingDirectory": "D:\\src\\opal\\tests"
+      "workingDirectory": "d:\\src\\opal\\tests"
     }
   }
 }

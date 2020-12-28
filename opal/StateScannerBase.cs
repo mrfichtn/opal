@@ -3,12 +3,11 @@ using System.Text;
 
 namespace Opal
 {
-    public class StateScannerBase : IDisposable
+    public class StateScannerBase : ScannerBase
 	{
 		private readonly int[] classes;
 		private readonly int[,] states;
 
-		private readonly IBuffer buffer;
 		private int ch;
 		private int line;
 		private int column;
@@ -21,10 +20,10 @@ namespace Opal
 			IBuffer buffer, 
 			int line = 1, 
 			int column = 0)
+			: base(buffer)
 		{
 			this.classes = classes;
 			this.states = states;
-			this.buffer = buffer;
 			this.line = line;
 			this.column = column;
 			prevLine = string.Empty;
@@ -32,26 +31,7 @@ namespace Opal
 			NextChar();
 		}
 
-		public void Dispose()
-		{
-			buffer.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>Skips ingore-tokens</summary>
-		public Token NextToken()
-		{
-			Token token;
-			do
-			{
-				token = RawNextToken();
-			} while (token.State < -1);
-
-			return token;
-		}
-
-		/// <summary>Returns next token</summary>
-		public Token RawNextToken()
+		public override Token RawNextToken()
 		{
 			if (ch == Buffer.Eof)
 				return new Token(line, column, buffer.Position);

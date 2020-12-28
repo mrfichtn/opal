@@ -94,7 +94,7 @@ namespace Opal.LR1
             generator.Indent(1)
                 .WriteLine("#region Symbols")
                 .WriteLine($"protected const int _maxTerminal = {maxTerminal};")
-                .WriteLine("protected readonly string[] _symbols =")
+                .WriteLine("protected static readonly string[] _symbols =")
                 .StartBlock();
 
             generator.Write("\"𝜖\"");

@@ -29,6 +29,10 @@
 			End = end;
 		}
 
+		public Segment(Segment start, Segment end)
+			: this(start.Start, end.End)
+		{ }
+
 		public bool IsEmpty => (End == Start);
 		public int Beg => Start.Ch;
 		public int Length => End.Ch - Start.Ch + 1;

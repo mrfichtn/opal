@@ -35,7 +35,7 @@
 			if (string.IsNullOrEmpty(token))
 				cond = new FalseCondition();
 			else if (token[0] == '!')
-				cond = new NotCondition(new Condition(token[1..]));
+				cond = new NotCondition(new Condition(token.Substring(1)));
 			else
 				cond = new Condition(token);
 

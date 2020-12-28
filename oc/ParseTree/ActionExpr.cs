@@ -1,4 +1,4 @@
-﻿using Generators;
+﻿using Opal.Productions;
 using System.Collections.Generic;
 
 namespace Opal.ParseTree
@@ -25,7 +25,11 @@ namespace Opal.ParseTree
         /// <param name="types"></param>
         public virtual void GetTypes(HashSet<string> types)
         { }
+
+        public virtual bool TryGetType(out string? type)
+        {
+            type = null;
+            return false;
+        }
     }
-
-
 }

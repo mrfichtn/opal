@@ -2,12 +2,19 @@
 {
     public class FuncOption: Segment
     {
-        public FuncOption(Identifier id)
-            : base(id)
+        public FuncOption(Token t, Identifier? id)
+            : base(t)
         {
             ArgType = id;
         }
 
-        public Identifier ArgType { get; }
+        public Identifier? ArgType { get; }
+
+        public override string ToString()
+        {
+            return (ArgType != null) ?
+                $"({ArgType})" :
+                $"()";
+        }
     }
 }

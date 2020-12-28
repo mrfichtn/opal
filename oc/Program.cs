@@ -44,9 +44,9 @@ namespace Opal
                             log.NewLine()
                                 .ErrorLine(item.Message)
                                 .NewLine()
-                                .Info(string.Format("{0,4}| ", item.Token.Start.Ln))
+                                .Info(string.Format("{0,4}| ", item.Start.Ln))
                                 .InfoLine(item.Line)
-                                .Info(new string(' ', item.Token.Start.Col + 5))
+                                .Info(new string(' ', item.Start.Col + 5))
                                 .ErrorLine("^")
                                 .NewLine();
 

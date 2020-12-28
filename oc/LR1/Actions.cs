@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Generators;
+﻿using Generators;
 
 namespace Opal.LR1
 {
@@ -35,7 +31,7 @@ namespace Opal.LR1
 			else
 			{
 				actionType = ActionType.Reduce;
-				action = action - 2;
+				action -= 2;
 			}
 			arg = (uint)action;
 			return actionType;
@@ -44,7 +40,7 @@ namespace Opal.LR1
 		public void Write(IGenerator generator)
 		{
 			generator.Indent(1);
-			generator.WriteLine("private readonly int[,] _actions = ");
+			generator.WriteLine("private static readonly int[,] _actions = ");
 			generator.StartBlock();
 
 			var stateCount = _data.GetLength(0);

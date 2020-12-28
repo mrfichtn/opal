@@ -1,4 +1,4 @@
-﻿using Generators;
+﻿using Opal.Productions;
 
 namespace Opal.ParseTree
 {

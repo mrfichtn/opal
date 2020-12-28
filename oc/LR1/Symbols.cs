@@ -36,10 +36,10 @@ namespace Opal.LR1
         public int Count => symbols.Count;
 
         public bool TryFind(string name,
-            [MaybeNullWhen(false)] out Symbol symbol) =>
+            out Symbol? symbol) =>
             byName.TryGetValue(name, out symbol);
 
-        public void AddSymbols(ParseTree.Symbols parseSymbols)
+        public void AddSymbols(IEnumerable<ParseTree.Symbol> parseSymbols)
         {
             foreach (var parseSymbol in parseSymbols.Skip(1))
             {

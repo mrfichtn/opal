@@ -1,29 +1,30 @@
-﻿using Generators;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Opal.Containers;
+using System.Linq;
+
+using BitArray = Opal.Containers.BitArray;
 
 namespace Opal.Nfa
 {
     public class CharClass : Segment, IMatch
     {
-        private const int size = 2048;
+        private const int MatchArraySize = 1 << 16;
 
         private bool invert;
-        private readonly uint[] matches;
+        private readonly BitArray matches;
 
         public CharClass()
         {
-            matches = new uint[size];
+            matches = new BitArray(MatchArraySize);
         }
 
         public CharClass(Segment s)
             : base(s)
         {
-            matches = new uint[size];
+            matches = new BitArray(MatchArraySize);
         }
 
         public CharClass(Token t)
@@ -34,28 +35,23 @@ namespace Opal.Nfa
         }
 
         public CharClass(CharClass ch)
-            : this(ch as Segment)
+            : base(ch)
         {
-            Array.Copy(ch.matches, matches, matches.Length);
+            matches = new BitArray(ch.matches);
             invert = ch.invert;
         }
 
         public CharClass(string value)
         {
-            matches = new uint[size];
+            matches = new BitArray(MatchArraySize);
             Set(value);
         }
 
-        protected CharClass(uint[] matches)
+        protected CharClass(BitArray bitArray)
         {
-            this.matches = matches;
-            int bits = GetCount(matches);
-            if (bits > (size >> 1))
-            {
-                for (int i = 0; i < this.matches.Length; i++)
-                    this.matches[i] = ~this.matches[i];
-                invert = true;
-            }
+            matches = bitArray;
+            if (bitArray.BitCount() > (MatchArraySize >> 1))
+                Flip();
         }
 
         #region Properties
@@ -66,7 +62,7 @@ namespace Opal.Nfa
         {
             get
             {
-                var count = GetCount(matches);
+                var count = matches.BitCount();
                 return (!invert) ? count : (1 << 16) - count;
             }
         }
@@ -79,7 +75,7 @@ namespace Opal.Nfa
                 int start = -1;
                 for (var i = 0; i <= char.MaxValue; i++)
                 {
-                    if (GetBit(i))
+                    if (matches.GetBit(i))
                     {
                         if (start == -1)
                             start = i;
@@ -240,12 +236,12 @@ namespace Opal.Nfa
             }
         }
 
-        public void Add(char ch) => SetBit(ch);
+        public void Add(char ch) => matches.SetBit(ch);
 
         public void Add(char beg, char end)
         {
             for (int ch = beg; ch <= end; ch++)
-                SetBit(ch);
+                matches.SetBit(ch);
         }
 
         public void AddTo(CharClass right)
@@ -253,17 +249,17 @@ namespace Opal.Nfa
             if (!invert)
             {
                 if (!right.invert)
-                    OrFrom(right.matches);
+                    matches.OrFrom(right.matches);
                 else
-                    NotOrFrom(right.matches);
+                    matches.OrNotFrom(right.matches);
             }
             else if (!right.invert)
             {
-                AndNotFrom(right.matches);
+                matches.AndNotFrom(right.matches);
             }
             else
             {
-                AndFrom(right.matches);
+                matches.AndFrom(right.matches);
             }
         }
 
@@ -276,14 +272,13 @@ namespace Opal.Nfa
             else if (match is SingleChar sc)
             {
                 if (invert)
-                    ClrBit(sc.Ch);
+                    matches.ClrBit(sc.Ch);
                 else
-                    SetBit(sc.Ch);
+                    matches.SetBit(sc.Ch);
             }
             else if (match is AllMatch)
             {
-                for (var i = 0; i < matches.Length; i++)
-                    matches[i] = uint.MaxValue;
+                matches.SetAll();
             }
         }
 
@@ -298,7 +293,7 @@ namespace Opal.Nfa
             int i;
             for (i = 0; i <= char.MaxValue; i++)
             {
-                if (GetBit(i))
+                if (matches.GetBit(i))
                 {
                     if (start == -1)
                         start = i;
@@ -419,7 +414,7 @@ namespace Opal.Nfa
             int i;
             for (i = 0; i <= char.MaxValue; i++)
             {
-                if (GetBit(i))
+                if (matches.GetBit(i))
                 {
                     if (start == -1)
                         start = i;
@@ -505,224 +500,83 @@ namespace Opal.Nfa
 
         public override int GetHashCode()
         {
-            var hash = 0U;
-            foreach (var item in matches)
-                hash ^= item;
+            var hash = matches.GetHashCode();
             if (invert)
                 hash = ~hash;
             return (int)hash;
         }
 
         public static char ConvertEsc(char val) => 
-            Containers.Strings.ConvertEsc(val);
+            ConvertEsc(val);
 
-        public bool IsMatch(char ch) => GetBit(ch) ^ invert;
-
-        #region Logic Members
-        private void SetBit(int address)
-        {
-            var index = address >> 5;
-            var offset = address & 0x1F;
-            matches[index] |= (0x1U << offset);
-        }
-
-        private void ClrBit(int address)
-        {
-            var index = address >> 5;
-            var offset = address & 0x1F;
-            matches[index] &= ~((0x1U << offset));
-        }
-
-
-        private bool GetBit(int address)
-        {
-            var index = address >> 5;
-            var offset = address & 0x1F;
-            return ((matches[index] >> offset) & 0x1) == 1;
-        }
-
-
-        private void OrFrom(uint[] matches)
-        {
-            for (var i = 0; i < this.matches.Length; i++)
-                this.matches[i] |= matches[i];
-        }
-        private void NotOrFrom(uint[] matches)
-        {
-            for (var i = 0; i < this.matches.Length; i++)
-                this.matches[i] |= ~matches[i];
-        }
-
-        private void AndNotFrom(uint[] matches)
-        {
-            for (var i = 0; i < this.matches.Length; i++)
-            {
-                var left = this.matches[i];
-                var right = matches[i];
-                if (right == 0)
-                    this.matches[i] = left;
-                else
-                    this.matches[i] = left & (~right);
-            }
-        }
-
-        private void AndFrom(uint[] matches)
-        {
-            for (var i = 0; i < this.matches.Length; i++)
-                this.matches[i] &= matches[i];
-        }
-
-
-        #endregion
+        public bool IsMatch(char ch) => matches.GetBit(ch) ^ invert;
 
         public bool IsSingleChar(char ch)
         {
-            var index = ch >> 5;
-            var offset = ch & 0x1F;
-            if (!invert)
-            {
-                uint data = 1U << offset;
-                if (matches[index] != data)
-                    return false;
-
-                for (var i = 0; i < index; i++)
-                {
-                    if (matches[i] != 0)
-                        return false;
-                }
-                for (var i = index + 1; i < matches.Length; i++)
-                {
-                    if (matches[i] != 0)
-                        return false;
-                }
-            }
+            var bitCount = matches.BitCount();
+            if (invert)
+                return (bitCount == MatchArraySize - 1) && !matches.GetBit(ch);
             else
-            {
-                uint data = ~(1U << offset);
-                if (matches[index] != data)
-                    return false;
-
-                for (var i = 0; i < index; i++)
-                {
-                    if (matches[i] != uint.MaxValue)
-                        return false;
-                }
-                for (var i = index + 1; i < matches.Length; i++)
-                {
-                    if (matches[i] != uint.MaxValue)
-                        return false;
-                }
-
-            }
-            return true;
+                return (bitCount == 1) && matches.GetBit(ch);
         }
 
         public override bool Equals(object? obj)
         {
-            if (obj is CharClass cc)
-                return Equals(cc);
-            if (obj is SingleChar sc)
-                return IsSingleChar(sc.Ch);
-            return false;
+            return obj switch
+            {
+                CharClass cc => Equals(cc),
+                SingleChar sc => IsSingleChar(sc.Ch),
+                _ => false
+            };
         }
 
         public bool Equals(CharClass other)
         {
-            if (invert == other.invert)
-            {
-                for (int i = 0; i < matches.Length; i++)
-                {
-                    if (matches[i] != other.matches[i])
-                        return false;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < matches.Length; i++)
-                {
-                    if (matches[i] != ~other.matches[i])
-                        return false;
-                }
-            }
-            return true;
+            return (invert == other.invert) ?
+                matches.Equals(other.matches) :
+                matches.IsInverseOf(other.matches);
         }
 
         public bool Equals(IMatch? other)
         {
-            bool result;
-            if (other is CharClass cc)
-                result = Equals(cc);
-            else if (other is SingleChar c)
-                result = IsSingleChar(c.Ch);
-            else
-                result = false;
-            return result;
+            return other switch
+            {
+                CharClass cc => Equals(cc),
+                SingleChar sc => IsSingleChar(sc.Ch),
+                _ => false
+            };
         }
 
         public IMatch? Intersect(IMatch other)
         {
-            IMatch? result = null;
-            if (other is CharClass cc)
+            return other switch
             {
-                var data = new uint[size];
-                var hasIntersection = false;
-                if (!invert)
-                {
-                    if (!cc.invert)
-                    {
-                        for (int i = 0; i < matches.Length; i++)
-                        {
-                            var intersect = matches[i] & cc.matches[i];
-                            data[i] = intersect;
-                            if (intersect != 0)
-                                hasIntersection = true;
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < matches.Length; i++)
-                        {
-                            var intersect = matches[i] & ~cc.matches[i];
-                            data[i] = intersect;
-                            if (intersect != 0)
-                                hasIntersection = true;
-                        }
-                    }
-                }
-                else if (!cc.invert)
-                {
-                    for (int i = 0; i < matches.Length; i++)
-                    {
-                        var intersect = ~matches[i] & cc.matches[i];
-                        data[i] = intersect;
-                        if (intersect != 0)
-                            hasIntersection = true;
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < matches.Length; i++)
-                    {
-                        var intersect = matches[i] | cc.matches[i];
-                        data[i] = ~intersect;
-                        if (intersect != 0)
-                            hasIntersection = true;
-                    }
-                }
-                if (hasIntersection)
-                {
-                    var charClass = new CharClass(data);
-                    result = charClass.Reduce();
-                }
-            }
-            else if (other is SingleChar c)
-            {
-                if (IsMatch(c.Ch))
-                    result = c;
-                else
-                    result = null;
-            }
-            return result;
+                CharClass cc => Intersect(cc),
+                SingleChar sc => Intersect(sc),
+                EmptyMatch => null,
+                _ => this
+            };
+        }
+
+        public IMatch? Intersect(SingleChar c) =>
+            IsMatch(c.Ch) ? c : null;
+
+        public IMatch? Intersect(CharClass other)
+        {
+            var bitArray = !invert ?
+                new BitArray(matches) :
+                ~matches;
+            if (!other.invert)
+                bitArray.AndFrom(other.matches);
+            else
+                bitArray.AndNotFrom(other.matches);
+            var count = bitArray.BitCount();
+            if (count == 0)
+                return null;
+            else if (count == 1)
+                return new SingleChar((char)bitArray.SetAddresses.Single());
+            else
+                return new CharClass(bitArray);
         }
 
         public IMatch Union(IMatch other)
@@ -733,37 +587,19 @@ namespace Opal.Nfa
             return result;
         }
 
-        public int GetCount() => GetCount(matches);
-
-        public static int GetCount(uint[] data)
-        {
-            var count = 0;
-            for (var i = 0; i < data.Length; i++)
-                count += BitCount(data[i]);
-            return count;
-        }
-
-        public static int BitCount(uint item)
-        {
-            item -= ((item >> 1) & 0x55555555);
-            item = (item & 0x33333333) + ((item >> 2) & 0x33333333);
-            item = (item + (item >> 4)) & 0x0f0f0f0f;
-            item += (item >> 8);
-            item += (item >> 16);
-            return (int)(item & 0x3F);
-        }
+        public int GetCount() => matches.BitCount();
 
         public bool Subtract(IMatch other)
         {
             if (!invert)
             {
                 foreach (var ch in other)
-                    ClrBit(ch);
+                    matches.ClrBit(ch);
             }
             else
             {
                 foreach (var ch in other)
-                    SetBit(ch);
+                    matches.SetBit(ch);
             }
             Normalize();
             return Count == 0;
@@ -773,12 +609,10 @@ namespace Opal.Nfa
         {
             IMatch result;
             var count = Normalize();
-            if (count == 1 && !invert)
+            if ((count == 1) && !invert)
                 result = new SingleChar(this.FirstOrDefault());
             else if (count == 0)
-                result = EmptyMatch.Instance;
-            else if (count == char.MaxValue + 1)
-                result = new AllMatch();
+                result = invert ? new AllMatch() : EmptyMatch.Instance;
             else
                 result = this;
             return result;
@@ -790,12 +624,12 @@ namespace Opal.Nfa
             if (!invert)
             {
                 foreach (var ch in other)
-                    result.ClrBit(ch);
+                    result.matches.ClrBit(ch);
             }
             else
             {
                 foreach (var ch in other)
-                    result.SetBit(ch);
+                    result.matches.SetBit(ch);
             }
 
             var count = result.Normalize();
@@ -812,7 +646,6 @@ namespace Opal.Nfa
         private int Normalize()
         {
             var count = GetCount();
-
             if (count > (char.MaxValue >> 1))
             {
                 Flip();
@@ -824,42 +657,16 @@ namespace Opal.Nfa
         private void Flip()
         {
             invert = !invert;
-            for (int i = 0; i < matches.Length; i++)
-                matches[i] = ~matches[i];
+            matches.Invert();
         }
 
         public IEnumerator<char> GetEnumerator()
         {
-            if (!invert)
-            {
-                for (int i = 0; i < matches.Length; i++)
-                {
-                    var item = matches[i];
-                    if (item != 0)
-                    {
-                        for (int j = 0; j < 32; j++)
-                        {
-                            if (((item >> j) & 0x1) != 0)
-                                yield return (char)((i << 5) + j);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < matches.Length; i++)
-                {
-                    var item = matches[i];
-                    if (item != (~0U))
-                    {
-                        for (int j = 0; j < 32; j++)
-                        {
-                            if (((item >> j) & 0x1) == 0x0U)
-                                yield return (char)((i << 5) + j);
-                        }
-                    }
-                }
-            }
+            var e = (!invert) ?
+                matches.SetAddresses :
+                matches.ClearedAddresses;
+            return e.Select(x => (char)x)
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -1,5 +1,6 @@
 ﻿using Opal.CodeGenerators;
 using Opal.Containers;
+using Opal.Productions;
 using System.Text;
 
 namespace Opal.ParseTree
@@ -8,9 +9,10 @@ namespace Opal.ParseTree
     {
         private readonly int position;
 
-        public ActionArg(Token t) : base(t)
+        public ActionArg(Token t) 
+            : base(t)
         {
-            position = int.Parse(t.Value![1..]);
+            position = int.Parse(t.Value.Substring(1));
         }
 
         /// <summary>

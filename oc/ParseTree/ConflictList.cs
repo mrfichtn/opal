@@ -4,10 +4,10 @@ namespace Opal.ParseTree
 {
     public class ConflictList: List<Conflict>
     {
-        public new ConflictList Add(Conflict conflict)
+        public static ConflictList Add(ConflictList list, Conflict conflict)
         {
-            base.Add(conflict);
-            return this;
+            list.Add(conflict);
+            return list;
         }
     }
 }

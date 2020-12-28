@@ -45,7 +45,7 @@ namespace Opal
 				if (node == null) return false;
 				node = node!.Next;
 			}
-			return true;
+			return node != null;
 		}
 
 		public bool GetState(int index, out uint state)
