@@ -1,5 +1,4 @@
 ﻿using Opal.Productions;
-using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
@@ -19,12 +18,6 @@ namespace Opal.ParseTree
         public virtual void Write(ActionWriteContext context)
         { }
 
-        /// <summary>
-        /// Returns types found in action expression
-        /// </summary>
-        /// <param name="types"></param>
-        public virtual void GetTypes(HashSet<string> types)
-        { }
 
         public virtual bool TryGetType(out string? type)
         {

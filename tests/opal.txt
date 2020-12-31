@@ -91,6 +91,7 @@ Productions language
 		token_section 
 		production_section
 		conflict_section										{ new Language(
+																	srcFile,
 																	$0: UsingList,
 																	$1: Identifier, 
 																	$2: OptionList,
@@ -113,12 +114,8 @@ Productions language
 	option_list = option										{ new OptionList($0); }
 				| option_list option		                    { OptionList.Add($0, $1); }
 
-	option	=	Identifier '=' option_expr                      { new Option($0, $2); }
-
-	option_expr													< IConstant >
-				= string_literal								
-				| Boolean
-				;
+	option	=	Identifier '=' string_literal                   { new Option($0, $2); }
+	option  =   Identifier '=' Boolean                          { new Option($0, $2); }
 
 
 	characters_section	=										{ new CharacterList(); }
@@ -130,12 +127,12 @@ Productions language
 	character       = identifier '=' char_class_concat			{ new Character($0, $2: IMatch); }
 
 	char_class_concat											<CharacterExpr>
-					  = char_class_unary
+					  = char_class_unary						{ $0; }
 				      | char_class_concat '+' char_class_unary	{ new CharacterUnionExpr($0, $2); }
 				      | char_class_concat '-' char_class_unary	{ new CharacterDiffExpr($0, $2); }
 
 	char_class_unary 											<CharacterExpr>	
-					 = char_class_primary 
+					 = char_class_primary						{ $0; }
 					 | '!' char_class_unary						{ new CharacterInvertExpr($0, $1); }
 
 	char_class_primary											<CharacterExpr>
@@ -155,12 +152,12 @@ Productions language
 				| '<' identifier '>'							{ $1; }
 
 	token_expr													<TokenExpr>
-				= token_quantifier
+				= token_quantifier                              { $0; }
 				| token_expr '|' token_quantifier				{ new UnionTokenExpr($0, $2); }
 				| token_expr token_quantifier					{ new ConcatTokenExpr($0, $1); }
 
 	token_quantifier											<TokenExpr>
-				= token_primary
+				= token_primary                                 { $0; }
 				| token_primary '+'								{ new PlusClosureExpr($0); }
 				| token_primary '*'								{ new StarClosureExpr($0); }
 				| token_primary '?'								{ new QuestionClosureExpr($0); }

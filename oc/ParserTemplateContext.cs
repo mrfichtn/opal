@@ -1,7 +1,6 @@
 ﻿using Generators;
 using Opal.ParseTree;
 using Opal.Templates;
-using System;
 
 namespace Opal
 {
@@ -11,29 +10,22 @@ namespace Opal
         private readonly Language language;
         private readonly Productions.Grammar grammar;
         private readonly LR1.LR1Parser lr1Parser;
-        private readonly IGeneratable scannerWriter;
-        private readonly Dfa.Dfa dfa;
-        private readonly bool emitTokenStates;
         private readonly string ns;
+        private readonly ScannerBuilder.ScannerWriter scanner;
 
         public ParserTemplateContext(Options options,
             string ns,
             Language language,
             Productions.Grammar grammar,
             LR1.LR1Parser lr1Parser,
-            IGeneratable scannerWriter,
-            Dfa.Dfa dfa)
+            ScannerBuilder.ScannerWriter scanner)
         {
             this.options = options;
             this.ns = ns ?? language.Namespace.Value;
             this.language = language;
             this.grammar = grammar;
             this.lr1Parser = lr1Parser;
-            this.scannerWriter = scannerWriter;
-            this.dfa = dfa;
-
-            emitTokenStates = (!options.TryGet("scanner", out var scannerValue) ||
-                    scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
+            this.scanner = scanner;
         }
         
         bool ITemplateContext.Condition(string varName) => options.HasOption(varName) ?? false;
@@ -61,10 +53,10 @@ namespace Opal
                         grammar.Write(generator, noAction!);
                     generator.UnIndent(2);
                     break;
-                case "actions": lr1Parser!.Actions.Write(generator); break;
-                case "parser.symbols": lr1Parser!.WriteSymbols(generator); break;
-                case "scanner": scannerWriter!.Write(generator); break;
-                case "scanner.states": dfa!.WriteTokenEnum(generator, emitTokenStates); break;
+                case "actions": lr1Parser.Actions.Write(generator); break;
+                case "parser.symbols": lr1Parser.WriteSymbols(generator); break;
+                case "scanner": scanner.Write(generator); break;
+                case "scanner.states": scanner.WriteTokenEnum(generator); break;
                 case "namespace.end":
                     if (ns != null)
                         generator.EndBlock();

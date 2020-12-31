@@ -11,12 +11,10 @@ namespace Opal.Dfa
     {
         private readonly Dfa dfa;
         private readonly IEnumerable<DfaNode> states;
-        public DfaSwitchWriter(Dfa dfa, bool syntaxErrorTokens)
+        public DfaSwitchWriter(Dfa dfa, ISyntaxErrorHandler syntaxErrorHandler)
         {
             this.dfa = dfa;
-            this.states = syntaxErrorTokens ?
-                dfa.States.AddSyntaxError() :
-                dfa.States;
+            states = syntaxErrorHandler.GetStates(dfa);
         }
 
         public void Write(Generator generator) =>

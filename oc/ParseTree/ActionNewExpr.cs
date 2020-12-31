@@ -1,6 +1,4 @@
-﻿using Generators;
-using Opal.Productions;
-using System.Collections.Generic;
+﻿using Opal.Productions;
 
 namespace Opal.ParseTree
 {
@@ -16,8 +14,6 @@ namespace Opal.ParseTree
             context.Write("new ");
             base.Write(context);
         }
-
-        public override void GetTypes(HashSet<string> types) => types.Add(id.Value);
 
         public override bool TryGetType(out string? type)
         {

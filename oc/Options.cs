@@ -21,8 +21,7 @@ namespace Opal
                 data.Add(name, value);
         }
 
-        public bool Remove(string name)
-            => data.Remove(name);
+        public bool Remove(string name) => data.Remove(name);
 
         public object this[string name]
         {
@@ -50,5 +49,12 @@ namespace Opal
                     !s.Equals("0");
             return true;
         }
+
+        public bool HasOption(string key, bool defValue) =>
+            HasOption(key) ?? defValue;
+
+        public bool Equals(string key, string value) =>
+            TryGet(key, out var actualValue) &&
+                value.Equals(actualValue, StringComparison.InvariantCultureIgnoreCase);
     }
 }

@@ -16,32 +16,22 @@ namespace Opal.Dfa
 			this.matches = matches;
 			edges = matches.NextId + 1;
 			this.acceptingStates = acceptingStates;
-			states = new List<DfaState>();
+			States = new List<DfaState>();
 		}
 
-		#region Properties
+        internal List<DfaState> States { get; }
 
-		#region States Property
-		internal List<DfaState> States
+        public DfaState NewNode(IEnumerable<int> nodes)
 		{
-			get { return states; }
-		}
-		private readonly List<DfaState> states;
-		#endregion
-
-		#endregion
-
-		public DfaState NewNode(IEnumerable<int> nodes)
-		{
-			var state = new DfaState(acceptingStates, nodes, states.Count, edges);
-			states.Add(state);
+			var state = new DfaState(acceptingStates, nodes, States.Count, edges);
+			States.Add(state);
 			return state;
 		}
 
 		public Dfa ToDfa()
 		{
 			//ReduceEdges();
-			var dfaList = states.Select(x => x.ToNode()).ToList();
+			var dfaList = States.Select(x => x.ToNode()).ToList();
 			RemoveUnreachableStates(dfaList);
 			HopcroftAlgorithm(dfaList);
 

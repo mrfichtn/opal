@@ -5,13 +5,17 @@ $(usings)
 $(namespace.start)
 $(if !no.parser)public partial class Parser: ParserBase
 {
+	private readonly string? srcFile;
+	
 	public Parser(Scanner scanner)
 		: base(scanner, _maxTerminal, _symbols, _actions)
 	{}
 
-	public Parser(string filePath)
-		: this(Scanner.FromFile(filePath)) 
-	{}
+	public Parser(string srcFile)
+		: this(Scanner.FromFile(srcFile)) 
+	{
+		this.srcFile = srcFile;
+	}
 
 	public static Parser FromString(string text)
 	{

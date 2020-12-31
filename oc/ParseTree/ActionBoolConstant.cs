@@ -1,5 +1,4 @@
 ﻿using Opal.Productions;
-using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
@@ -11,9 +10,6 @@ namespace Opal.ParseTree
 
         public override void Write(ActionWriteContext context) =>
             context.Write(value.ToString());
-
-        public override void GetTypes(HashSet<string> types) =>
-            types.Add("bool");
 
         public override bool TryGetType(out string? type)
         {

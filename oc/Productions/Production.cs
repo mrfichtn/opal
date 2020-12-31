@@ -6,7 +6,6 @@ namespace Opal.Productions
     public class Production
     {
         private readonly ParseTree.Identifier name;
-        private readonly ParseTree.ProductionAttr attr;
         private readonly ParseTree.ActionExpr action;
         private bool ignore;
         private ParseTree.Identifier? type;
@@ -16,12 +15,11 @@ namespace Opal.Productions
             int ruleId,
             ParseTree.ProductionAttr attr,
             ParseTree.ActionExpr action,
-            Symbol[] right)
+            TerminalBase[] right)
         {
             this.name = name;
             Id = id;
             RuleId = ruleId;
-            this.attr = attr;
             this.action = action;
             Right = right;
 
@@ -49,7 +47,7 @@ namespace Opal.Productions
 
         public string? Type => type?.Value;
 
-        public Symbol[] Right { get; }
+        public TerminalBase[] Right { get; }
 
         public void Write(Generator generator, 
             Grammar grammar,

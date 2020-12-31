@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 
 namespace Opal
@@ -16,7 +14,6 @@ namespace Opal
 		private readonly int[,] actions;
 		private LRStack _stack;
 		protected int items;
-
 
 		protected ParserBase(ScannerBase scanner,
 			int maxTerminal,
@@ -170,10 +167,13 @@ namespace Opal
 				}
 			}
 
-			logger.LogError(
-				(token.State != 0) ? $"Unexpected token" : $"Unexpected token [EOF]",
-				token,
-				count > 0 ? builder.ToString() : null);
+			if (!suppress)
+			{
+				logger.LogError(
+					(token.State != 0) ? $"Unexpected token" : $"Unexpected token [EOF]",
+					token,
+					count > 0 ? builder.ToString() : null);
+			}
 
 			if (token.State != 0)
 			{

@@ -28,7 +28,7 @@ namespace Opal.LR1
             var languageSymbol = new Symbol(name:"S'", 
 				id:(uint)Symbols.Count, 
 				terminal:false);
-            var rule = new Rule(this, 0, languageSymbol, new[] { startSym });
+            var rule = new Rule(this, 0, languageSymbol, startSym!);
             rules = new List<Rule> { rule };
 
             foreach (var prod in grammar.Productions)

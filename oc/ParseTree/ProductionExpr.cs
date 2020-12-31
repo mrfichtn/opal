@@ -1,5 +1,4 @@
 ﻿using Generators;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Opal.ParseTree
@@ -17,7 +16,7 @@ namespace Opal.ParseTree
         public virtual void DeclareToken(DeclareTokenContext context)
         {}
 
-        public Productions.Symbol? Build(ProductionContext context)
+        public Productions.TerminalBase? Build(ProductionContext context)
         {
             var symbol = Create(context);
             if (symbol != null && attr != null)
@@ -40,7 +39,7 @@ namespace Opal.ParseTree
         public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
         {}
 
-        protected abstract Productions.Symbol? Create(ProductionContext context);
+        protected abstract Productions.TerminalBase? Create(ProductionContext context);
 
         #region Properties
 
@@ -122,7 +121,7 @@ namespace Opal.ParseTree
 
         public override string Name => name.Value;
 
-        protected override Productions.Symbol Create(ProductionContext context)
+        protected override Productions.TerminalBase Create(ProductionContext context)
         {
             if (context.TryFind(name.Value, out var id, out var isTerminal))
             {
@@ -193,7 +192,7 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             (name, id) = context.AddDefinition(text);
 
-        protected override Productions.Symbol Create(ProductionContext context) =>
+        protected override Productions.TerminalBase Create(ProductionContext context) =>
             new Productions.TerminalString(text, name!, id);
 
         public override string ToString() => $"\"{text.Value.ToEsc()}\"";
@@ -236,7 +235,7 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             (name, id) = context.AddDefinition(text);
 
-        protected override Productions.Symbol Create(ProductionContext context) =>
+        protected override Productions.TerminalBase Create(ProductionContext context) =>
             new Productions.TerminalString(text,
                 name!, 
                 id);
@@ -275,7 +274,7 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             expr.DeclareToken(context);
 
-        protected sealed override Productions.Symbol Create(ProductionContext context)
+        protected sealed override Productions.TerminalBase Create(ProductionContext context)
         {
             var symbol = expr.Build(context);
             if (symbol == null)
@@ -283,8 +282,8 @@ namespace Opal.ParseTree
             return Create(context, symbol);
         }
 
-        protected abstract Productions.Symbol Create(ProductionContext context,
-            Productions.Symbol symbol);
+        protected abstract Productions.TerminalBase Create(ProductionContext context,
+            Productions.TerminalBase symbol);
     }
     
     public class QuestionProdExpr: UnaryProdExpr
@@ -316,8 +315,8 @@ namespace Opal.ParseTree
         }
 
 
-        protected override Productions.Symbol Create(ProductionContext context, 
-            Productions.Symbol symbol)
+        protected override Productions.TerminalBase Create(ProductionContext context, 
+            Productions.TerminalBase symbol)
         {
             var baseName = symbol.Name + "_option";
             string name = baseName;

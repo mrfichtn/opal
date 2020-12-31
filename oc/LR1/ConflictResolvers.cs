@@ -10,7 +10,7 @@ namespace Opal.LR1
 {
     public class ConflictResolvers
     {
-        private Dictionary<Key, int> data;
+        private readonly Dictionary<Key, int> data;
         
         public ConflictResolvers(ConflictList conflicts, 
             Symbols symbols,

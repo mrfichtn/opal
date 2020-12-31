@@ -1,6 +1,7 @@
 ﻿using Opal.Logging;
 using System;
 using System.IO;
+using System.Text;
 
 namespace Opal
 {
@@ -41,18 +42,7 @@ namespace Opal
                     switch (item.Level)
                     {
                         case LogLevel.Error:
-                            log.NewLine()
-                                .ErrorLine(item.Message)
-                                .NewLine()
-                                .Info(string.Format("{0,4}| ", item.Start.Ln))
-                                .InfoLine(item.Line)
-                                .Info(new string(' ', item.Start.Col + 5))
-                                .ErrorLine("^")
-                                .NewLine();
-
-                            if (item.Suggestions != null)
-                                log.NormalLine(item.Suggestions)
-                                    .NewLine();
+                            WriteError(log, item);
 
                             //_logger.LogError(token, "Unexpected token '{0}'", token.Value);
                             //_logger.LogError("[{0,4}]   {1}", token.Start.Ln, _scanner.Line(token.Start.Ln));
@@ -70,6 +60,31 @@ namespace Opal
                 isOk = false;
             }
             return isOk ? 0 : -1;
+        }
+
+        private static void WriteError(ConsoleLog log, LogItem item)
+        {
+            var builder = new StringBuilder("     ");
+            for (var i = 0; i < item.Start.Col-1; i++)
+            {
+                if (item.Line[i] == '\t')
+                    builder.Append('\t');
+                else
+                    builder.Append(' ');
+            }
+            builder.Append('^');
+            
+            log.NewLine()
+                .ErrorLine(item.Message)
+                .NewLine()
+                .Info(string.Format("{0,4}| ", item.Start.Ln))
+                .InfoLine(item.Line)
+                .ErrorLine(builder.ToString())
+                .NewLine();
+
+            if (item.Suggestions != null)
+                log.NormalLine(item.Suggestions)
+                    .NewLine();
         }
     }
 }

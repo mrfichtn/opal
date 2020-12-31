@@ -38,9 +38,9 @@ namespace Opal.ParseTree
 
         public IEnumerable<ProductionExpr> Expressions => Right;
 
-        public Productions.Symbol[] Build(ProductionContext context)
+        public Productions.TerminalBase[] Build(ProductionContext context)
         {
-            var symbols = new Productions.Symbol[Right.Count];
+            var symbols = new Productions.TerminalBase[Right.Count];
             for (var i = 0; i < symbols.Length; i++)
                 symbols[i] = Right[i].Build(context);
             

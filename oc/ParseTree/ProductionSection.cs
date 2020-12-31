@@ -1,48 +1,47 @@
 ﻿using Opal.Nfa;
-using System;
 using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
     public class ProductionSection
     {
+        private readonly ProductionList productions;
+
         public ProductionSection(Token start, 
             ProductionList productions)
         {
             Start = new Identifier(start);
-            Productions = productions;
+            this.productions = productions;
         }
 
         public Identifier Start { get; }
-        public ProductionList Productions { get; }
 
-        public void AddStringTokens(DeclareTokenContext context)
-        {
-            Productions.AddStringTokens(context);
-        }
+        public void AddStringTokens(DeclareTokenContext context) =>
+            productions.AddStringTokens(context);
 
-        public Productions.Grammar Build(Logger logger, Graph graph)
+        public Productions.Grammar Build(Logger logger, 
+            IEnumerable<Symbol> symbols)
         {
             var context = new ProductionContext(logger);
-            context.AddTerminals(graph);
-            context.AddDeclarations(Productions);
+            context.AddTerminals(symbols);
+            context.AddDeclarations(productions);
 
             var list = new List<Productions.Production>();
             var ruleId = 0;
 
-            foreach (var prod in Productions)
+            foreach (var prod in productions)
             {
                 context.TryFind(prod.Name.Value, out var id, out var isTerminal);
                 foreach (var definition in prod.Definitions)
                 {
-                    var symbols = definition.Build(context);
+                    var terms = definition.Build(context);
                     var production = new Productions.Production(
                         prod.Name,
                         id,
                         ruleId++,
                         prod.Attribute,
                         definition.Action,
-                        symbols);
+                        terms);
                     list.Add(production);
                 }
             }

@@ -1,7 +1,6 @@
 ﻿using Generators;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Opal.Productions
@@ -11,7 +10,7 @@ namespace Opal.Productions
         private readonly TypeTable typeTable;
         
         public Grammar(string start,
-            List<ParseTree.Symbol> symbols,
+            List<Symbol> symbols,
             Production[] productions,
             TypeTable typeTable)
         {
@@ -29,7 +28,7 @@ namespace Opal.Productions
         public string Start { get; }
 
         public Production[] Productions { get; }
-        public List<ParseTree.Symbol> Symbols { get; }
+        public List<Symbol> Symbols { get; }
 
         public void Write(Generator generator, string noAction)
         {

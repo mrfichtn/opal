@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Generators;
-using Opal.Containers;
-using Opal.Nfa;
 
 namespace Opal.ParseTree
 {
-	public class ProductionList: IEnumerable<Production>
+    public class ProductionList: IEnumerable<Production>
 	{
         private readonly List<Production> productions;
-        private readonly InternalProductions internalProds;
         
         public ProductionList()
 		{
             productions = new List<Production>();
-            internalProds = new InternalProductions();
-            Symbols = new Symbols();
             DefaultTypes = new Dictionary<int, string>();
 		}
 
@@ -82,8 +74,6 @@ namespace Opal.ParseTree
 		#region Properties
         public Identifier? Language { get; private set; }
         public int TerminalCount { get; private set; }
-        public int SymbolCount => Symbols.Count;
-        public Symbols Symbols { get; }
         public Dictionary<int, string> DefaultTypes { get; }
         public Production this[int index] => productions[index];
         #endregion
@@ -144,8 +134,6 @@ namespace Opal.ParseTree
 
   //          return true;
 		//}
-
-		public int GetId(string name) => Symbols.AddOrGet(name);
 
 		//public void ExpandQuantifiers()
 		//{

@@ -1,29 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Opal.ParseTree
+﻿namespace Opal.ParseTree
 {
     public class ImproptuDeclContext
     {
-        private Dictionary<string, int> symbolMap;
-        private List<Symbol> symbols;
+        private Productions.SymbolTable symbols;
 
-        public ImproptuDeclContext(Dictionary<string, int> symbolMap, 
-            List<Symbol> symbols)
+        public ImproptuDeclContext(Productions.SymbolTable symbols)
         {
-            this.symbolMap = symbolMap;
             this.symbols = symbols;
         }
 
-        public bool HasSymbol(string baseName) =>
-            symbolMap.ContainsKey(baseName);
+        public bool HasSymbol(string baseName) => symbols.Contains(baseName);
 
         public void Add(Production production)
         {
-            symbols.Add(new Symbol(production.Name.Value, false));
+            symbols.Add(production);
             //Todo: add production
         }
     }

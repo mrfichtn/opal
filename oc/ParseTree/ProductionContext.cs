@@ -1,58 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
     public class ProductionContext
     {
         private readonly Logger logger;
-        private readonly Dictionary<string, int> symbolMap;
+        private readonly Productions.SymbolTable symbols;
 
         public ProductionContext(Logger logger)
         {
             this.logger = logger;
-            symbolMap = new Dictionary<string, int>();
-            Symbols = new List<Symbol>();
+            symbols = new Productions.SymbolTable();
             TypeTable = new Productions.TypeTable();
         }
 
-        public List<Symbol> Symbols { get; }
-
         public Productions.TypeTable TypeTable { get; }
 
-        public void AddTerminals(Nfa.Graph graph)
+        public List<Productions.Symbol> Symbols => symbols.Symbols;
+
+        public void AddTerminals(IEnumerable<Nfa.Symbol> symbols)
         {
-            foreach (var symbol in graph.Machine.AcceptingStates.Symbols)
-            {
-                symbolMap.Add(symbol.Name, symbol.Index);
-                Symbols.Add(new Symbol(symbol.Name, true, symbol.Text));
-            }
+            foreach (var symbol in symbols)
+                this.symbols.Add(symbol);
         }
 
         public void AddDeclarations(ProductionList prods)
         {
             foreach (var production in prods)
             {
-                if (!symbolMap.ContainsKey(production.Name.Value))
-                {
-                    symbolMap.Add(production.Name.Value, symbolMap.Count);
-                    Symbols.Add(new Symbol(production.Name.Value, false));
-                }
+                symbols.Add(production);
                 production.AddActionType(TypeTable);
             }
 
-            var context = new ImproptuDeclContext(symbolMap, Symbols);
+            var context = new ImproptuDeclContext(symbols);
             foreach (var expr in prods.Expressions)
                 expr.AddImproptuDeclaration(context);
         }
 
         public bool TryFind(string value, out int id, out bool isTerminal)
         {
-            var result = symbolMap.TryGetValue(value, out id);
-            isTerminal = id >= 0;
+            var result = symbols.TryGetValue(value, out id, out isTerminal);
             return result;
         }
 
@@ -130,7 +117,7 @@ namespace Opal.ParseTree
         //    }
         //}
 
-        public Productions.Symbol? MissingSymbol(Identifier name)
+        public Productions.TerminalBase? MissingSymbol(Identifier name)
         {
             logger.LogError($"Missing symbol '{name}'",
                 name);

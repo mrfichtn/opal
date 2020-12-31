@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Text;
 
 namespace Opal.Logging
 {
     public class ConsoleLog
     {
         private readonly ConsoleColor oldColor;
-		
-		public ConsoleLog() =>
+
+		public ConsoleLog()
+		{
 			oldColor = Console.ForegroundColor;
+			Console.OutputEncoding = Encoding.UTF8;
+		}
 
 		public ConsoleLog NewLine()
 		{

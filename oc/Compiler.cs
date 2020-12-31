@@ -15,22 +15,14 @@ namespace Opal
     {
         private readonly ILogger logger;
         private readonly string inPath;
-        private Parser? parser;
-        private Dfa.Dfa? dfa;
-        private LR1.LR1Parser? lr1Parser;
         private readonly Options options;
-        private IGeneratable? scannerWriter;
-
-        private Productions.Grammar grammar;
-        
-        private bool emitStateScanner;
-        private bool compressScanner;
+        private Logger? parserLogger;
 
         public Compiler(ILogger logger, string inPath)
         {
-            options = new Options();
             this.logger = logger;
             this.inPath = inPath;
+            options = new Options();
             outPath = Path.ChangeExtension(this.inPath, ".Parser.cs");
         }
 
@@ -58,64 +50,62 @@ namespace Opal
             }
         }
 
-        public IEnumerable<LogItem> Log => 
-            (parser != null) ? parser.Logger : Enumerable.Empty<LogItem>();
+        public IEnumerable<LogItem> Log => parserLogger ?? Enumerable.Empty<LogItem>();
 
         public bool Compile()
         {
             Console.OutputEncoding = Encoding.Unicode;
             var fileName = Path.GetFileName(inPath);
             var fileDir = Path.GetDirectoryName(fileName) ?? ".";
-            parser = new Parser(inPath);
+            var parser = new Parser(inPath);
+            parserLogger = parser.Logger;
             logger.LogMessage(Importance.Normal, "Parsing {0}", fileName);
-            var isOk = parser.Parse();
+            var isOk = parser.TryParse(out var lang);
             if (!isOk)
                 return isOk;
-
-            var lang = parser.Language;
+            
             if (lang == null)
             {
                 logger.LogError("Failed to return language element from root");
                 return false;
             }
 
-            lang.MergeOptions(options);
-            var nfa = lang.BuildGraph(parser.Logger, options, inPath);
-            grammar = lang.BuildGrammar(parser.Logger, nfa);
+            lang.MergeTo(options);
 
-            //if (!prods.SetStates(logger, parser.Graph.Machine.AcceptingStates))
+            if (!new ScannerBuilder(options).TryBuild(
+                logger, parser.Logger, lang, out var scanner))
+                return false;
+
+
+            //if (!lang.BuildNfa(parser.Logger, options, out var nfa))
             //    return false;
 
-            if (options.TryGet("nfa", out var nfaPath))
-            {
-                if (string.IsNullOrEmpty(nfaPath))
-                    nfaPath = Path.ChangeExtension(inPath, ".nfa.txt");
-                File.WriteAllText(nfaPath, nfa.ToString());
-            }
+            //logger.LogMessage(Importance.Normal, "Building dfa");
+            //var dfa = nfa!.ToDfa();
 
-            logger.LogMessage(Importance.Normal, "Building dfa");
-            dfa = nfa.ToDfa();
+            //var emitStateScanner = (!options.TryGet("scanner", out var scannerValue) ||
+            //        scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
 
-            emitStateScanner = (!options.TryGet("scanner", out var scannerValue) ||
-                    scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
+            //var compressScanner = options.HasOption("scanner.compress") ?? true;
+            //var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
 
-            compressScanner = options.HasOption("scanner.compress") ?? true;
-            var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
+            //var scannerWriter = emitStateScanner ?
+            //        new DfaStateWriter(dfa, compressScanner, syntaxErrorTokens) as IGeneratable :
+            //        new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
-            scannerWriter = emitStateScanner ?
-                    new DfaStateWriter(dfa, compressScanner, syntaxErrorTokens) as IGeneratable :
-                    new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
+            var grammar = lang.BuildGrammar(parser.Logger, scanner.Symbols);
+            if (grammar == null)
+                return false;
 
             logger.LogMessage(Importance.Normal, "Building LR1");
-            
             
             var lr1 = new LR1.Grammar(grammar);
             var grammarPath = Path.ChangeExtension(inPath, ".grammar.txt");
             var grammarText = lr1.ToString();
             File.WriteAllText(grammarPath, grammarText);
 
-            lr1Parser = new LR1.LR1Parser(logger, lr1, lang.Conflicts);
+            var lr1Parser = new LR1.LR1Parser(logger, lr1, lang.Conflicts);
 
             var statesPath = Path.ChangeExtension(inPath, ".states.txt");
             File.WriteAllText(statesPath, lr1Parser.States.ToString());
@@ -155,8 +145,7 @@ namespace Opal
                     lang,
                     grammar,
                     lr1Parser,
-                    scannerWriter,
-                    dfa);
+                    scanner);
                 TemplateProcessor2.FromAssembly(csharp, templContext, frameFile);
             }
 

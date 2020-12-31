@@ -13,9 +13,6 @@ namespace Opal.ParseTree
         public override void Write(ActionWriteContext context) =>
             context.Write(value.ToString());
 
-        public override void GetTypes(HashSet<string> types) =>
-            types.Add("int");
-
         public override bool TryGetType(out string? type)
         {
             type = "int";

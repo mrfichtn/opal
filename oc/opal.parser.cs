@@ -8,13 +8,17 @@ namespace Opal
 {
 	public partial class Parser: ParserBase
 	{
+		private readonly string? srcFile;
+
 		public Parser(Scanner scanner)
 			: base(scanner, _maxTerminal, _symbols, _actions)
 		{}
 	
-		public Parser(string filePath)
-			: this(Scanner.FromFile(filePath)) 
-		{}
+		public Parser(string srcFile)
+			: this(Scanner.FromFile(srcFile)) 
+		{
+			this.srcFile = srcFile;
+		}
 	
 		public static Parser FromString(string text)
 		{
@@ -30,7 +34,7 @@ namespace Opal
 			{
 				case 1: // language = using_section namespace_section option_section characters_section token_section production_section conflict_section
 					items = 7;
-					state = Reduce(34, new Language(At<UsingList>(0),At<Identifier>(1),At<OptionList>(2),At<CharacterList>(3),At<TokenList>(4),At<ProductionSection>(5),At<ConflictList>(6)));
+					state = Reduce(34, new Language(srcFile,At<UsingList>(0),At<Identifier>(1),At<OptionList>(2),At<CharacterList>(3),At<TokenList>(4),At<ProductionSection>(5),At<ConflictList>(6)));
 					break;
 				case 2: // using_section = 
 					state = Push(35, new UsingList());
@@ -110,7 +114,7 @@ namespace Opal
 					break;
 				case 22: // char_class_unary = "!" char_class_unary
 					items = 2;
-					state = Reduce(51, new CharacterInvertExpr(At<Token>(0), At<CharacterExpr>(1)));
+					state = Reduce(51, new CharacterInvertExpr(At<Token>(0),At<CharacterExpr>(1)));
 					break;
 				case 23: // char_class_primary = CharClass
 					items = 1;
@@ -137,12 +141,11 @@ namespace Opal
 					break;
 				case 29: // token_list = token_list token
 					items = 2;
-					state = Reduce(55, TokenList.Add(At<TokenList>(0), At<TokenDeclaration>(1)));
+					state = Reduce(55, TokenList.Add(At<TokenList>(0),At<TokenDeclaration>(1)));
 					break;
 				case 30: // token = identifier token_attr "=" token_expr ";"
 					items = 5;
-					state = Reduce(56, new TokenDeclaration(At<Token>(0),
-						At<Token>(1),At<TokenExpr>(3)));
+					state = Reduce(56, new TokenDeclaration(At<Token>(0),At<Token>(1),At<TokenExpr>(3)));
 					break;
 				case 31: // token_attr = 
 					state = Push(57, null);
@@ -209,14 +212,14 @@ namespace Opal
 					break;
 				case 47: // production_section = "Productions" identifier prod_list
 					items = 3;
-					state = Reduce(40, new ProductionSection(At<Token>(1), At<ProductionList>(2)));
+					state = Reduce(40, new ProductionSection(At<Token>(1),At<ProductionList>(2)));
 					break;
 				case 48: // prod_list = 
 					state = Push(62, new ProductionList());
 					break;
 				case 49: // prod_list = prod_list production
 					items = 2;
-					state = Reduce(62, ProductionList.Add(At<ProductionList>(0), At<Production>(1)));
+					state = Reduce(62, ProductionList.Add(At<ProductionList>(0),At<Production>(1)));
 					break;
 				case 50: // production = identifier production_attr "=" prod_def_list
 					items = 4;
@@ -234,7 +237,7 @@ namespace Opal
 					break;
 				case 54: // func_opt = "(" func_opt_arg_type ")"
 					items = 3;
-					state = Reduce(66, new FuncOption(At<Token>(0), At<Identifier>(1)));
+					state = Reduce(66, new FuncOption(At<Token>(0),At<Identifier>(1)));
 					break;
 				case 55: // func_opt_arg_type = 
 					state = Push(67, null);

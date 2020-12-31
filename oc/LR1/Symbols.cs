@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Opal.LR1
@@ -39,7 +38,7 @@ namespace Opal.LR1
             out Symbol? symbol) =>
             byName.TryGetValue(name, out symbol);
 
-        public void AddSymbols(IEnumerable<ParseTree.Symbol> parseSymbols)
+        public void AddSymbols(IEnumerable<Productions.Symbol> parseSymbols)
         {
             foreach (var parseSymbol in parseSymbols.Skip(1))
             {
