@@ -50,6 +50,12 @@ namespace Opal
                             //	new string(' ', token.Start.Col),
                             //	new string('^', token.Length));
                             break;
+                        case LogLevel.Warning:
+                            WriteWarning(log, item);
+                            break;
+                        case LogLevel.Info:
+                            logger.LogMessage(Importance.Normal, item.Message);
+                            break;
                     }
                 }
 
@@ -86,5 +92,31 @@ namespace Opal
                 log.NormalLine(item.Suggestions)
                     .NewLine();
         }
+
+        private static void WriteWarning(ConsoleLog log, LogItem item)
+        {
+            var builder = new StringBuilder("     ");
+            for (var i = 0; i < item.Start.Col - 1; i++)
+            {
+                if (item.Line[i] == '\t')
+                    builder.Append('\t');
+                else
+                    builder.Append(' ');
+            }
+            builder.Append('^');
+
+            log.NewLine()
+                .WarningLine(item.Message)
+                .NewLine()
+                .Info(string.Format("{0,4}| ", item.Start.Ln))
+                .InfoLine(item.Line)
+                .WarningLine(builder.ToString())
+                .NewLine();
+
+            if (item.Suggestions != null)
+                log.NormalLine(item.Suggestions)
+                    .NewLine();
+        }
+
     }
 }

@@ -28,13 +28,18 @@ namespace Opal.ParseTree
 
         public Identifier? Cast { get; private set; }
 
+
+        public override void AddType(DefinitionActionTypeContext context)
+        {
+            if (Cast != null)
+                context.Add(Cast.Value);
+            else
+                context.TryFind(position, this);
+        }
+
         /// <summary>
         /// True if written from production
         /// </summary>
-        /// <param name="generator"></param>
-        /// <param name="prods"></param>
-        /// <param name="prod"></param>
-        /// <param name="root"></param>
         public override void Write(ActionWriteContext context)
         {
             //Attempt to find a default type

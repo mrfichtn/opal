@@ -48,7 +48,7 @@ namespace Opal
             }
 
             logger.LogMessage(Importance.Normal, "Building dfa");
-            var dfa = nfa!.ToDfa();
+            var dfa = nfa!.ToDfa(logger);
 
             var scannerStatesWriter = scannerWriterFactory.Create(dfa,
                 tableWriterFactory,

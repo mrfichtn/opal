@@ -34,7 +34,7 @@ namespace Opal.Containers
             return result;
         }
 
-        public static HashSet<T> Difference<T>(this HashSet<T> left, HashSet<T> right)
+        public static HashSet<T> DisjointUnion<T>(this HashSet<T> left, HashSet<T> right)
         {
             var result = new HashSet<T>();
             foreach (var item in left)

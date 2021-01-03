@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Opal.Productions
 {
@@ -9,6 +10,21 @@ namespace Opal.Productions
         public TypeTable()
         {
             data = new Dictionary<string, TypeRec>();
+        }
+
+        public void Write(string filePath)
+        {
+            using (var stream = new StreamWriter(filePath))
+            {
+                foreach(var pair in data)
+                {
+                    stream.Write(pair.Key);
+                    stream.Write(": ");
+                    var found = pair.Value.TryGetType(out var type);
+                    stream.Write(found ? type : "(unknown)");
+                    stream.WriteLine();
+                }
+            }
         }
 
         public bool TryFind(string name, out string? type)
@@ -46,7 +62,6 @@ namespace Opal.Productions
         {
             private string? primary;
             private string? secondary;
-            private bool conflicts;
 
             public TypeRec()
             {
@@ -66,8 +81,6 @@ namespace Opal.Productions
             {
                 if (secondary == null)
                     secondary = type;
-                else
-                    conflicts = true;
             }
 
             public bool TryGetType(out string? type)
@@ -79,7 +92,7 @@ namespace Opal.Productions
                 }
                 else
                 {
-                    ok = !(conflicts || string.IsNullOrEmpty(secondary));
+                    ok = !string.IsNullOrEmpty(secondary);
                     type = ok ? secondary : null;
                 }
                 return ok;

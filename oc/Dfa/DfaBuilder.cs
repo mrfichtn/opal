@@ -28,12 +28,15 @@ namespace Opal.Dfa
 			return state;
 		}
 
-		public Dfa ToDfa()
+		public Dfa ToDfa(ILogger logger)
 		{
 			//ReduceEdges();
-			var dfaList = States.Select(x => x.ToNode()).ToList();
-			RemoveUnreachableStates(dfaList);
-			HopcroftAlgorithm(dfaList);
+			var dfaList = States
+                .Select(x => x.ToNode())
+                .ToList();
+			RemoveUnreachableStates(logger, dfaList);
+			//Reduce states, by combining states with equal transitions
+            HopcroftAlgorithm(logger, dfaList);
 
 			return new Dfa(matches, acceptingStates, dfaList);
 		}
@@ -57,7 +60,8 @@ namespace Opal.Dfa
 		///   reachable_states := reachable_states ∪ new_states;
 		///} while(new_states ≠ the empty set);
 		///unreachable_states := Q \ reachable_states;
-		private static void RemoveUnreachableStates(List<DfaNode> states)
+		private static void RemoveUnreachableStates(ILogger logger,
+            List<DfaNode> states)
 		{
             var unreachable = states.ToSet(x => x.Index);
             unreachable.Remove(0);
@@ -73,9 +77,18 @@ namespace Opal.Dfa
                 }
             }
 
-            foreach (var index in unreachable.OrderByDescending(x=>x))
+            var removed = 0;
+            foreach (var index in unreachable.OrderByDescending(x => x))
+            {
                 Remove(states, index);
-		}
+                removed++;
+            }
+            if (removed > 0)
+            {
+                logger.LogMessage(Importance.Low, "  Removed {0} duplicate DFA states", 
+                    removed);
+            }
+        }
 
         /// <summary>
         /// The Hopcroft - Karp algorithm reduces the number of states
@@ -98,82 +111,10 @@ namespace Opal.Dfa
         ///          end;
         ///     end;
         ///end;
-        private void HopcroftAlgorithm(List<DfaNode> states)
+        private void HopcroftAlgorithm(ILogger logger, List<DfaNode> states)
         {
-            var groupByAccepting = states.GroupBy(x => x.AcceptingState);
-
-            var P = new LinkedList<HashSet<int>>();
-            var Q = new LinkedList<HashSet<int>>();
-
-            foreach (var g in groupByAccepting)
-            {
-                var acceptingState = g.Key;
-                var dfaNodes = g.ToSet(x => x.Index);
-                if (acceptingState != 0)
-                    Q.AddLast(dfaNodes);
-                if (dfaNodes.Count > 1)
-                    P.AddLast(dfaNodes);
-            }
-
-            var X = new HashSet<int>();
-            while (Q.Count > 0)
-            {
-                var A = Q.Last();
-                Q.RemoveLast();
-                for (var c = 1; c < edges; c++)
-                {
-                    //X is the set of states for which a transition on c leads to a state in A
-                    X.CopyFrom(states.Where(x => A.Contains(x[c])).Select(x => x.Index));
-                    if (X.Count == 0)
-                        continue;
-                    for (var Y = P.First; Y != null; Y = Y.Next)
-                    {
-                        var intersection = X.Intersect(Y.Value);
-                        if ((intersection.Count == 0) || (intersection.Count == Y.Value.Count))
-                            continue;
-
-                        var disjointUnion = Y.Value.Difference(intersection);
-                        var oldY = Y.Value;
-
-                        //If we have sets of one, then we can simply remove them from P since there won't be any states
-                        //   to remove
-                        if (intersection.Count == 1)
-                        {
-                            if (disjointUnion.Count == 1)
-                                P.Remove(Y);
-                            else
-                                Y.Value = disjointUnion;
-                        }
-                        else
-                        {
-                            Y.Value = intersection;
-                            if (disjointUnion.Count > 1)
-                                P.AddAfter(Y, disjointUnion);
-                        }
-
-                        LinkedListNode<HashSet<int>>? yNode;
-                        for (yNode = Q.First; yNode != null; yNode = yNode.Next)
-                        {
-                            if (yNode.Value == oldY)
-                                break;
-                        }
-
-                        if (yNode != null)
-                        {
-                            yNode.Value = intersection;
-                            Q.AddAfter(yNode, disjointUnion);
-                        }
-                        else if (intersection.Count < disjointUnion.Count)
-                        {
-                            Q.AddLast(intersection);
-                        }
-                        else
-                        { 
-                            Q.AddLast(disjointUnion);
-                        }
-                    }
-                }
-            }
+            //var P = HopcraftAlgorithm.FindEquivalentStates(states, edges);
+            var P = HopcraftAlgorithm.FindEquivalentStates(states, edges);
 
             var toRemove = new Dictionary<int, int>();
             foreach (var X2 in P)
@@ -187,8 +128,16 @@ namespace Opal.Dfa
                 }
             }
 
+            var removed = 0;
             foreach (var pair in toRemove.OrderByDescending(x => x.Key))
+            {
                 Remove(states, pair.Value, pair.Key);
+                removed++;
+            }
+            if (removed > 0)
+                logger.LogMessage(Importance.Low, 
+                    "  Removed {0} duplicate DFA states",
+                    removed);
         }
 
         private static void Remove(List<DfaNode> states, int newIndex, int oldIndex)

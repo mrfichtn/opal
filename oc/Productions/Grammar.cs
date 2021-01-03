@@ -20,10 +20,8 @@ namespace Opal.Productions
             this.typeTable = typeTable;
         }
 
-        public bool TryFindDefault(string name, out string? type)
-        {
-            return typeTable.TryFind(name, out type);
-        }
+        public bool TryFindDefault(string name, out string? type) =>
+            typeTable.TryFind(name, out type);
 
         public string Start { get; }
 

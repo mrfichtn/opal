@@ -1,8 +1,4 @@
-﻿using Opal.Nfa;
-using Opal.Productions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
@@ -28,12 +24,14 @@ namespace Opal.ParseTree
                 item.DeclareToken(context);
         }
 
-        public void AddActionType(string name, ITypeTable typeTable)
+        public void AddActionType(DefinitionActionTypeContext context)
         {
-            if ((Action != null) && Action.TryGetType(out var type))
-                typeTable.AddSecondary(name, type!);
+            if (Action != null)
+            {
+                context.SetExpressions(Right);
+                Action.AddType(context);
+            }
         }
-
 
 
         public IEnumerable<ProductionExpr> Expressions => Right;

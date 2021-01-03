@@ -1,5 +1,4 @@
 ﻿using Opal.Productions;
-using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
@@ -13,10 +12,7 @@ namespace Opal.ParseTree
         public override void Write(ActionWriteContext context) =>
             context.Write(value.ToString());
 
-        public override bool TryGetType(out string? type)
-        {
-            type = "int";
-            return true;
-        }
+        public override void AddType(DefinitionActionTypeContext context) =>
+            context.Add("int");
     }
 }

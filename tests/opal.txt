@@ -138,7 +138,7 @@ Productions language
 	char_class_primary											<CharacterExpr>
 						= CharClass								{ new CharacterClass($0); }
 						| Identifier							{ new CharacterSymbol($0); }
-						| Char									{ new CharacterChar($0); }
+						| Char									{ new SingleChar($0); }
 
 	token_section	=											
 					| "Tokens" token_list						{ $1; }
@@ -179,7 +179,7 @@ Productions language
 	production	
 		= identifier production_attr_option '=' prod_def_list	{ new Production($0, $1, $3); }
 
-	production_attr_option	= production_attr
+	production_attr_option	= production_attr					{ $0; }
 							| ;
 	
 	production_attr	= '<' Identifier func_opt '>'				{ new ProductionAttr($1, $2); }
@@ -189,7 +189,7 @@ Productions language
 	
 	func_opt_arg_type =	| Identifier;
 
-	prod_def_list	
+	prod_def_list	                                            <ProdDefList>
 		=  prod_def_start prod_expr_list ';'					{ ProdDefList.Add($0, $1); }
 		|  prod_def_start prod_def								{ ProdDefList.Add($0, $1); }
 
@@ -212,7 +212,7 @@ Productions language
 						 | prod_expr_primary '?'				{ new QuestionProdExpr($0, $1); }
 						 ;
 
-	prod_expr_primary	= identifier							{ new SymbolProd($0); }
+	prod_expr_primary	= identifier							{ new SymbolProdExpr($0); }
 						| string_literal						{ new StringTokenProd($0: StringConst); }
 						| Char									{ new CharTokenProd($0: CharConst); }
 
@@ -232,7 +232,7 @@ Productions language
 	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
 						| Identifier							{ new ActionMember($0); }
 						| Integer                               { new ActionIntConstant($0); }
-						| string_literal                                { new ActionStringConstant($0: StringConst); }
+						| string_literal                        { new ActionStringConstant($0: StringConst); }
 						| Boolean                               { new ActionBoolConstant($0); }
 
 	action_cast = 
@@ -246,8 +246,8 @@ Productions language
 					|	generic_args ',' type					{ GenericArgs.Add($0, $2:Identifier); }
 				
 				
-	conflict_section	=
-						| "Conflicts" conflict_list
+	conflict_section	=                                       
+						| "Conflicts" conflict_list				{ $1; }
 						;
 
 	conflict_list		=										{ new ConflictList(); }
@@ -262,7 +262,7 @@ Productions language
 
 	CharClass = char_class										{ new CharClass($0); }
 	Char = char_string											{ new EscChar($0); }
-	string_literal = regular_string_literal						{ $0; }
+	string_literal = regular_string_literal						{ $0: StringConst; }
 	regular_string_literal = string								{ new EscString($0); }
 	Integer = integer											{ new DecInteger($0); }
 	Boolean = "true"											{ new BoolConst($0, true); }

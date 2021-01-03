@@ -19,10 +19,8 @@ namespace Opal.ParseTree
         { }
 
 
-        public virtual bool TryGetType(out string? type)
+        public virtual void AddType(DefinitionActionTypeContext context)
         {
-            type = null;
-            return false;
         }
     }
 }

@@ -53,6 +53,8 @@ namespace Opal.ParseTree
                     context.TypeTable.AddPrimary(prod.Name, type);
             }
 
+            context.TypeTable.Write("types.txt");
+
             return new Productions.Grammar(Start.Value,
                 context.Symbols,
                 list.ToArray(),

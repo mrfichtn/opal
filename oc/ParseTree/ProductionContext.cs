@@ -21,20 +21,26 @@ namespace Opal.ParseTree
         public void AddTerminals(IEnumerable<Nfa.Symbol> symbols)
         {
             foreach (var symbol in symbols)
+            {
                 this.symbols.Add(symbol);
+                TypeTable.AddPrimary(symbol.Name, "Token");
+            }
         }
 
         public void AddDeclarations(ProductionList prods)
         {
+            var typeContext = new ProductionActionTypeContext(TypeTable);
             foreach (var production in prods)
             {
                 symbols.Add(production);
-                production.AddActionType(TypeTable);
+                production.AddActionType(typeContext);
             }
 
             var context = new ImproptuDeclContext(symbols);
             foreach (var expr in prods.Expressions)
                 expr.AddImproptuDeclaration(context);
+
+            typeContext.Resolve();
         }
 
         public bool TryFind(string value, out int id, out bool isTerminal)

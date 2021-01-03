@@ -159,10 +159,9 @@ namespace Opal.ParseTree
                 builder.Append("<Token>");
         }
 
-        protected override void AddAttributeType(Productions.TypeTable typeTable, string option)
-        {
+        protected override void AddAttributeType(Productions.TypeTable typeTable, 
+            string option) =>
             typeTable.AddSecondary(Name, option);
-        }
 
     //public override bool Resolve(ITypeTable typeTable)
     //{

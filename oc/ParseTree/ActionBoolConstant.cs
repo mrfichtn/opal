@@ -11,10 +11,7 @@ namespace Opal.ParseTree
         public override void Write(ActionWriteContext context) =>
             context.Write(value.ToString());
 
-        public override bool TryGetType(out string? type)
-        {
-            type = "bool";
-            return true;
-        }
+        public override void AddType(DefinitionActionTypeContext context) =>
+            context.Add("bool");
     }
 }

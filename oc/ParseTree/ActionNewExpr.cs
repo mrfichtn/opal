@@ -15,10 +15,7 @@ namespace Opal.ParseTree
             base.Write(context);
         }
 
-        public override bool TryGetType(out string? type)
-        {
-            type = id.Value;
-            return true;
-        }
+        public override void AddType(DefinitionActionTypeContext context) =>
+            context.Add(id.Value);
     }
 }

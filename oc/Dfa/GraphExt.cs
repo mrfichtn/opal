@@ -7,7 +7,7 @@ namespace Opal.Dfa
 {
     public static class GraphExt
     {
-        public static Dfa ToDfa(this Graph graph)
+        public static Dfa ToDfa(this Graph graph, ILogger logger)
         {
             graph.Reduce();
 
@@ -53,7 +53,7 @@ namespace Opal.Dfa
                 }
             }
 
-            return builder.ToDfa();
+            return builder.ToDfa(logger);
         }
     }
 }
