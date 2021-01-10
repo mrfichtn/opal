@@ -123,11 +123,11 @@ namespace Opal.ParseTree
         //    }
         //}
 
-        public Productions.TerminalBase? MissingSymbol(Identifier name)
+        public Productions.TerminalBase MissingSymbol(Identifier name)
         {
             logger.LogError($"Missing symbol '{name}'",
                 name);
-            return null;
+            return new Productions.MissingSymbolTerminal(name);
         }
     }
 }

@@ -124,7 +124,7 @@ Productions language
 	character_list	=  character    							{ new CharacterList($0); }
 					|  character_list character     			{ CharacterList.Add($0, $1); }
 
-	character       = identifier '=' char_class_concat			{ new Character($0, $2: IMatch); }
+	character       = identifier '=' char_class_concat			{ new Character($0, $2); }
 
 	char_class_concat											<CharacterExpr>
 					  = char_class_unary						{ $0; }
@@ -206,7 +206,7 @@ Productions language
 	prod_expr_list =											{ new ProductionExprList(); }
 				   | prod_expr_list prod_expr					{ ProductionExprList.Add($0, $1: ProductionExpr); }
 
-	prod_expr	= prod_expr_quantifier production_attr_option	{ ProductionExpr.SetAttributes($0: ProductionExpr, $1: ProductionAttr); }
+	prod_expr	= prod_expr_quantifier 							{ $0: ProductionExpr; }
 
 	prod_expr_quantifier = prod_expr_primary						
 						 | prod_expr_primary '?'				{ new QuestionProdExpr($0, $1); }
@@ -229,14 +229,14 @@ Productions language
 				| action_expr									{ new ActionArgs($0: ActionExpr); }
 				| action_args ',' action_expr					{ ActionArgs.Add($0, $2: ActionExpr); }
 
-	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
+	action_primary_expr = action_arg     						{ $0; }
 						| Identifier							{ new ActionMember($0); }
 						| Integer                               { new ActionIntConstant($0); }
 						| string_literal                        { new ActionStringConstant($0: StringConst); }
 						| Boolean                               { new ActionBoolConstant($0); }
 
-	action_cast = 
-				| ':' Identifier								{ $1; }
+	action_arg = arg											{ new ActionArg($0); }
+	           | arg ':' Identifier                             { new CastedActionArg($0, $2); }
 
 	type	=	Identifier										{ $0:Identifier; }
 			|	Identifier '<' generic_args '>'					{ Identifier.MakeType($0:Identifier, $2:GenericArgs); }
@@ -246,7 +246,7 @@ Productions language
 					|	generic_args ',' type					{ GenericArgs.Add($0, $2:Identifier); }
 				
 				
-	conflict_section	=                                       
+	conflict_section	=                                       { new ConflictList(); }
 						| "Conflicts" conflict_list				{ $1; }
 						;
 

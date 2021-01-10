@@ -58,14 +58,17 @@ prod_def_list: ProdDefList
 prod_def_start: ProdDefList
 prod_def: ProdDef
 prod_expr_list: ProductionExprList
+prod_expr: ProductionExpr
 prod_expr_quantifier: QuestionProdExpr
-prod_expr_primary: SymbolProd
+prod_expr_primary: SymbolProdExpr
 action_stmt: ActionNullExpr
 action_expr: ActionNewExpr
 action_args: ActionArgs
-action_primary_expr: ActionArg
+action_primary_expr: ActionMember
+action_arg: ActionArg
 type: Identifier
 generic_args: GenericArgs
+conflict_section: ConflictList
 conflict_list: ConflictList
 conflict: Conflict
 Identifier: Identifier
@@ -80,4 +83,3 @@ option_section: OptionList
 token_section: TokenList
 production_attr_option: ProductionAttr
 prod_action: ActionNullExpr
-action_cast: Identifier

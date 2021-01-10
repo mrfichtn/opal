@@ -16,17 +16,12 @@ namespace Opal.Productions
         public TerminalBase(Identifier name, int id)
             : this(name, name.Value, id)
         {
-
         }
+
         public string Name { get; }
         public int Id { get; }
 
         public abstract bool IsTerminal { get; }
-        public bool Ignore { get; set; }
-        public string? PropName { get; set; }
-        public bool CallMethod { get; set; }
-        public Identifier? ArgType { get; set; }
-        public Identifier? Type { get; set; }
 
         public virtual void WriteType(StringBuilder finalArgs, string? @default)
         {}
@@ -49,9 +44,7 @@ namespace Opal.Productions
 
         public override void WriteType(StringBuilder builder, string? @default)
         {
-            if (!string.IsNullOrEmpty(PropName))
-                builder.Append('<').Append(PropName).Append('>');
-            else if (!string.IsNullOrEmpty(@default))
+            if (!string.IsNullOrEmpty(@default))
                 builder.Append('<').Append(@default).Append('>');
             else if (IsTerminal)
                 builder.Append("<Token>");
@@ -110,13 +103,20 @@ namespace Opal.Productions
 
         public override void WriteType(StringBuilder builder, string? @default)
         {
-            if (!string.IsNullOrEmpty(PropName))
-                builder.Append('<').Append(PropName).Append('>');
-            else if (!string.IsNullOrEmpty(@default))
+            if (!string.IsNullOrEmpty(@default))
                 builder.Append('<').Append(@default).Append('>');
             else if (IsTerminal)
                 builder.Append("<Token>");
         }
+    }
 
+    public class MissingSymbolTerminal: TerminalBase
+    {
+        public MissingSymbolTerminal(Identifier name)
+            : base(name, -1)
+        {
+        }
+
+        public override bool IsTerminal => false;
     }
 }

@@ -94,7 +94,7 @@ namespace Opal
             //        new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
 
-            var grammar = lang.BuildGrammar(parser.Logger, scanner.Symbols);
+            var grammar = lang.BuildGrammar(parser.Logger, scanner!.Symbols);
             if (grammar == null)
                 return false;
 

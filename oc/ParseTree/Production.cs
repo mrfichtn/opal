@@ -1,5 +1,4 @@
-﻿using Opal.Productions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -37,6 +36,22 @@ namespace Opal.ParseTree
         {
             foreach (var item in definitions)
                 item.DeclareTokens(context);
+        }
+
+        public Productions.AttributeBase BuildAttribute()
+        {
+            Productions.AttributeBase result;
+            if (attr == null)
+                result = new Productions.NoAttribute();
+            else if (attr.Option.Value == "ignore")
+                result = new Productions.IgnoreAttribute();
+            else if (attr.IsMethod)
+                result = new Productions.MethodAttribute(attr.Option);
+            else if (attr.Option.Value == "true" || attr.Option.Value == "false")
+                result = new Productions.ValueAttribute(attr.Option.Value);
+            else
+                result = new Productions.NewAttribute(attr.Option);
+            return result;
         }
 
         public IEnumerable<ProductionExpr> Expressions =>

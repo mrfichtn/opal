@@ -1,5 +1,5 @@
 ﻿using Generators;
-using System;
+using Opal.Containers;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,23 +32,19 @@ namespace Opal.Productions
         {
             var option = GetOption(noAction);
             generator.Indent(1);
+            var context = new ProductionWriteContext(generator, this, option);
             foreach (var item in Productions)
-                generator.Write(item, this, option);
+                item.Write(context);
             generator.UnIndent(1);
         }
 
-        private static NoActionOption GetOption(string noAction)
+        private static INoAction GetOption(string noAction)
         {
-            NoActionOption option;
-            if (string.IsNullOrEmpty(noAction))
-                option = NoActionOption.First;
-            else if (noAction.Equals("first", StringComparison.InvariantCultureIgnoreCase))
-                option = NoActionOption.First;
-            else if (noAction.Equals("tuple", StringComparison.InvariantCultureIgnoreCase))
-                option = NoActionOption.Tuple;
-            else
-                option = NoActionOption.Null;
-            return option;
+            if (noAction.EqualsI("null"))
+                return new NullNoAction();
+            if (noAction.EqualsI("tuple"))
+                return new TupleNoAction();
+            return new FirstNoAction();
         }
 
         public override string ToString()

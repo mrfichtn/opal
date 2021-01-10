@@ -5,8 +5,6 @@ namespace Opal.ParseTree
 {
     public abstract class ProductionExpr: Segment
     {
-        private ProductionAttr? attr;
-
         public ProductionExpr(Segment segment)
             : base(segment)
         {}
@@ -16,30 +14,15 @@ namespace Opal.ParseTree
         public virtual void DeclareToken(DeclareTokenContext context)
         {}
 
-        public Productions.TerminalBase? Build(ProductionContext context)
+        public Productions.TerminalBase Build(ProductionContext context)
         {
-            var symbol = Create(context);
-            if (symbol != null && attr != null)
-            {
-                switch (attr.Option.Value)
-                {
-                    case "ignore": symbol.Ignore = true; break;
-                    default: symbol.PropName = attr.Option.Value; break;
-                }
-                if (attr.IsMethod)
-                {
-                    symbol.CallMethod = true;
-                    if (attr.ArgType != null)
-                        symbol.Type = attr.ArgType;
-                }
-            }
-            return symbol;
+            return Create(context);
         }
 
         public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
         {}
 
-        protected abstract Productions.TerminalBase? Create(ProductionContext context);
+        protected abstract Productions.TerminalBase Create(ProductionContext context);
 
         #region Properties
 
@@ -60,40 +43,7 @@ namespace Opal.ParseTree
 
         #endregion
 
-
-        public static ProductionExpr SetAttributes(ProductionExpr expr, ProductionAttr attr)
-        {
-            expr.attr = attr;
-            return expr;
-        }
-
-        public void AddAttributeType(Productions.TypeTable typeTable)
-        {
-            if ((attr != null) && (attr.Option != null) &&
-                (attr.Option.Value != "ignore") && !attr.IsMethod)
-            {
-                AddAttributeType(typeTable, attr.Option.Value);
-            }
-        }
-
-        protected virtual void AddAttributeType(Productions.TypeTable typeTable,
-            string option)
-        {
-        }
-
-        //public override string ToString()
-        //{
-        //    return _quantifier switch
-        //    {
-        //        Quantifier.Plus => "+",
-        //        Quantifier.Question => "?",
-        //        Quantifier.Star => "*",
-        //        _ => string.Empty,
-        //    };
-        //}
-
-        //public virtual bool WriteSignature(IGenerator generator, bool wroteArg) =>
-        //    wroteArg;
+        public override string ToString() => Name;
 
         public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type) =>
             wroteArg;
@@ -126,8 +76,8 @@ namespace Opal.ParseTree
             if (context.TryFind(name.Value, out var id, out var isTerminal))
             {
                 return isTerminal ?
-                new Productions.TerminalSymbol(name, id) :
-                new Productions.NonTerminalSymbol(name, id);
+                    new Productions.TerminalSymbol(name, id) :
+                    new Productions.NonTerminalSymbol(name, id);
             }
             return context.MissingSymbol(name);
         }
@@ -158,20 +108,7 @@ namespace Opal.ParseTree
             else if (IsTerminal)
                 builder.Append("<Token>");
         }
-
-        protected override void AddAttributeType(Productions.TypeTable typeTable, 
-            string option) =>
-            typeTable.AddSecondary(Name, option);
-
-    //public override bool Resolve(ITypeTable typeTable)
-    //{
-    //    if (Type != null)
-    //    {
-    //        typeTable.AddSecondary(Name, Type.Value);
-    //    }
-    //    return true;
-    //}
-}
+    }
 
     public class StringTokenProd : ProductionExpr
     {
@@ -195,16 +132,6 @@ namespace Opal.ParseTree
             new Productions.TerminalString(text, name!, id);
 
         public override string ToString() => $"\"{text.Value.ToEsc()}\"";
-
-        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        //{
-        //    if (!Ignore)
-        //    {
-        //        generator.Write($"Token {PropName}");
-        //        wroteArg = true;
-        //    }
-        //    return wroteArg;
-        //}
 
         public override void WriteType(StringBuilder builder, string? @default)
         {
@@ -241,16 +168,6 @@ namespace Opal.ParseTree
 
         public override string ToString() => $"\'{Opal.Containers.Strings.ToEsc(ch.Value)}\'";
 
-        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        //{
-        //    if (!Ignore)
-        //    {
-        //        generator.Write($"Token {PropName}");
-        //        wroteArg = true;
-        //    }
-        //    return wroteArg;
-        //}
-
         public override void WriteType(StringBuilder builder, string? @default)
         {
             if (!string.IsNullOrEmpty(@default))
@@ -276,8 +193,6 @@ namespace Opal.ParseTree
         protected sealed override Productions.TerminalBase Create(ProductionContext context)
         {
             var symbol = expr.Build(context);
-            if (symbol == null)
-                return null;
             return Create(context, symbol);
         }
 
@@ -357,7 +272,5 @@ namespace Opal.ParseTree
         //        internalProds.AddOption(optionName, expr);
         //    return new SymbolProdExpr(segment, optionName);
         //}
-
-
     }
 }

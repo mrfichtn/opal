@@ -31,6 +31,8 @@ namespace Opal.ParseTree
 
             foreach (var prod in productions)
             {
+                var attr = prod.BuildAttribute();
+
                 context.TryFind(prod.Name.Value, out var id, out var isTerminal);
                 foreach (var definition in prod.Definitions)
                 {
@@ -39,20 +41,13 @@ namespace Opal.ParseTree
                         prod.Name,
                         id,
                         ruleId++,
-                        prod.Attribute,
+                        attr,
                         definition.Action,
                         terms);
                     list.Add(production);
                 }
             }
             
-            foreach (var prod in list)
-            {
-                var type = prod.Type;
-                if (!string.IsNullOrEmpty(type))
-                    context.TypeTable.AddPrimary(prod.Name, type);
-            }
-
             context.TypeTable.Write("types.txt");
 
             return new Productions.Grammar(Start.Value,

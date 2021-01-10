@@ -73,7 +73,7 @@ Symbols:
 [71] = action_expr
 [72] = action_args
 [73] = action_primary_expr
-[74] = action_cast
+[74] = action_arg
 [75] = type
 [76] = generic_args
 [77] = conflict_section
@@ -155,7 +155,7 @@ R64: optional_semicolon ->
 R65: optional_semicolon -> ;
 R66: prod_expr_list ->
 R67: prod_expr_list -> prod_expr_list prod_expr
-R68: prod_expr -> prod_expr_quantifier production_attr_option
+R68: prod_expr -> prod_expr_quantifier
 R69: prod_expr_quantifier -> prod_expr_primary
 R70: prod_expr_quantifier -> prod_expr_primary ?
 R71: prod_expr_primary -> identifier
@@ -170,13 +170,13 @@ R79: action_expr -> action_primary_expr
 R80: action_args ->
 R81: action_args -> action_expr
 R82: action_args -> action_args , action_expr
-R83: action_primary_expr -> arg action_cast
+R83: action_primary_expr -> action_arg
 R84: action_primary_expr -> Identifier
 R85: action_primary_expr -> Integer
 R86: action_primary_expr -> string_literal
 R87: action_primary_expr -> Boolean
-R88: action_cast ->
-R89: action_cast -> : Identifier
+R88: action_arg -> arg
+R89: action_arg -> arg : Identifier
 R90: type -> Identifier
 R91: type -> Identifier < generic_args >
 R92: generic_args -> type

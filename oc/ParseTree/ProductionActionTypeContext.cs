@@ -11,7 +11,7 @@ namespace Opal.ParseTree
         public ProductionActionTypeContext(TypeTable typeTable)
         {
             this.typeTable = typeTable;
-            this.missing = new MissingReferenceTable();
+            missing = new MissingReferenceTable();
         }
 
         public void Add(string productionName, string type) =>

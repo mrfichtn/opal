@@ -7,7 +7,7 @@ namespace Opal.ParseTree
 {
     public class ActionArg : ActionExpr
     {
-        private readonly int position;
+        protected readonly int position;
 
         public ActionArg(Token t) 
             : base(t)
@@ -15,27 +15,9 @@ namespace Opal.ParseTree
             position = int.Parse(t.Value.Substring(1));
         }
 
-        /// <summary>
-        /// action_primary_expr = arg action_cast		{ new ActionArg($0, $1: Identifier); }
-        /// </summary>
-        /// <param name="t">Token</param>
-        /// <param name="cast">Cast</param>
-        public ActionArg(Token t, Identifier cast)
-            : this(t)
-        {
-            Cast = cast;
-        }
 
-        public Identifier? Cast { get; private set; }
-
-
-        public override void AddType(DefinitionActionTypeContext context)
-        {
-            if (Cast != null)
-                context.Add(Cast.Value);
-            else
-                context.TryFind(position, this);
-        }
+        public override void AddType(DefinitionActionTypeContext context) =>
+            context.TryFind(position, this);
 
         /// <summary>
         /// True if written from production
@@ -45,47 +27,17 @@ namespace Opal.ParseTree
             //Attempt to find a default type
             var productionType = context.FindProductionType(position);
 
-            //If true, appends .Value to token to access token value
-            //  (production type is token and the user specified a 'string' cast)
-            var tokenValue = false;
-
             context.Write("At");
 
-            if (Cast == null)
-                NoCast(context, productionType);
-            else if (Cast.Value == "string")
-                tokenValue = StringCast(context, productionType);
-            else if (Cast.Value != "object")
-                ObjectCast(context);
-            
-            context.Write($"({position})")
-                .WriteIf(tokenValue, ".Value");
-        }
-
-        public static void NoCast(ActionWriteContext context, string? productionType)
-        {
             if ((productionType != null) && !context.Root)
                 context.Write("<{0}>", productionType);
-        }
-        public bool StringCast(ActionWriteContext context, string? productionType)
-        {
-            context.Write('<');
-            var tokenValue = (productionType == "Token");
-            if (tokenValue)
-                context.Write(productionType!);
-            else
-                context.Write(Cast!);
-            context.Write('>');
-            return tokenValue;
-        }
 
-        public void ObjectCast(ActionWriteContext context) =>
-            context.Write('<').Write(Cast!).Write(">");
+            context.Write($"({position})");
+        }
 
         public override string ToString() =>
             new StringBuilder('$')
                 .Append(position)
-                .AppendIf(Cast != null, Cast!.Value)
                 .ToString();
     }
 }
