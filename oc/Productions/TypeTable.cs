@@ -14,16 +14,14 @@ namespace Opal.Productions
 
         public void Write(string filePath)
         {
-            using (var stream = new StreamWriter(filePath))
+            using var stream = new StreamWriter(filePath);
+            foreach (var pair in data)
             {
-                foreach(var pair in data)
-                {
-                    stream.Write(pair.Key);
-                    stream.Write(": ");
-                    var found = pair.Value.TryGetType(out var type);
-                    stream.Write(found ? type : "(unknown)");
-                    stream.WriteLine();
-                }
+                stream.Write(pair.Key);
+                stream.Write(": ");
+                var found = pair.Value.TryGetType(out var type);
+                stream.Write(found ? type : "(unknown)");
+                stream.WriteLine();
             }
         }
 

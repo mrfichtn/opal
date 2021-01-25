@@ -32,7 +32,7 @@ namespace Opal.ParseTree
             var typeContext = new ProductionActionTypeContext(TypeTable);
             foreach (var production in prods)
             {
-                symbols.Add(production);
+                symbols.AddNonTerminal(production.Name.Value);
                 production.AddActionType(typeContext);
             }
 

@@ -1,9 +1,142 @@
-using System;
 using System.IO;
 
 namespace Generators
 {
-    public class Generator: GeneratorBase, IGenerator
+    public class Generator<T>: GeneratorBase
+        where T : Generator<T>
+    {
+        protected readonly T self;
+
+        public Generator(TextWriter stream, bool ownsStream = true)
+            : base(stream, ownsStream)
+        {
+            self = (this as T)!;
+        }
+
+        public Generator(string path)
+            : this(new StreamWriter(path))
+        {
+        }
+
+        public Generator()
+            : this(new StringWriter())
+        { }
+
+        public Generator(GeneratorBase generator)
+            : base(generator)
+        {
+            self = (this as T)!;
+        }
+
+
+        public T StartBlock()
+        {
+            WriteLine("{");
+            Indent();
+            return self;
+        }
+
+        public T EndBlock()
+        {
+            UnIndent();
+            WriteLine("}");
+            return self;
+        }
+
+        public T EndBlock(string extraText)
+        {
+            UnIndent();
+            WriteLine("}}{0}", extraText);
+            return self;
+        }
+
+        public T Indent(int indent = 1)
+        {
+            base.indent += indent;
+            return self;
+        }
+
+        public T UnIndent(int indent = 1)
+        {
+            base.indent -= indent;
+            return self;
+        }
+
+        public T Write(string? value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                WriteIndent();
+                WriteText(value);
+            }
+            return self;
+        }
+
+        public T Write(char value)
+        {
+            if ((value == '\r') || (value == '\n'))
+                indented = false;
+            else
+                WriteIndent();
+            WriteChar(value);
+            return self;
+        }
+
+        public T Write(string format, params object[] args)
+        {
+            WriteIndent();
+            WriteText(string.Format(format, args));
+            return self;
+        }
+
+        public T WriteLine(string value)
+        {
+            WriteIndent();
+            WriteText(value);
+            NewLine();
+            return self;
+        }
+
+        public T WriteLine(string format, params object[] args)
+        {
+            WriteIndent();
+            WriteText(string.Format(format, args));
+            NewLine();
+            return self;
+        }
+
+        public T WriteLine()
+        {
+            NewLine();
+            return self;
+        }
+
+        public T WriteBlock(string block)
+        {
+            if (!string.IsNullOrEmpty(block))
+            {
+                for (int i = 0; i < block.Length; i++)
+                {
+                    var ch = block[i];
+                    if (ch == '\n')
+                        indented = false;
+                    else
+                        WriteIndent();
+                    WriteChar(ch);
+                }
+            }
+            return self;
+        }
+        public T WriteEmptyBlock()
+        {
+            WriteLine("{");
+            WriteLine("}");
+            return self;
+        }
+    }
+
+
+    public class Generator: Generator<Generator>
     {
         public Generator(TextWriter stream, bool ownsStream = true)
             : base(stream, ownsStream)
@@ -19,140 +152,9 @@ namespace Generators
         {
         }
 
-        public Generator(Generator generator)
+        public Generator(GeneratorBase generator)
 			: base(generator)
         {
         }
-
-        public IGenerator StartBlock()
-        {
-            WriteLine("{");
-            Indent();
-			return this;
-        }
-
-        public IGenerator EndBlock()
-        {
-            UnIndent();
-            WriteLine("}");
-			return this;
-        }
-
-        public IGenerator EndBlock(string extraText)
-        {
-            UnIndent();
-            WriteLine("}}{0}", extraText);
-			return this;
-        }
-
-        public IGenerator Indent(int indent = 1)
-        {
-            _indent += indent;
-			return this;
-        }
-
-        public Generator UnIndent(int indent = 1)
-        {
-            _indent -= indent;
-            return this;
-        }
-
-        IGenerator IGenerator.UnIndent(int indent) => UnIndent(indent);
-
-        public IGenerator Write(string? value)
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                WriteIndent();
-                _stream.Write(value);
-            }
-            return this;
-        }
-
-        public Generator Write(char value)
-        {
-            if ((value == '\r') || (value == '\n'))
-            {
-                _indented = false;
-            }
-            else
-            {
-                WriteIndent();
-            }
-            _stream.Write(value);
-            return this;
-        }
-
-        public void WriteChar(char value)
-        {
-            _stream.Write(value);
-        }
-
-        IGenerator IGenerator.Write(char value) => Write(value);
-
-        public IGenerator Write(string format, params object[] args)
-        {
-            WriteIndent();
-            _stream.Write(format, args);
-            return this;
-        }
-        
-        public Generator WriteLine(string value)
-        {
-            WriteIndent();
-            _stream.WriteLine(value);
-            Line++;
-            _indented = false;
-			return this;
-        }
-        
-        public Generator WriteLine(string format, params object[] args)
-        {
-            WriteIndent();
-            _stream.WriteLine(format, args);
-            _indented = false;
-			return this;
-        }
-
-        IGenerator IGenerator.WriteLine(string value) => WriteLine(value);
-
-        public IGenerator WriteLine()
-        {
-            _stream.WriteLine();
-            _indented = false;
-            Line++;
-            return this;
-        }
-
-        public IGenerator WriteBlock(string block)
-        {
-            if (!string.IsNullOrEmpty(block))
-            {
-                for (int i = 0; i < block.Length; i++)
-                {
-                    var ch = block[i];
-                    if (ch == '\n')
-                        _indented = false;
-                    else
-                        WriteIndent();
-                    _stream.Write(ch);
-                }
-            }
-            return this;
-        }
-        public Generator WriteEmptyBlock()
-        {
-            WriteLine("{");
-            WriteLine("}");
-			return this;
-        }
-
-		public Generator Write(IGeneratable generatable)
-		{
-			if (generatable != null)
-                generatable.Write(this);
-			return this;
-		}
-        IGenerator IGenerator.Write(IGeneratable generatable) => Write(generatable);
     }
 }

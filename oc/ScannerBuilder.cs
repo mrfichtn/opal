@@ -65,13 +65,13 @@ namespace Opal
         public class ScannerWriter
         {
             private readonly Dfa.Dfa dfa;
-            private readonly IGeneratable scannerStates;
+            private readonly IDfaWriter scannerStates;
             private readonly Nfa.Symbol[] symbols;
             private readonly TokenStateWriterBase tokenStates;
 
             public ScannerWriter(Nfa.Graph graph,
                 Dfa.Dfa dfa,
-                IGeneratable scannerStatesWriter,
+                IDfaWriter scannerStatesWriter,
                 TokenStateWriterBase tokenStatesWriter)
             {
                 symbols = graph.Machine.AcceptingStates.Symbols.ToArray();

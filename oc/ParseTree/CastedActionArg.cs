@@ -1,5 +1,4 @@
-﻿using Opal.CodeGenerators;
-using Opal.Productions;
+﻿using Opal.Productions;
 using System.Text;
 
 namespace Opal.ParseTree
@@ -17,48 +16,35 @@ namespace Opal.ParseTree
         public override void AddType(DefinitionActionTypeContext context) =>
             context.Add(Cast.Value);
 
-        /// <summary>
-        /// True if written from production
-        /// </summary>
-        public override void Write(ActionWriteContext context)
-        {
-            //Attempt to find a default type
-            var productionType = context.FindProductionType(position);
-
-            //If true, appends .Value to token to access token value
-            //  (production type is token and the user specified a 'string' cast)
-            var tokenValue = false;
-
-            context.Write("At");
-
-            if (Cast.Value == "string")
-                tokenValue = StringCast(context, productionType);
-            else if (Cast.Value != "object")
-                ObjectCast(context);
-
-            context.Write($"({position})")
-                .WriteIf(tokenValue, ".Value");
-        }
-
-        private bool StringCast(ActionWriteContext context, string? productionType)
-        {
-            context.Write('<');
-            var tokenValue = (productionType == "Token");
-            if (tokenValue)
-                context.Write(productionType!);
-            else
-                context.Write(Cast);
-            context.Write('>');
-            return tokenValue;
-        }
-
-        private void ObjectCast(ActionWriteContext context) =>
-            context.Write('<').Write(Cast).Write(">");
-
         public override string ToString() =>
             new StringBuilder('$')
                 .Append(position)
                 .Append(Cast.Value)
                 .ToString();
+
+        public override IReductionExpr TopReduce(ReduceContext context) =>
+            Reduce(context);
+
+        public override IReductionExpr Reduce(ReduceContext context)
+        {
+            context.TryFindProductionType(position, out var productionType);
+
+            //If true, appends .Value to token to access token value
+            //  (production type is token and the user specified a 'string' cast)
+            if (Cast.Value == "string")
+            {
+                return (productionType == "Token") ?
+                    new FieldReductionExpr(new CastedArgReductionExpr(position, "Token"), "Value") :
+                    new CastedArgReductionExpr(position, Cast.Value);
+            }
+            else if (Cast.Value == "object")
+            {
+                return new ArgReductionExpr(position);
+            }
+            else
+            {
+                return new CastedArgReductionExpr(position, Cast.Value);
+            }
+        }
     }
 }

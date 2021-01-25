@@ -9,11 +9,8 @@ namespace Opal.ParseTree
         {
         }
 
-        public override void Write(ActionWriteContext context)
-        {
-            context.Write("new ");
-            base.Write(context);
-        }
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new NewReductionExpr(id.Value, args.Reduce(context));
 
         public override void AddType(DefinitionActionTypeContext context) =>
             context.Add(id.Value);

@@ -28,7 +28,8 @@ namespace Opal.Productions
         public Production[] Productions { get; }
         public List<Symbol> Symbols { get; }
 
-        public void Write(Generator generator, string noAction)
+        public void Write<T>(T generator, string noAction)
+            where T: Generator<T>
         {
             var option = GetOption(noAction);
             generator.Indent(1);
@@ -58,9 +59,8 @@ namespace Opal.Productions
 
     public static class GrammarExt
     {
-        public static IGenerator Write(this Generator generator, 
-            Grammar grammar, 
-            string noAction)
+        public static T Write<T>(this T generator, Grammar grammar, string noAction)
+            where T: Generator<T>
         {
             grammar.Write(generator, noAction);
             return generator;

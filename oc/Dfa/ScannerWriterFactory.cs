@@ -1,11 +1,8 @@
-﻿using Generators;
-using System.Collections.Generic;
-
-namespace Opal.Dfa
+﻿namespace Opal.Dfa
 {
     public interface IScannerWriterFactory
     {
-        IGeneratable Create(Dfa dfa, 
+        IDfaWriter Create(Dfa dfa, 
             ITableWriterFactory tableWriterFactory, 
             ISyntaxErrorHandler syntaxErrorHandler);
 
@@ -14,7 +11,7 @@ namespace Opal.Dfa
 
     public class StateScannerWriterFactory: IScannerWriterFactory
     {
-        public IGeneratable Create(Dfa dfa,
+        public IDfaWriter Create(Dfa dfa,
             ITableWriterFactory tableWriterFactory,
             ISyntaxErrorHandler syntaxErrorHandler) =>
             new DfaTableWriter(dfa, tableWriterFactory, syntaxErrorHandler);
@@ -27,7 +24,7 @@ namespace Opal.Dfa
 
     public class SwitchScannerWriterFactory: IScannerWriterFactory
     {
-        public IGeneratable Create(Dfa dfa, 
+        public IDfaWriter Create(Dfa dfa, 
             ITableWriterFactory tableWriterFactory,
             ISyntaxErrorHandler syntaxErrorHandler) =>
         new DfaSwitchWriter(dfa, syntaxErrorHandler);

@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 
 namespace Generators
 {
-    public interface ILanguage: IGenerator
+    public interface ILanguage
     {
         void AddReference(string reference);
         
@@ -28,20 +27,4 @@ namespace Generators
 
         void InlineComment(string comment);
     }
-
-    public enum PropertyAccess
-    {
-        Both,
-        ReadOnly,
-        WriteOnly
-    }
-
-    [Flags]
-    public enum ClassFlags
-    {
-        None = 0,
-        Static = 1,
-        Partial = 2,
-        Sealed = 3
-    };
 }

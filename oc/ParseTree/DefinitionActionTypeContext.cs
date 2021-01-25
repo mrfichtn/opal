@@ -24,12 +24,12 @@ namespace Opal.ParseTree
         public void SetExpressions(ProductionExprList expressions) =>
             this.expressions = expressions;
 
-        public bool TryFind(int index, ActionExpr action)
+        public bool AddFromActionExpr(int exprIndex)
         {
             bool result;
-            if (index < expressions.Count)
+            if (exprIndex < expressions.Count)
             {
-                var name = expressions[index].Name;
+                var name = expressions[exprIndex].Name;
                 result = typeTable.TryFind(name, out var type);
                 if (result)
                     typeTable.AddSecondary(productionName, type!);

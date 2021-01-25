@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Generators;
-using Opal.Logging;
 using Opal.ParseTree;
 
 namespace Opal.LR1
 {
     public class LR1Parser
 	{
-		private readonly Grammar _grammar;
+		private readonly Grammar grammar;
 
         public LR1Parser(ILogger logger, 
             Grammar grammar, 
             ConflictList conflicts)
 		{
-			_grammar = grammar;
+			this.grammar = grammar;
 			var endSymbol = grammar.Symbols[0];
 
             //Honalee Algorithm
@@ -22,11 +21,11 @@ namespace Opal.LR1
             var kernel = new LR1Item(grammar[0], 0, endSymbol);
             var startState = new State(0) { kernel };
             States = new States { startState };
-            startState.Closure(_grammar);
+            startState.Closure(this.grammar);
 
             var queue = new Queue<State>();
             queue.Enqueue(startState);
-            var actionBuilder = new ActionBuilder(_grammar);
+            var actionBuilder = new ActionBuilder(this.grammar);
 
             //Method2
             while (queue.Count > 0)
@@ -39,9 +38,9 @@ namespace Opal.LR1
                 grammar.Symbols,
                 logger);
 
-            Actions = actionBuilder.Build(logger, 
+            Actions = actionBuilder.Build(logger,
                 States, 
-                _grammar.Symbols,
+                this.grammar.Symbols,
                 resolver);
         }
 
@@ -70,7 +69,7 @@ namespace Opal.LR1
                     if (!States.TryGetId(newState, out var stateId))
                     {
                         States.Add(newState);
-                        newState.Closure(_grammar);
+                        newState.Closure(grammar);
                         queue.Enqueue(newState);
                         stateId = newState.Index;
                     }
@@ -86,9 +85,9 @@ namespace Opal.LR1
                 actionBuilder.AddReduce(state.Index, item.Lookahead.Id, item.Production.Id);
 		}
 
-        public void WriteSymbols(IGenerator generator)
+        public void WriteSymbols(Generator generator)
         {
-            var symbols = _grammar.Symbols;
+            var symbols = grammar.Symbols;
 
             var maxTerminal = symbols.Where(x => x.IsTerminal).Max(x => x.Id);
             generator.Indent(1)

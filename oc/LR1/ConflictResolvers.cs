@@ -1,10 +1,7 @@
-﻿using Microsoft.VisualStudio.TextManager.Interop;
-using Opal.ParseTree;
+﻿using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Opal.LR1
 {
@@ -21,7 +18,7 @@ namespace Opal.LR1
             {
                 if (symbols.TryFind(conflict.Symbol, out var symbol))
                 {
-                    var key = new Key(conflict.State, symbol.Id);
+                    var key = new Key(conflict.State, symbol!.Id);
                     var action = conflict.Shift ?
                         conflict.NextState :
                         -(int)(2 + conflict.NextState);
@@ -68,6 +65,9 @@ namespace Opal.LR1
                 return State == other.State &&
                     Symbol == other.Symbol;
             }
+
+            public override bool Equals(object? obj) =>
+                (obj is Key key) && Equals(key);
 
             public override int GetHashCode()
             {

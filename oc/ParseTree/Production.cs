@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Opal.ParseTree
@@ -55,7 +54,7 @@ namespace Opal.ParseTree
         }
 
         public IEnumerable<ProductionExpr> Expressions =>
-            definitions.SelectMany(x => x.Expressions);
+            definitions.SelectMany(x => x.Right);
 
         public void AddActionType(ProductionActionTypeContext context)
         {

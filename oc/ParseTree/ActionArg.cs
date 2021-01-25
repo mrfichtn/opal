@@ -1,6 +1,4 @@
-﻿using Opal.CodeGenerators;
-using Opal.Containers;
-using Opal.Productions;
+﻿using Opal.Productions;
 using System.Text;
 
 namespace Opal.ParseTree
@@ -17,23 +15,17 @@ namespace Opal.ParseTree
 
 
         public override void AddType(DefinitionActionTypeContext context) =>
-            context.TryFind(position, this);
+            context.AddFromActionExpr(position);
 
-        /// <summary>
-        /// True if written from production
-        /// </summary>
-        public override void Write(ActionWriteContext context)
+        public override IReductionExpr Reduce(ReduceContext context)
         {
-            //Attempt to find a default type
-            var productionType = context.FindProductionType(position);
-
-            context.Write("At");
-
-            if ((productionType != null) && !context.Root)
-                context.Write("<{0}>", productionType);
-
-            context.Write($"({position})");
+            return context.TryFindProductionType(position, out var type) ?
+                new CastedArgReductionExpr(position, type!) :
+                new ArgReductionExpr(position);
         }
+
+        public override IReductionExpr TopReduce(ReduceContext context) =>
+            new ArgReductionExpr(position);
 
         public override string ToString() =>
             new StringBuilder('$')

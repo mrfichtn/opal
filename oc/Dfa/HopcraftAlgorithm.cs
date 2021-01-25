@@ -212,7 +212,7 @@ namespace Opal.Dfa
             {
                 for (var i = 0; i < data.Count; i++)
                 {
-                    if (data[i].SetEquals(intersection))
+                    if (data[i].SetEquals(value))
                     {
                         data[i] = intersection;
                         Add(disjointUnion);

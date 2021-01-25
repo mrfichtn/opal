@@ -1,4 +1,5 @@
-﻿using Opal.Nfa;
+﻿using Opal.Containers;
+using Opal.Nfa;
 using System.Collections.Generic;
 
 namespace Opal.ParseTree
@@ -20,7 +21,8 @@ namespace Opal.ParseTree
             productions.AddStringTokens(context);
 
         public Productions.Grammar Build(Logger logger, 
-            IEnumerable<Symbol> symbols)
+            IEnumerable<Symbol> symbols,
+            Options options)
         {
             var context = new ProductionContext(logger);
             context.AddTerminals(symbols);
@@ -28,6 +30,8 @@ namespace Opal.ParseTree
 
             var list = new List<Productions.Production>();
             var ruleId = 0;
+
+            context.TypeTable.Write("types.txt");
 
             foreach (var prod in productions)
             {
@@ -37,23 +41,45 @@ namespace Opal.ParseTree
                 foreach (var definition in prod.Definitions)
                 {
                     var terms = definition.Build(context);
+                    
+                    options.TryGet("no_action", out var noAction);
+                    var reduceContext = new Productions.ReduceContext(
+                        context.TypeTable,
+                        terms,
+                        definition.Action,
+                        attr,
+                        GetOption(noAction),
+                        id);
+                    var reduction = reduceContext.Reduce();
+
                     var production = new Productions.Production(
                         prod.Name,
                         id,
                         ruleId++,
                         attr,
                         definition.Action,
-                        terms);
+                        terms,
+                        reduction);
                     list.Add(production);
                 }
             }
             
-            context.TypeTable.Write("types.txt");
+            context.TypeTable.Write("types2.txt");
 
             return new Productions.Grammar(Start.Value,
                 context.Symbols,
                 list.ToArray(),
                 context.TypeTable);
         }
+
+        private static Productions.INoAction GetOption(string? noAction)
+        {
+            if (noAction.EqualsI("null"))
+                return new Productions.NullNoAction();
+            if (noAction.EqualsI("tuple"))
+                return new Productions.TupleNoAction();
+            return new Productions.FirstNoAction();
+        }
+
     }
 }

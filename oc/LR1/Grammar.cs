@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Opal.LR1
 {
-    public class Grammar: IEnumerable<Rule>, IGeneratable
+    public class Grammar: IEnumerable<Rule>
 	{
         private readonly List<Rule> rules;
 
@@ -121,8 +121,8 @@ namespace Opal.LR1
 
 		public void Write(Generator generator)
 		{
-			foreach (var prod in rules)
-				prod.Write(generator);
+			foreach (var rule in rules)
+				generator.Write(rule);
 		}
 	}
 }

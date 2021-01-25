@@ -4,7 +4,7 @@ namespace Opal.ParseTree
 {
     public class ProductionAttr: Segment
     {
-        public ProductionAttr(Identifier option, FuncOption funcOpt)
+        public ProductionAttr(Identifier option, FuncOption? funcOpt)
             : base(option.Start, funcOpt?.End ?? option.End)
         {
             Option = option;
@@ -17,7 +17,7 @@ namespace Opal.ParseTree
         }
 
         public Identifier Option { get; }
-        public FuncOption FuncOpt { get; }
+        public FuncOption? FuncOpt { get; }
         public bool IsMethod { get; }
         public Identifier? ArgType { get; }
 

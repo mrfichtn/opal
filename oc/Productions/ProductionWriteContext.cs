@@ -2,9 +2,9 @@
 
 namespace Opal.Productions
 {
-    public class ProductionWriteContext: Generator
+    public class ProductionWriteContext: Generator<ProductionWriteContext>
     {
-        public ProductionWriteContext(Generator generator,
+        public ProductionWriteContext(GeneratorBase generator,
             Grammar grammar,
             INoAction noAction)
             : base(generator)

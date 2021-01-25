@@ -8,12 +8,10 @@ namespace Opal.LR1
 	{
 		///*state*/, /*lookahead*/
 		private readonly int[,] _data;
-		private readonly Symbols _symbols;
 
-		public Actions(int[,] data, Symbols symbols)
+		public Actions(int[,] data)
 		{
 			_data = data;
-			_symbols = symbols;
 		}
 
 		public ActionType GetAction(uint state, uint token, out uint arg)
@@ -37,7 +35,7 @@ namespace Opal.LR1
 			return actionType;
 		}
 
-		public void Write(IGenerator generator)
+		public void Write(Generator generator)
 		{
 			generator.Indent(1);
 			generator.WriteLine("private static readonly int[,] _actions = ");

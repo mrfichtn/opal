@@ -7,7 +7,7 @@ namespace Opal.LR1
     /// <summary>
     /// Represents a production
     /// </summary>
-    public class Rule: IGeneratable
+    public class Rule
 	{
         public Rule(Grammar grammar, int id, Symbol left, params Symbol[] right)
 		{
@@ -73,11 +73,6 @@ namespace Opal.LR1
             return firstSet;
         }
 
-		public void Write(Generator generator)
-		{
-			generator.WriteLine("Prod{0}", Left);
-		}
-
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -93,5 +88,12 @@ namespace Opal.LR1
                 builder.Append(item).Append(" ");
             builder.Length--;
         }
+    }
+
+    public static class RuleExt
+    {
+        public static T Write<T>(this Generator<T> generator, Rule rule)
+            where T : Generator<T> =>
+            generator.WriteLine($"Prod{rule.Left}");
     }
 }

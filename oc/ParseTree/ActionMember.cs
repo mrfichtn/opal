@@ -8,7 +8,7 @@ namespace Opal.ParseTree
         public ActionMember(Identifier id) =>
             this.id = id;
 
-        public override void Write(ActionWriteContext context) =>
-            context.Write(id);
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new ValueReductionExpr(id.Value);
     }
 }

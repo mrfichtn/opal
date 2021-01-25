@@ -75,7 +75,7 @@ namespace Opal.LR1
 				}
 			}
 
-			return new Actions(data, symbols);
+			return new Actions(data);
 		}
 
 		public void Add(int state, uint lookahead, int action)

@@ -9,10 +9,10 @@ namespace Opal.ParseTree
         public ActionStringConstant(StringConst value) =>
             this.value = value;
 
-        public override void Write(ActionWriteContext context) =>
-            context.Write(value.ToString());
-
         public override void AddType(DefinitionActionTypeContext context) =>
             context.Add("string");
+
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new StringReductionExpr(value.Value);
     }
 }

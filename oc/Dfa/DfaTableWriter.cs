@@ -4,7 +4,7 @@ using System;
 
 namespace Opal.Dfa
 {
-    public class DfaTableWriter: IGeneratable, ITemplateContext
+    public class DfaTableWriter: ITemplateContext, IDfaWriter
     {
         private readonly Dfa dfa;
         private readonly IClassTableWriter classWriter;

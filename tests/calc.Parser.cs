@@ -404,6 +404,7 @@ namespace CalcTest
 	        this.buffer = buffer;
 	        this.line = line;
 	        this.column = column;
+			this.prevLine = string.Empty;
 	        NextChar();
 	    }
 	
@@ -418,8 +419,6 @@ namespace CalcTest
 	        buffer.Dispose();
 	        GC.SuppressFinalize(this);
 	    }
-	
-	    public string FilePath { get; private set; }
 	
 	    /// <summary>Skipping ignore, returns next token</summary>
 	    public Token NextToken()

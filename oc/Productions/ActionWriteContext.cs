@@ -2,12 +2,12 @@
 
 namespace Opal.Productions
 {
-    public class ActionWriteContext: Generator
+    public class ActionWriteContext: Generator<ActionWriteContext>
     {
         private readonly Grammar grammar;
         private readonly Production production;
 
-        protected ActionWriteContext(Generator generator,
+        protected ActionWriteContext(GeneratorBase generator,
             Grammar grammar,
             Production production,
             INoAction noAction,
@@ -45,6 +45,8 @@ namespace Opal.Productions
         
         public Production Production => production;
 
+        public AttributeBase ProdAttr => Production.Attribute;
+
         public INoAction NoAction { get; }
 
         /// <summary>
@@ -66,11 +68,22 @@ namespace Opal.Productions
             return productionType;
         }
 
-        public new ActionWriteContext Write(IGeneratable generatable)
+        public bool TryFindProductionType(int position, out string? productionType)
         {
-            base.Write(generatable);
-            return this;
+            var isFound = (position < production.Right.Length);
+            if (isFound)
+            {
+                var prodExpr = production.Right[position];
+                isFound = grammar.TryFindDefault(prodExpr.Name, out productionType);
+            }
+            else
+            {
+                productionType = null;
+            }
+
+            return isFound;
         }
+
 
         public new ActionWriteContext Write(char ch)
         {

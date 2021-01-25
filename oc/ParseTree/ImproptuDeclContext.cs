@@ -2,7 +2,7 @@
 {
     public class ImproptuDeclContext
     {
-        private Productions.SymbolTable symbols;
+        private readonly Productions.SymbolTable symbols;
 
         public ImproptuDeclContext(Productions.SymbolTable symbols)
         {
@@ -13,7 +13,7 @@
 
         public void Add(Production production)
         {
-            symbols.Add(production);
+            symbols.AddNonTerminal(production.Name.Value);
             //Todo: add production
         }
     }

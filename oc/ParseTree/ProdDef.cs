@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Opal.ParseTree
+﻿namespace Opal.ParseTree
 {
     public class ProdDef
     {
@@ -30,9 +28,6 @@ namespace Opal.ParseTree
             context.SetExpressions(Right);
             Action.AddType(context);
         }
-
-
-        public IEnumerable<ProductionExpr> Expressions => Right;
 
         public Productions.ITerminals Build(ProductionContext context)
         {

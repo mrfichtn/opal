@@ -12,7 +12,7 @@ namespace Opal.ParseTree
             value = name.Value;
         }
 
-        public void Write(IGenerator generator)
+        public void Write(Generator generator)
         {
             generator.Write("using ")
                 .Write(value)

@@ -206,7 +206,7 @@ namespace Opal.Containers
             return result;
         }
 
-        public static bool EqualsI(this string left, string right) =>
+        public static bool EqualsI(this string? left, string? right) =>
             string.Equals(left, right, System.StringComparison.InvariantCultureIgnoreCase);
     }
 

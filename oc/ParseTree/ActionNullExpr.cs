@@ -10,7 +10,7 @@ namespace Opal.ParseTree
         public ActionNullExpr(Token t) : base(t)
         {}
 
-        public override void Write(ActionWriteContext context) =>
-            context.Write("null");
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new NullReductionExpr();
     }
 }

@@ -5,7 +5,7 @@ namespace Opal.Dfa
 {
     public abstract class TokenStateWriterBase
     {
-        public void Write(IGenerator generator, Dfa dfa)
+        public void Write(Generator generator, Dfa dfa)
         {
             generator.WriteLine("public class TokenStates")
                 .WriteLine("{")
@@ -16,12 +16,12 @@ namespace Opal.Dfa
                 .WriteLine("}");
         }
         
-        protected abstract void Write(IGenerator generator, AcceptingStates acceptingStates);
+        protected abstract void Write(Generator generator, AcceptingStates acceptingStates);
     }
 
     public class AllTokenStatesWriter: TokenStateWriterBase
     {
-        protected override void Write(IGenerator generator, AcceptingStates acceptingStates)
+        protected override void Write(Generator generator, AcceptingStates acceptingStates)
         {
             foreach (var state in acceptingStates.AllStates)
             {
@@ -35,7 +35,7 @@ namespace Opal.Dfa
 
     public class MinimumStatesWriter: TokenStateWriterBase
     {
-        protected override void Write(IGenerator generator, AcceptingStates acceptingStates)
+        protected override void Write(Generator generator, AcceptingStates acceptingStates)
         {
             generator.WriteLine("public const int SyntaxError = -1;")
                 .WriteLine("public const int Empty = 0;");

@@ -1,8 +1,8 @@
-﻿using Generators;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+
 
 namespace Opal.Productions
 {
@@ -11,8 +11,9 @@ namespace Opal.Productions
         TerminalBase this[int index] { get; }
         int Length { get; }
 
-        void Write(IGenerator generator, int id);
-        void WriteForEmptyAction(ActionWriteContext context);
+        IReductionExpr ReduceEmpty(ReduceContext context);
+
+        IReduction Reduce(ReduceContext context);
     }
 
     public class SingleTerminal: ITerminals
@@ -32,28 +33,18 @@ namespace Opal.Productions
         public IEnumerator<TerminalBase> GetEnumerator()
         {   yield return data; }
 
-        public void Write(IGenerator generator, int id)
-        {
-            generator.WriteLine($"items = 1;");
-            generator.Write($"state = Reduce({id}, ");
-        }
 
-        public void WriteForEmptyAction(ActionWriteContext context)
-        {
-            context.Production.Attribute.WriteEmptyAction(context, this);
-        }
-
-        public string Arg(Grammar grammar)
-        {
-            var arg = new StringBuilder();
-            grammar.TryFindDefault(data.Name, out var type);
-            arg.Append("At");
-            data.WriteType(arg, type);
-            arg.Append("(0)");
-            return arg.ToString();
-        }
+        public IReductionExpr ReduceEmpty(ReduceContext context) =>
+            context.Attr.Reduction(context, this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IReductionExpr Reduction(ReduceContext context) =>
+            //new ArgReductionExpr(0);
+            data.Reduce(context);
+
+        public IReduction Reduce(ReduceContext context) =>
+            new Reduce(1, context.Id, context.ReductionExpr());
     }
 
 
@@ -68,34 +59,18 @@ namespace Opal.Productions
 
         public TerminalBase this[int index] => data[index];
 
-        public void Write(IGenerator generator, int id)
-        {
-            generator.WriteLine($"items = {Length};");
-            generator.Write($"state = Reduce({id}, ");
-        }
-
         public IEnumerator<TerminalBase> GetEnumerator() =>
             (data as IList<TerminalBase>).GetEnumerator();
 
 
-        public void WriteForEmptyAction(ActionWriteContext context) =>
-            context.Production.Attribute.WriteEmptyAction(context, this);
+        public IReduction Reduce(ReduceContext context) =>
+            new Reduce(data.Length, context.Id, context.ReductionExpr());
 
-        public string ArgList(Grammar grammar)
-        {
-            var finalArgs = new StringBuilder();
-            for (var i = 0; i < data.Length; i++)
-            {
-                var right = data[i];
-                grammar.TryFindDefault(right.Name, out var type);
-                finalArgs.Append("At");
-                right.WriteType(finalArgs, type);
-                finalArgs
-                    .Append('(').Append(i).Append("),");
-            }
-            finalArgs.Length--;
-            return finalArgs.ToString();
-        }
+        public IReductionExpr[] Reduction(ReduceContext context) =>
+            data.Select(x => x.Reduce(context)).ToArray();
+
+        public IReductionExpr ReduceEmpty(ReduceContext context) =>
+            context.Attr.Reduction(context, this);
 
         IEnumerator IEnumerable.GetEnumerator() =>
             data.GetEnumerator();
@@ -115,10 +90,13 @@ namespace Opal.Productions
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Write(IGenerator generator, int id) =>
-            generator.Write($"state = Push({id}, ");
+        public IReduction Reduce(ReduceContext context) =>
+            new PushReduce(context.Id, context.ReductionExpr());
 
-        public void WriteForEmptyAction(ActionWriteContext context) =>
-            context.Production.Attribute.WriteEmptyAction(context);
+        public IReductionExpr ReduceEmpty(ReduceContext context) =>
+            context.Attr.Reduction(context);
+
+        public IReduction Reduction(ReduceContext context) =>
+            new PushReduce(context.Id, context.Attr.Reduction(context));
     }
 }

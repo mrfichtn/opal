@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Generators;
 
@@ -34,7 +33,7 @@ namespace Opal.Dfa
 
         #endregion
 
-        public void Write(IGenerator language)
+        public void Write(Generator language)
         {
             language.Write("State({0}", AcceptingState);
 
@@ -44,7 +43,7 @@ namespace Opal.Dfa
             language.WriteLine("),");
         }
 
-		public void WriteAsArray(IGenerator language)
+		public void WriteAsArray(Generator language)
 		{
 			language.Write(AcceptingState.ToString());
 			foreach (var item in next)

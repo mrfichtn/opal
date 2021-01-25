@@ -27,6 +27,16 @@ namespace Opal.Productions
         {}
 
         public override string ToString() => Name;
+
+        public IReductionExpr Reduce(ReduceContext context) =>
+            context.TryFindType(Name, out var type) ?
+                new CastedArgReductionExpr(0, type!) :
+                new ArgReductionExpr(0);
+
+        public virtual IReductionExpr Reduction(Grammar grammar) =>
+            grammar.TryFindDefault(Name, out var type) ?
+                new CastedArgReductionExpr(0, type!) :
+                new ArgReductionExpr(0);
     }
 
     public class TerminalSymbol: TerminalBase

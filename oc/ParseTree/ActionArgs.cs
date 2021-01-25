@@ -1,5 +1,6 @@
 ﻿using Opal.Productions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Opal.ParseTree
 {
@@ -11,29 +12,13 @@ namespace Opal.ParseTree
         public ActionArgs(ActionExpr arg) =>
             Add(arg);
 
+        public IReductionExpr[] Reduce(ReduceContext context) =>
+            this.Select(x => x.Reduce(context)).ToArray();
+
         public static ActionArgs Add(ActionArgs args, ActionExpr arg)
         {
             args.Add(arg);
             return args;
-        }
-    }
-
-    public static class ActionArgExt
-    {
-        public static ActionWriteContext Write(this ActionWriteContext context, 
-            ActionArgs args)
-        {
-            var isFirst = true;
-            var newContext = new ActionWriteContext(context);
-            foreach (var item in args)
-            {
-                if (isFirst) 
-                    isFirst = false; 
-                else 
-                    newContext.Write(',');
-                item.Write(newContext);
-            }
-            return context;
         }
     }
 }

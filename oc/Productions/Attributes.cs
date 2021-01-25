@@ -5,26 +5,26 @@ namespace Opal.Productions
 {
     public abstract class AttributeBase
     {
-        public virtual void WriteEmptyAction(ActionWriteContext context) =>
-            context.Write("null");
+        public virtual IReductionExpr Reduction(ReduceContext context) =>
+            new NullReductionExpr();
 
-        public virtual void WriteEmptyAction(ActionWriteContext context,
+        public virtual IReductionExpr Reduction(ReduceContext context,
             SingleTerminal terminal) =>
-            context.Write("At(0)");
-        
-        public abstract void WriteEmptyAction(ActionWriteContext context, 
+            new ArgReductionExpr(0);
+
+        public abstract IReductionExpr Reduction(ReduceContext context,
             Terminals terminals);
     }
 
     public class IgnoreAttribute: AttributeBase
     {
-        public override void WriteEmptyAction(ActionWriteContext context, 
-            SingleTerminal terminal)
-            => context.Write("null");
+        public override IReductionExpr Reduction(ReduceContext context,
+            SingleTerminal terminal) =>
+            new NullReductionExpr();
 
-        public override void WriteEmptyAction(ActionWriteContext context,
+        public override IReductionExpr Reduction(ReduceContext context,
             Terminals terminals) =>
-            context.Write("null");
+            new NullReductionExpr();
     }
 
     public class MethodAttribute: AttributeBase
@@ -34,26 +34,14 @@ namespace Opal.Productions
         public MethodAttribute(Identifier option) =>
             this.option = option;
 
-        public override void WriteEmptyAction(ActionWriteContext context, 
-            SingleTerminal terminal)
-        {
-            context
-                .Write(option)
-                .Write('(')
-                .Write(terminal.Arg(context.Grammar))
-                .Write(")");
-        }
+        public override IReductionExpr Reduction(ReduceContext context, 
+            SingleTerminal terminal) =>
+            new MethodReductionExpr(option.Value, terminal.Reduction(context));
 
-        public override void WriteEmptyAction(ActionWriteContext context,
-            Terminals terminals)
-        {
-            var args = terminals.ArgList(context.Grammar);
-            context
-                .Write(option)
-                .Write('(')
-                .Write(args)
-                .Write(")");
-        }
+        public override IReductionExpr Reduction(ReduceContext context,
+            Terminals terminals) =>
+            new MethodReductionExpr(option.Value,
+                terminals.Reduction(context));
     }
 
     public class ValueAttribute: AttributeBase
@@ -63,14 +51,16 @@ namespace Opal.Productions
         public ValueAttribute(string value) =>
             this.value = value;
 
-        public override void WriteEmptyAction(ActionWriteContext context) =>
-            context.Write("{0}", value);
+        public override IReductionExpr Reduction(ReduceContext context) =>
+            new ValueReductionExpr(value);
 
-        public override void WriteEmptyAction(ActionWriteContext context, SingleTerminal _) 
-            => WriteEmptyAction(context);
+        public override IReductionExpr Reduction(ReduceContext context, 
+            SingleTerminal terminal) =>
+            Reduction(context);
 
-        public override void WriteEmptyAction(ActionWriteContext context, Terminals _) => 
-            WriteEmptyAction(context);
+        public override IReductionExpr Reduction(ReduceContext context, 
+            Terminals terminals) =>
+            Reduction(context);
     }
 
     public class NewAttribute: AttributeBase
@@ -80,27 +70,20 @@ namespace Opal.Productions
         public NewAttribute(Identifier type) =>
             this.type = type.Value;
 
-        public override void WriteEmptyAction(ActionWriteContext context, SingleTerminal terminal)
-        {
-            context.Write("new {0}(", type)
-                    .Write(terminal.Arg(context.Grammar))
-                    .Write(")");
-        }
+        public override IReductionExpr Reduction(ReduceContext context,
+            SingleTerminal terminal) =>
+            new NewReductionExpr (type, terminal.Reduction(context));
 
-        public override void WriteEmptyAction(ActionWriteContext context, 
-            Terminals terminals)
-        {
-            var args = terminals.ArgList(context.Grammar);
-            context.Write("new {0}(", type)
-                    .Write(args)
-                    .Write(")");
-        }
+        public override IReductionExpr Reduction(ReduceContext context,
+            Terminals terminals) =>
+            new NewReductionExpr(type,
+                terminals.Reduction(context));
     }
 
     public class NoAttribute: AttributeBase
     {
-        public override void WriteEmptyAction(ActionWriteContext context, 
+        public override IReductionExpr Reduction(ReduceContext context, 
             Terminals terminals) =>
-            context.NoAction.Write(context, terminals);
+            context.NoAction.Reduce(context, terminals);
     }
 }

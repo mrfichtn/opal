@@ -5,13 +5,13 @@ namespace Generators
 {
     public static class BinaryExt
     {
-        public static void WriteCompressedArray(this IGenerator language, int size, int[] array)
+        public static void WriteCompressedArray(this Generator language, int size, int[] array)
         {
             var outStream = CompressArray(size, array);
             WriteArray(language, outStream);
         }
 
-        public static void WriteCompressedArray(this IGenerator language, int[,] array)
+        public static void WriteCompressedArray(this Generator language, int[,] array)
         {
             var size = 0;
             foreach (var a in array)
@@ -98,7 +98,7 @@ namespace Generators
             return outStream;
         }
 
-        public static void WriteArray(this IGenerator generator, Stream outStream)
+        public static void WriteArray(this Generator generator, Stream outStream)
         {
             var max = 16;
             generator.StartBlock();

@@ -10,11 +10,11 @@ namespace Opal
         private readonly Language language;
         private readonly Productions.Grammar grammar;
         private readonly LR1.LR1Parser lr1Parser;
-        private readonly string ns;
+        private readonly string? ns;
         private readonly ScannerBuilder.ScannerWriter scanner;
 
         public ParserTemplateContext(Options options,
-            string ns,
+            string? ns,
             Language language,
             Productions.Grammar grammar,
             LR1.LR1Parser lr1Parser,

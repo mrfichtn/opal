@@ -6,16 +6,15 @@ namespace Opal.Productions
     {
         private readonly ParseTree.Identifier name;
         private readonly ParseTree.ActionExpr action;
-        private bool ignore;
-        private ParseTree.Identifier? type;
-        private readonly bool callMethod;
+        private readonly IReduction reduction;
 
         public Production(ParseTree.Identifier name,
             int id,
             int ruleId,
             AttributeBase attr,
             ParseTree.ActionExpr action,
-            ITerminals right)
+            ITerminals right,
+            IReduction reduction)
         {
             this.name = name;
             Id = id;
@@ -23,8 +22,8 @@ namespace Opal.Productions
             Attribute = attr;
             this.action = action;
             Right = right;
+            this.reduction = reduction;
         }
-
 
         public string Name => name.Value;
         public int RuleId { get; set;  }
@@ -40,14 +39,16 @@ namespace Opal.Productions
                 .WriteLine($" // {this}")
                 .Indent();
 
-            Right.Write(context, Id);
-
-            action.Write(new ActionWriteContext(context, this, true));
-
-            context.WriteLine(");")
-                .WriteLine("break;")
+            reduction.Write(context);
+            context.WriteLine("break;")
                 .UnIndent();
-            //.EndBlock();
+            
+            //Right.WriteReduceProlog(context, Id);
+            //action.Write(new ActionWriteContext(context, this, true));
+
+            //context.WriteLine(");")
+            //    .WriteLine("break;")
+            //    .UnIndent();
         }
 
         public override string ToString()

@@ -5,7 +5,7 @@ namespace Opal.ParseTree
     public class ActionFuncExpr : ActionExpr
     {
         protected readonly Identifier id;
-        private readonly ActionArgs args;
+        protected readonly ActionArgs args;
         
         public ActionFuncExpr(Identifier id, ActionArgs args)
             : base(id)
@@ -14,13 +14,8 @@ namespace Opal.ParseTree
             this.args = args;
         }
 
-        public override void Write(ActionWriteContext context)
-        {
-            context
-                .Write(id)
-                .Write('(')
-                .Write(args)
-                .Write(')');
-        }
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new MethodReductionExpr(id.Value,
+                args.Reduce(context));
     }
 }

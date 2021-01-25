@@ -2,24 +2,20 @@
 
 namespace Opal.ParseTree
 {
-    public class ActionExpr : Segment
+    public abstract class ActionExpr : Segment
     {
-        public ActionExpr(Segment segment)
+        protected ActionExpr(Segment segment)
             : base(segment)
         { }
 
-        public ActionExpr()
+        protected ActionExpr()
         { }
 
         public static readonly ActionEmpty Empty = new ActionEmpty();
 
-        /// <summary>
-        /// Writes action code
-        /// </summary>
-        /// <param name="context">Write context</param>
-        public virtual void Write(ActionWriteContext context)
-        { 
-        }
+        public abstract IReductionExpr Reduce(ReduceContext context);
+        public virtual IReductionExpr TopReduce(ReduceContext context) =>
+            Reduce(context);
 
 
         public virtual void AddType(DefinitionActionTypeContext context)

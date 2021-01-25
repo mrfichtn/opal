@@ -6,7 +6,7 @@ namespace Opal.ParseTree
     /// <summary>
     /// Identifier
     /// </summary>
-    public class Identifier: Segment, IGeneratable
+    public class Identifier: Segment
     {
         public Identifier(Segment s, string value)
             : base(s)
@@ -46,10 +46,7 @@ namespace Opal.ParseTree
 
         public string Value { get; private set; }
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => Value;
 
         public static bool Equals(Identifier id1, Identifier id2)
         {
@@ -64,19 +61,17 @@ namespace Opal.ParseTree
             return result;
         }
 
-        public void Write(Generator generator)
-        {
-            generator.Write(Value);
-        }
+        public static string BuildList(string list, Identifier id2) =>
+            $"{list},{id2}";
 
-        public static string BuildList(string list, Identifier id2)
-        {
-            return string.Format("{0},{1}", list, id2);
-        }
+        public static Identifier MakeType(Identifier id, GenericArgs args) =>
+            new Identifier(id, string.Format("{0}<{1}>", id, args));
+    }
 
-        public static Identifier MakeType(Identifier id, GenericArgs args)
-        {
-            return new Identifier(id, string.Format("{0}<{1}>", id, args));
-        }
+    public static class IdentifierExt
+    {
+        public static T Write<T>(this T generator, Identifier id)
+            where T:Generator<T> =>
+            generator.Write(id.Value);
     }
 }

@@ -62,9 +62,10 @@ namespace Opal.ParseTree
         }
 
         public Productions.Grammar? BuildGrammar(Logger logger, 
-            IEnumerable<Symbol> symbols)
+            IEnumerable<Symbol> symbols,
+            Options options)
         {
-            return Productions.Build(logger, symbols);
+            return Productions.Build(logger, symbols, options);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Opal.Productions;
-using System;
 
 namespace Opal.ParseTree
 {

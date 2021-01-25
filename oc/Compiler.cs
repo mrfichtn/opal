@@ -1,7 +1,4 @@
 ﻿using Generators;
-using Opal.Containers;
-using Opal.Dfa;
-using Opal.ParseTree;
 using Opal.Templates;
 using System;
 using System.Collections.Generic;
@@ -94,7 +91,10 @@ namespace Opal
             //        new DfaSwitchWriter(dfa, syntaxErrorTokens);
 
 
-            var grammar = lang.BuildGrammar(parser.Logger, scanner!.Symbols);
+            var grammar = lang.BuildGrammar(parser.Logger, 
+                scanner!.Symbols,
+                options);
+
             if (grammar == null)
                 return false;
 

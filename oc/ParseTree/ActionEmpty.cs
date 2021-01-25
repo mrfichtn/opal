@@ -7,7 +7,7 @@ namespace Opal.ParseTree
     /// </summary>
     public class ActionEmpty: ActionExpr
     {
-        public override void Write(ActionWriteContext context) =>
-            context.Production.Right.WriteForEmptyAction(context);
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            context.ReduceEmpty();
     }
 }

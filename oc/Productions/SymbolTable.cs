@@ -25,13 +25,12 @@ namespace Opal.Productions
             symbols.Add(new Symbol(symbol.Name, true, symbol.Text));
         }
 
-        public void Add(ParseTree.Production production)
+        public void AddNonTerminal(string name)
         {
-            var name = production.Name.Value;
             if (!map.ContainsKey(name))
             {
                 map.Add(name, map.Count);
-                symbols.Add(new Symbol(production.Name.Value, false));
+                symbols.Add(new Symbol(name, false));
             }
         }
         public bool Contains(string key) => map.ContainsKey(key);

@@ -149,14 +149,16 @@ namespace Generators
             return builder;
         }
 
-        public static IGenerator WriteCharString(this IGenerator generator, int ch)
+        public static T WriteCharString<T>(this T generator, int ch)
+            where T: Generator<T>
         {
             return generator.Write('\'')
                 .WriteEscChar(ch)
                 .Write('\'');
         }
 
-        public static IGenerator WriteEscChar(this IGenerator generator, int ch)
+        public static T WriteEscChar<T>(this T generator, int ch)
+            where T: Generator<T>
         {
             switch (ch)
             {

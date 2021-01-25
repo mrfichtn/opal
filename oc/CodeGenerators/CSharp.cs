@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Generators
 {
-    public class CSharp: Generator, ILanguage
+    public class CSharp: Generator<CSharp>, ILanguage
     {
         public CSharp(string file)
             :   base(file)
@@ -138,10 +138,8 @@ namespace Generators
         }
 
 
-        public void InlineComment(string comment)
-        {
-            WriteLine(inlineComment(comment));
-        }
+        public void InlineComment(string comment) =>
+            WriteLine($"//{comment}");
 
         public void DeclareScalar(string type, string name, string? init = null)
         {
@@ -154,33 +152,16 @@ namespace Generators
 
         #endregion
 
-        private string inlineComment(string comment)
+        private static string ToString(AccessSpecifier specifier)
         {
-            return string.Format("//{0}", comment);
-        }
-
-        private string ToString(AccessSpecifier specifier)
-        {
-            string result;
-            switch (specifier)
+            return specifier switch
             {
-                case AccessSpecifier.Internal:
-                    result = "internal";
-                    break;
-                case AccessSpecifier.Private:
-                    result = "private";
-                    break;
-                case AccessSpecifier.Protected:
-                    result = "protected";
-                    break;
-                case AccessSpecifier.Public:
-                    result = "public";
-                    break;
-                default:
-                    result = string.Empty;
-                    break;
-            }
-            return result;
+                AccessSpecifier.Internal => "internal",
+                AccessSpecifier.Private => "private",
+                AccessSpecifier.Protected => "protected",
+                AccessSpecifier.Public => "public",
+                _ => string.Empty,
+            };
         }
     }
 }

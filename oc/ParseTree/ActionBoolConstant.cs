@@ -8,8 +8,8 @@ namespace Opal.ParseTree
         public ActionBoolConstant(BoolConst value) =>
             this.value = value;
 
-        public override void Write(ActionWriteContext context) =>
-            context.Write(value.ToString());
+        public override IReductionExpr Reduce(ReduceContext context) =>
+            new ValueReductionExpr(value.ToString());
 
         public override void AddType(DefinitionActionTypeContext context) =>
             context.Add("bool");

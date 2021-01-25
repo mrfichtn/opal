@@ -14,10 +14,8 @@ namespace Opal.ParseTree
         public virtual void DeclareToken(DeclareTokenContext context)
         {}
 
-        public Productions.TerminalBase Build(ProductionContext context)
-        {
-            return Create(context);
-        }
+        public Productions.TerminalBase Build(ProductionContext context) =>
+            Create(context);
 
         public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
         {}
@@ -45,7 +43,7 @@ namespace Opal.ParseTree
 
         public override string ToString() => Name;
 
-        public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type) =>
+        public virtual bool WriteArg(Generator generator, bool wroteArg, int index, string type) =>
             wroteArg;
 
         public virtual void WriteType(StringBuilder builder, string? @default)
@@ -90,7 +88,7 @@ namespace Opal.ParseTree
         //    return true;
         //}
 
-        public override bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
+        public override bool WriteArg(Generator generator, bool wroteArg, int index, string type)
         {
             if (wroteArg)
                 generator.Write(", ");
@@ -217,8 +215,10 @@ namespace Opal.ParseTree
 
             var definitions = new ProdDefList(
                 new ProdDef(new ProductionExprList(
-                    new SymbolProdExpr(expr, expr.Name))));
-            definitions.Add(new ProdDef());
+                    new SymbolProdExpr(expr, expr.Name))))
+            {
+                new ProdDef()
+            };
 
             var production = new Production(
                 new Identifier(this, baseName),

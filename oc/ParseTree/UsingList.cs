@@ -8,10 +8,8 @@ namespace Opal.ParseTree
     {
         private readonly List<Using> data;
         
-        public UsingList()
-        {
+        public UsingList() =>
             data = new List<Using>();
-        }
 
         public static UsingList Add(UsingList list, Using item)
         {
@@ -19,7 +17,7 @@ namespace Opal.ParseTree
             return list;
         }
 
-        public void Write(IGenerator generator)
+        public void Write(Generator generator)
         {
             foreach (var item in data)
                 item.Write(generator);

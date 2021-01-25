@@ -2,14 +2,14 @@ using Opal;
 using Opal.Nfa;
 using Opal.ParseTree;
 
-#nullable enable
+#nullable disable
 
 namespace Opal
 {
 	
 	public partial class Parser: ParserBase
 	{
-		private readonly string? srcFile;
+		private readonly string srcFile;
 		
 		public Parser(Scanner scanner)
 			: base(scanner, _maxTerminal, _symbols, _actions)
