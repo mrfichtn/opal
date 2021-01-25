@@ -8,6 +8,7 @@ namespace Opal.Productions
         private readonly TypeTable typeTable;
         private readonly ITerminals terminals;
         private readonly ActionExpr action;
+        private readonly INoAction noAction;
 
         public ReduceContext(TypeTable typeTable,
             ITerminals terminals,
@@ -20,12 +21,11 @@ namespace Opal.Productions
             this.terminals = terminals;
             this.action = action;
             Attr = attr;
-            NoAction = noAction;
+            this.noAction = noAction;
             Id = id;
         }
 
         public AttributeBase Attr { get; }
-        public INoAction NoAction { get; }
 
         public int Id { get; }
 
@@ -46,7 +46,11 @@ namespace Opal.Productions
         public bool TryFindType(string name, out string? type) =>
             typeTable.TryFind(name, out type);
 
-        public IReductionExpr ReduceEmpty() =>
-            terminals.ReduceEmpty(this);
+        public IReductionExpr ReduceEmpty() => terminals.ReduceEmpty(this);
+
+        public IReductionExpr AttrReduce() => Attr.Reduction(this);
+
+        public IReductionExpr DefaultReduce(Terminals terminals) =>
+            noAction.Reduce(this, terminals);
     }
 }

@@ -56,8 +56,6 @@ namespace Opal.ParseTree
                         prod.Name,
                         id,
                         ruleId++,
-                        attr,
-                        definition.Action,
                         terms,
                         reduction);
                     list.Add(production);

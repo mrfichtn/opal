@@ -1,5 +1,4 @@
 ﻿using Generators;
-using Opal.Containers;
 using System.Collections.Generic;
 using System.Text;
 
@@ -31,21 +30,10 @@ namespace Opal.Productions
         public void Write<T>(T generator, string noAction)
             where T: Generator<T>
         {
-            var option = GetOption(noAction);
             generator.Indent(1);
-            var context = new ProductionWriteContext(generator, this, option);
             foreach (var item in Productions)
-                item.Write(context);
+                item.Write(generator);
             generator.UnIndent(1);
-        }
-
-        private static INoAction GetOption(string noAction)
-        {
-            if (noAction.EqualsI("null"))
-                return new NullNoAction();
-            if (noAction.EqualsI("tuple"))
-                return new TupleNoAction();
-            return new FirstNoAction();
         }
 
         public override string ToString()
@@ -54,16 +42,6 @@ namespace Opal.Productions
             foreach (var production in Productions)
                 builder.Append(production).AppendLine();
             return builder.ToString();
-        }
-    }
-
-    public static class GrammarExt
-    {
-        public static T Write<T>(this T generator, Grammar grammar, string noAction)
-            where T: Generator<T>
-        {
-            grammar.Write(generator, noAction);
-            return generator;
         }
     }
 }

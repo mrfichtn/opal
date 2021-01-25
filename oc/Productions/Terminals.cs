@@ -94,9 +94,9 @@ namespace Opal.Productions
             new PushReduce(context.Id, context.ReductionExpr());
 
         public IReductionExpr ReduceEmpty(ReduceContext context) =>
-            context.Attr.Reduction(context);
+            context.AttrReduce();
 
         public IReduction Reduction(ReduceContext context) =>
-            new PushReduce(context.Id, context.Attr.Reduction(context));
+            new PushReduce(context.Id, ReduceEmpty(context));
     }
 }

@@ -82,8 +82,8 @@ namespace Opal.Productions
 
     public class NoAttribute: AttributeBase
     {
-        public override IReductionExpr Reduction(ReduceContext context, 
+        public override IReductionExpr Reduction(ReduceContext context,
             Terminals terminals) =>
-            context.NoAction.Reduce(context, terminals);
+            context.DefaultReduce(terminals);
     }
 }
