@@ -22,8 +22,6 @@ namespace Opal.ParseTree
                 .Append(Cast.Value)
                 .ToString();
 
-        public override IReductionExpr TopReduce(ReduceContext context) =>
-            Reduce(context);
 
         public override IReductionExpr Reduce(ReduceContext context)
         {

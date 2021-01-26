@@ -8,6 +8,6 @@ namespace Opal.ParseTree
     public class ActionEmpty: ActionExpr
     {
         public override IReductionExpr Reduce(ReduceContext context) =>
-            context.ReduceEmpty();
+            context.AttrReduce();
     }
 }

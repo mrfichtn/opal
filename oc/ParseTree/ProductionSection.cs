@@ -50,8 +50,8 @@ namespace Opal.ParseTree
                         attr,
                         GetOption(noAction),
                         id);
+                    
                     var reduction = reduceContext.Reduce();
-
                     var production = new Productions.Production(
                         prod.Name,
                         id,
@@ -62,8 +62,6 @@ namespace Opal.ParseTree
                 }
             }
             
-            context.TypeTable.Write("types2.txt");
-
             return new Productions.Grammar(Start.Value,
                 context.Symbols,
                 list.ToArray(),

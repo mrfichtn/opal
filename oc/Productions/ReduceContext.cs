@@ -1,5 +1,4 @@
 ﻿using Opal.ParseTree;
-using System;
 
 namespace Opal.Productions
 {
@@ -7,8 +6,10 @@ namespace Opal.Productions
     {
         private readonly TypeTable typeTable;
         private readonly ITerminals terminals;
-        private readonly ActionExpr action;
+        private readonly IReducer action;
         private readonly INoAction noAction;
+
+        private readonly AttributeBase attr;
 
         public ReduceContext(TypeTable typeTable,
             ITerminals terminals,
@@ -20,18 +21,22 @@ namespace Opal.Productions
             this.typeTable = typeTable;
             this.terminals = terminals;
             this.action = action;
-            Attr = attr;
+            this.attr = attr;
             this.noAction = noAction;
             Id = id;
         }
 
-        public AttributeBase Attr { get; }
-
         public int Id { get; }
 
-        public IReduction Reduce() => terminals.Reduce(this);
+        public IReduction Reduce() => terminals.Reduction(this);
 
-        public IReductionExpr ReductionExpr() => action.TopReduce(this);
+        public IReductionExpr ActionReduce() => action.Reduce(this);
+
+        public IReductionExpr AttrReduce() => attr.Reduce(this);
+
+        public IReductionExpr TerminalsReduce() => terminals.Reduce(this);
+
+        public IReductionExpr DefaultReduce() => noAction.Reduce(this);
 
         public bool TryFindProductionType(int position, out string? type)
         {
@@ -46,11 +51,6 @@ namespace Opal.Productions
         public bool TryFindType(string name, out string? type) =>
             typeTable.TryFind(name, out type);
 
-        public IReductionExpr ReduceEmpty() => terminals.ReduceEmpty(this);
-
-        public IReductionExpr AttrReduce() => Attr.Reduction(this);
-
-        public IReductionExpr DefaultReduce(Terminals terminals) =>
-            noAction.Reduce(this, terminals);
+        public IReductionExpr[] CreateArgs() => terminals.CreateArgs(this);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 
 namespace Opal.Productions
@@ -9,12 +8,24 @@ namespace Opal.Productions
     public interface ITerminals: IEnumerable<TerminalBase>
     {
         TerminalBase this[int index] { get; }
+
         int Length { get; }
 
-        IReductionExpr ReduceEmpty(ReduceContext context);
-
-        IReduction Reduce(ReduceContext context);
+        IReduction Reduction(ReduceContext context);
+        IReductionExpr Reduce(ReduceContext context);
     }
+
+    public static class TerminalsExt
+    {
+        public static IReductionExpr[] CreateArgs(this ITerminals terminals, ReduceContext context)
+        {
+            var result = new IReductionExpr[terminals.Length];
+            for (var i = 0; i < result.Length; i++)
+                result[i] = terminals[i].Reduce(context);
+            return result;
+        }
+    }
+
 
     public class SingleTerminal: ITerminals
     {
@@ -34,19 +45,13 @@ namespace Opal.Productions
         {   yield return data; }
 
 
-        public IReductionExpr ReduceEmpty(ReduceContext context) =>
-            context.Attr.Reduction(context, this);
-
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IReductionExpr Reduction(ReduceContext context) =>
-            //new ArgReductionExpr(0);
-            data.Reduce(context);
+        public IReduction Reduction(ReduceContext context) =>
+            new Reduce(1, context.Id, context.ActionReduce());
 
-        public IReduction Reduce(ReduceContext context) =>
-            new Reduce(1, context.Id, context.ReductionExpr());
+        public IReductionExpr Reduce(ReduceContext context) => new ArgReductionExpr(0);
     }
-
 
     public class Terminals: ITerminals
     {
@@ -59,18 +64,14 @@ namespace Opal.Productions
 
         public TerminalBase this[int index] => data[index];
 
+        public IReduction Reduction(ReduceContext context) =>
+            new Reduce(data.Length, context.Id, context.ActionReduce());
+
+        public IReductionExpr Reduce(ReduceContext context) => 
+            context.DefaultReduce();
+
         public IEnumerator<TerminalBase> GetEnumerator() =>
             (data as IList<TerminalBase>).GetEnumerator();
-
-
-        public IReduction Reduce(ReduceContext context) =>
-            new Reduce(data.Length, context.Id, context.ReductionExpr());
-
-        public IReductionExpr[] Reduction(ReduceContext context) =>
-            data.Select(x => x.Reduce(context)).ToArray();
-
-        public IReductionExpr ReduceEmpty(ReduceContext context) =>
-            context.Attr.Reduction(context, this);
 
         IEnumerator IEnumerable.GetEnumerator() =>
             data.GetEnumerator();
@@ -90,13 +91,9 @@ namespace Opal.Productions
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IReduction Reduce(ReduceContext context) =>
-            new PushReduce(context.Id, context.ReductionExpr());
-
-        public IReductionExpr ReduceEmpty(ReduceContext context) =>
-            context.AttrReduce();
-
         public IReduction Reduction(ReduceContext context) =>
-            new PushReduce(context.Id, ReduceEmpty(context));
+            new PushReduce(context.Id, context.ActionReduce());
+
+        public IReductionExpr Reduce(ReduceContext context) => new NullReductionExpr();
     }
 }

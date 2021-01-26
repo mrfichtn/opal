@@ -1,29 +1,29 @@
-﻿namespace Opal.Productions
+﻿using Opal.ParseTree;
+
+namespace Opal.Productions
 {
     /// <summary>
     /// Generates reduction statement when no action has been specified for a production
     /// </summary>
-    public interface INoAction
+    public interface INoAction: IReducer
     {
-        IReductionExpr Reduce(ReduceContext context, Terminals terminals);
     }
 
     public class NullNoAction: INoAction
     {
-        public IReductionExpr Reduce(ReduceContext context, Terminals terminals) =>
+        public IReductionExpr Reduce(ReduceContext context) =>
             new NullReductionExpr();
     }
 
     public class FirstNoAction: INoAction
     {
-        public IReductionExpr Reduce(ReduceContext context, Terminals terminals) =>
+        public IReductionExpr Reduce(ReduceContext context) =>
             new ArgReductionExpr(0);
     }
 
     public class TupleNoAction: INoAction
     {
-        public IReductionExpr Reduce(ReduceContext context, Terminals terminals) =>
-            new MethodReductionExpr("Tuple.Create",
-                terminals.Reduction(context));
+        public IReductionExpr Reduce(ReduceContext context) =>
+            new MethodReductionExpr("Tuple.Create", context.CreateArgs());
     }
 }

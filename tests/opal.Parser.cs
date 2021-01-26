@@ -290,7 +290,7 @@ namespace Opal
 					break;
 				case 68: // prod_expr = prod_expr_quantifier
 					items = 1;
-					state = Reduce(66, At<ProductionExpr>(0));
+					state = Reduce(66, At(0));
 					break;
 				case 69: // prod_expr_quantifier = prod_expr_primary
 					items = 1;
@@ -376,7 +376,7 @@ namespace Opal
 					break;
 				case 90: // type = Identifier
 					items = 1;
-					state = Reduce(75, At<Identifier>(0));
+					state = Reduce(75, At(0));
 					break;
 				case 91: // type = Identifier "<" generic_args ">"
 					items = 4;
@@ -426,7 +426,7 @@ namespace Opal
 					break;
 				case 103: // string_literal = regular_string_literal
 					items = 1;
-					state = Reduce(83, At<StringConst>(0));
+					state = Reduce(83, At(0));
 					break;
 				case 104: // regular_string_literal = string
 					items = 1;

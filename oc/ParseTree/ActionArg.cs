@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Opal.ParseTree
 {
-    public class ActionArg : ActionExpr
+    public class ActionArg : ActionExpr, IReducer
     {
         protected readonly int position;
 
@@ -13,6 +13,8 @@ namespace Opal.ParseTree
             position = int.Parse(t.Value.Substring(1));
         }
 
+        public ActionArg(int position) => 
+            this.position = position;
 
         public override void AddType(DefinitionActionTypeContext context) =>
             context.AddFromActionExpr(position);
@@ -24,7 +26,7 @@ namespace Opal.ParseTree
                 new ArgReductionExpr(position);
         }
 
-        public override IReductionExpr TopReduce(ReduceContext context) =>
+        IReductionExpr IReducer.Reduce(ReduceContext context) =>
             new ArgReductionExpr(position);
 
         public override string ToString() =>
