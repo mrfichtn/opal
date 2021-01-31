@@ -4,30 +4,24 @@ namespace Opal.ParseTree
 {
     public class ProductionAttr: Segment
     {
-        public ProductionAttr(Identifier option, FuncOption? funcOpt)
-            : base(option.Start, funcOpt?.End ?? option.End)
+        public ProductionAttr(Identifier type, bool nullable)
+            : base(type)
         {
-            Option = option;
-            FuncOpt = funcOpt;
-            if (funcOpt != null)
-            {
-                IsMethod = true;
-                ArgType = funcOpt.ArgType;
-            }
+            Type = type;
         }
 
-        public Identifier Option { get; }
-        public FuncOption? FuncOpt { get; }
-        public bool IsMethod { get; }
-        public Identifier? ArgType { get; }
+        public Identifier Type { get; }
+        public bool IsNullable { get; }
+
+        public NullableType NullableType =>
+            new NullableType(Type.Value, IsNullable);
 
         public override string ToString()
         {
             var builder = new StringBuilder();
-            if (Option != null)
-                builder.Append(Option);
-            if (FuncOpt != null)
-                builder.Append(FuncOpt);
+            builder.Append(Type);
+            if (IsNullable)
+                builder.Append('?');
             return builder.ToString();
         }
     }

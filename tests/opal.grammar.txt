@@ -58,7 +58,7 @@ Symbols:
 [56] = production
 [57] = production_attr_option
 [58] = production_attr
-[59] = func_opt
+[59] = nullable_opt
 [60] = func_opt_arg_type
 [61] = prod_def_list
 [62] = prod_def_start
@@ -140,9 +140,9 @@ R49: prod_list -> prod_list production
 R50: production -> identifier production_attr_option = prod_def_list
 R51: production_attr_option -> production_attr
 R52: production_attr_option ->
-R53: production_attr -> < Identifier func_opt >
-R54: func_opt ->
-R55: func_opt -> ( func_opt_arg_type )
+R53: production_attr -> < Identifier nullable_opt >
+R54: nullable_opt ->
+R55: nullable_opt -> ?
 R56: func_opt_arg_type ->
 R57: func_opt_arg_type -> Identifier
 R58: prod_def_list -> prod_def_start prod_expr_list ;

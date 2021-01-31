@@ -7,7 +7,7 @@ namespace Opal.ParseTree
         private readonly TypeTable typeTable;
         private readonly string productionName;
         private readonly MissingReferenceTable missing;
-        private ProductionExprList expressions;
+        private ProductionExprList? expressions;
         
         public DefinitionActionTypeContext(TypeTable typeTable,
             string productionName,
@@ -19,7 +19,7 @@ namespace Opal.ParseTree
         }
 
         public void Add(string typeName) =>
-            typeTable.AddSecondary(productionName, typeName);
+            typeTable.AddActionType(productionName, typeName);
 
         public void SetExpressions(ProductionExprList expressions) =>
             this.expressions = expressions;
@@ -27,12 +27,12 @@ namespace Opal.ParseTree
         public bool AddFromActionExpr(int exprIndex)
         {
             bool result;
-            if (exprIndex < expressions.Count)
+            if (exprIndex < expressions!.Count)
             {
                 var name = expressions[exprIndex].Name;
-                result = typeTable.TryFind(name, out var type);
+                result = typeTable.TryFindNullable(name, out var type);
                 if (result)
-                    typeTable.AddSecondary(productionName, type!);
+                    typeTable.AddActionType(productionName, type!);
                 else
                     missing.Add(productionName, name);
             }

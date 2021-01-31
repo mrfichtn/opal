@@ -10,9 +10,9 @@ namespace Opal.Productions
     public abstract class ReductionBase: IReduction
     {
         protected readonly int id;
-        protected readonly IReductionExpr expr;
+        protected readonly IReduceExpr expr;
         
-        public ReductionBase(int id, IReductionExpr expr)
+        public ReductionBase(int id, IReduceExpr expr)
         {
             this.expr = expr;
             this.id = id;
@@ -24,7 +24,7 @@ namespace Opal.Productions
 
     public class PushReduce: ReductionBase
     {
-        public PushReduce(int id, IReductionExpr expr)
+        public PushReduce(int id, IReduceExpr expr)
             : base(id, expr)
         {
         }
@@ -44,7 +44,7 @@ namespace Opal.Productions
     {
         private readonly int items;
         
-        public Reduce(int items, int id, IReductionExpr expr)
+        public Reduce(int items, int id, IReduceExpr expr)
             : base(id, expr)
         {
             this.items = items;

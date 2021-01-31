@@ -35,8 +35,6 @@ namespace Opal.ParseTree
 
             foreach (var prod in productions)
             {
-                var attr = prod.BuildAttribute();
-
                 context.TryFind(prod.Name.Value, out var id, out var isTerminal);
                 foreach (var definition in prod.Definitions)
                 {
@@ -47,7 +45,6 @@ namespace Opal.ParseTree
                         context.TypeTable,
                         terms,
                         definition.Action,
-                        attr,
                         GetOption(noAction),
                         id);
                     

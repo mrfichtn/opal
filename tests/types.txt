@@ -53,7 +53,7 @@ production_section: ProductionSection
 prod_list: ProductionList
 production: Production
 production_attr: ProductionAttr
-func_opt: FuncOption
+nullable_opt: bool
 prod_def_list: ProdDefList
 prod_def_start: ProdDefList
 prod_def: ProdDef

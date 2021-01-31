@@ -20,10 +20,11 @@ namespace Opal.ParseTree
 
         public void AddTerminals(IEnumerable<Nfa.Symbol> symbols)
         {
+            var tokenType = new NullableType("Token");
             foreach (var symbol in symbols)
             {
                 this.symbols.Add(symbol);
-                TypeTable.AddPrimary(symbol.Name, "Token");
+                TypeTable.TypeFromAttr(symbol.Name, tokenType);
             }
         }
 

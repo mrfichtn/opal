@@ -73,24 +73,6 @@ namespace Opal
                 logger, parser.Logger, lang, out var scanner))
                 return false;
 
-
-            //if (!lang.BuildNfa(parser.Logger, options, out var nfa))
-            //    return false;
-
-            //logger.LogMessage(Importance.Normal, "Building dfa");
-            //var dfa = nfa!.ToDfa();
-
-            //var emitStateScanner = (!options.TryGet("scanner", out var scannerValue) ||
-            //        scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
-
-            //var compressScanner = options.HasOption("scanner.compress") ?? true;
-            //var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
-
-            //var scannerWriter = emitStateScanner ?
-            //        new DfaStateWriter(dfa, compressScanner, syntaxErrorTokens) as IGeneratable :
-            //        new DfaSwitchWriter(dfa, syntaxErrorTokens);
-
-
             var grammar = lang.BuildGrammar(parser.Logger, 
                 scanner!.Symbols,
                 options);

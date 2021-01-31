@@ -1,8 +1,11 @@
-﻿namespace Opal.Productions
+﻿using Opal.ParseTree;
+
+namespace Opal.Productions
 {
     public interface ITypeTable
     {
-        bool AddPrimary(string name, string type);
-        void AddSecondary(string name, string type);
+        void TypeFromAttr(string name, NullableType nullable);
+        
+        void AddActionType(string name, string type);
     }
 }

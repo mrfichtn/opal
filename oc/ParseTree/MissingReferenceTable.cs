@@ -47,7 +47,7 @@ namespace Opal.ParseTree
             {
                 var result = typeTable.TryFind(expressionName, out var type);
                 if (result)
-                    typeTable.AddSecondary(productionName, type!);
+                    typeTable.AddActionType(productionName, type!);
                 return result;
             }
 

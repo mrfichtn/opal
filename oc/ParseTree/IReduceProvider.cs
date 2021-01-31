@@ -4,6 +4,6 @@ namespace Opal.ParseTree
 {
     public interface IReducer
     {
-        IReductionExpr Reduce(ReduceContext context);
+        IReduceExpr Reduce(ReduceContext context);
     }
 }

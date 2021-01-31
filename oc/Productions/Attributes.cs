@@ -5,13 +5,13 @@ namespace Opal.Productions
 {
     public abstract class AttributeBase
     {
-        public abstract IReductionExpr Reduce(ReduceContext context);
+        public abstract IReduceExpr Reduce(ReduceContext context);
     }
 
     public class IgnoreAttribute: AttributeBase
     {
-        public override IReductionExpr Reduce(ReduceContext context) =>
-            new NullReductionExpr();
+        public override IReduceExpr Reduce(ReduceContext context) =>
+            new ReduceNullExpr();
     }
 
     public class MethodAttribute: AttributeBase
@@ -21,8 +21,8 @@ namespace Opal.Productions
         public MethodAttribute(Identifier option) =>
             this.option = option;
 
-        public override IReductionExpr Reduce(ReduceContext context) =>
-            new MethodReductionExpr(option.Value, context.CreateArgs());
+        public override IReduceExpr Reduce(ReduceContext context) =>
+            new ReduceMethodExpr(option.Value, context.CreateArgs());
     }
 
     public class ValueAttribute: AttributeBase
@@ -32,8 +32,8 @@ namespace Opal.Productions
         public ValueAttribute(string value) =>
             this.value = value;
 
-        public override IReductionExpr Reduce(ReduceContext context) =>
-            new ValueReductionExpr(value);
+        public override IReduceExpr Reduce(ReduceContext context) =>
+            new ReduceValueExpr(value);
     }
 
     public class NewAttribute: AttributeBase
@@ -43,13 +43,13 @@ namespace Opal.Productions
         public NewAttribute(Identifier type) =>
             this.type = type.Value;
 
-        public override IReductionExpr Reduce(ReduceContext context) =>
-            new NewReductionExpr(type, context.CreateArgs());
+        public override IReduceExpr Reduce(ReduceContext context) =>
+            new ReduceNewExpr(type, context.CreateArgs());
     }
 
     public class NoAttribute: AttributeBase
     {
-        public override IReductionExpr Reduce(ReduceContext context) =>
+        public override IReduceExpr Reduce(ReduceContext context) =>
             context.TerminalsReduce();
     }
 }

@@ -13,15 +13,14 @@ namespace Opal.ParseTree
             missing = new MissingReferenceTable();
         }
 
-        public void Add(string productionName, string type) =>
-            typeTable.AddPrimary(productionName, type);
+        public void Add(string productionName, ProductionAttr attr) =>
+            typeTable.TypeFromAttr(productionName, attr.NullableType);
 
         public DefinitionActionTypeContext DefinitionContext(string productionName) =>
             new DefinitionActionTypeContext(typeTable,
                 productionName,
                 missing);
 
-        public void Resolve() => 
-            missing.Resolve(typeTable);
+        public void Resolve() => missing.Resolve(typeTable);
     }
 }

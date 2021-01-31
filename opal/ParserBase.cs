@@ -12,7 +12,7 @@ namespace Opal
 		private readonly int maxTerminal;
 		private readonly string[] symbols;
 		private readonly int[,] actions;
-		private LRStack _stack;
+		private LRStack stack;
 		protected int items;
 
 		protected ParserBase(ScannerBase scanner,
@@ -27,7 +27,7 @@ namespace Opal
 			this.scanner = scanner;
 			logger = new Logger(scanner);
 			peekToken = ImmutableQueue<Token>.Empty;
-			_stack = LRStack.Root;
+			stack = LRStack.Root;
 
 			Init();
 		}
@@ -55,7 +55,7 @@ namespace Opal
 			{
 				if (suppressError > 0) --suppressError;
 
-				var state = _stack.State;
+				var state = stack.State;
 				var actionType = GetAction(state, (uint)token.State, out var result);
 
 				switch (actionType)
@@ -78,16 +78,16 @@ namespace Opal
 						var reducedState = Reduce(rule);
 						if (rule == 0)
 						{
-							Root = _stack.Value;
+							Root = stack.Value;
 							return !logger.HasErrors;
 						}
-						if (GetAction(reducedState, _stack.State, out result) == ActionType.Error)
+						if (GetAction(reducedState, stack.State, out result) == ActionType.Error)
 							goto case ActionType.Error;
-						_stack = _stack.Replace(result);
+						stack = stack.Replace(result);
 						break;
 
 					case ActionType.Shift:
-						_stack = _stack.Shift(result, token);
+						stack = stack.Shift(result, token);
 						token = NextToken();
 						break;
 				}
@@ -180,7 +180,7 @@ namespace Opal
 				var nextToken = PeekToken();
 				if (nextToken.State >= 0)
 				{
-					_stack.GetState(0, out var newState);
+					stack.GetState(0, out var newState);
 					if (actions[newState, nextToken.State] != -1)
 					{
 						token = NextToken();
@@ -191,11 +191,11 @@ namespace Opal
 
 			while (true)
 			{
-				for (var i = 0; _stack.GetState(i, out var newState); i++)
+				for (var i = 0; stack.GetState(i, out var newState); i++)
 				{
 					if (actions[newState, token.State] != -1)
 					{
-						_stack = _stack.Pop(i);
+						stack = stack.Pop(i);
 						return true;
 					}
 				}
@@ -208,20 +208,20 @@ namespace Opal
 
 		protected T? At<T>(int index) => (T)At(index);
 
-		protected object? At(int index) => _stack[items - index - 1].Value;
+		protected object? At(int index) => stack[items - index - 1].Value;
 
 		protected uint Reduce(uint state, object? value)
 		{
-			var oldStack = _stack[items];
+			var oldStack = stack[items];
 			var newState = oldStack.State;
-			_stack = new LRStack(state, value, oldStack);
+			stack = new LRStack(state, value, oldStack);
 			return newState;
 		}
 
 		protected uint Push(uint state, object? value)
 		{
-			var oldState = _stack.State;
-			_stack = new LRStack(state, value, _stack);
+			var oldState = stack.State;
+			stack = new LRStack(state, value, stack);
 			return oldState;
 		}
 	}

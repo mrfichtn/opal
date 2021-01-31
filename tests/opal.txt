@@ -15,6 +15,7 @@ Options
 	no.logger				= true
 	no.lrstack				= true
 	syntax.error.tokens     = true
+	//nullable				= "disable"
 
 Characters
 	char_class_ctrl 		= [\[\]\^\\]
@@ -182,10 +183,10 @@ Productions language
 	production_attr_option	= production_attr					{ $0; }
 							| ;
 	
-	production_attr	= '<' Identifier func_opt '>'				{ new ProductionAttr($1, $2); }
+	production_attr	= '<' Identifier nullable_opt '>'			{ new ProductionAttr($1, $2); }
 		
-	func_opt	=	
-				| '(' func_opt_arg_type ')'						{ new FuncOption($0, $1: Identifier); }
+	nullable_opt =												{ false; }
+				 | '?'											{ true; }
 	
 	func_opt_arg_type =	| Identifier;
 
@@ -236,7 +237,7 @@ Productions language
 						| Boolean                               { new ActionBoolConstant($0); }
 
 	action_arg = arg											{ new ActionArg($0); }
-	           | arg ':' Identifier                             { new CastedActionArg($0, $2); }
+	           | arg ':' Identifier                             { ActionArgCasted.Create($0, $2); }
 
 	type	=	Identifier										{ $0:Identifier; }
 			|	Identifier '<' generic_args '>'					{ Identifier.MakeType($0:Identifier, $2:GenericArgs); }

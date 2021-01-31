@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Opal.ParseTree;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Opal.Productions
@@ -19,8 +20,7 @@ namespace Opal.Productions
             {
                 stream.Write(pair.Key);
                 stream.Write(": ");
-                var found = pair.Value.TryGetType(out var type);
-                stream.Write(found ? type : "(unknown)");
+                stream.Write(pair.Value.Nullable());
                 stream.WriteLine();
             }
         }
@@ -35,65 +35,139 @@ namespace Opal.Productions
             return isOk;
         }
 
-        public bool AddPrimary(string name, string type)
+
+        public bool TryFindNullable(string name, out NullableType? type)
+        {
+            var isOk = data.TryGetValue(name, out var rec);
+            if (isOk)
+                isOk = rec!.TryGetNullable(out type);
+            else
+                type = null;
+            return isOk;
+        }
+
+        public void TypeFromAttr(string name, NullableType nullable)
         {
             if (!data.TryGetValue(name, out var rec))
             {
                 rec = new TypeRec();
                 data.Add(name, rec);
             }
-            return rec.SetPrimary(type);
+            rec.AddPrimary(nullable);
         }
 
-        public void AddSecondary(string name, string type)
+        public void AddActionType(string name, string type)
         {
             if (!data.TryGetValue(name, out var rec))
             {
                 rec = new TypeRec();
                 data.Add(name, rec);
             }
-            rec.SetSecondary(type);
+            rec.AddSecondary(type);
         }
 
+        public void AddActionType(string name, NullableType type)
+        {
+            if (!data.TryGetValue(name, out var rec))
+            {
+                rec = new TypeRec();
+                data.Add(name, rec);
+            }
+            rec.AddSecondary(type);
+        }
 
         class TypeRec
         {
-            private string? primary;
-            private string? secondary;
+            private readonly List<string> primary;
+            private bool primaryNullable;
+
+            private readonly List<string> secondary;
+            private bool secondaryNullable;
 
             public TypeRec()
             {
+                primary = new List<string>();
+                secondary = new List<string>();
             }
 
-            public bool SetPrimary(string type)
+            public bool AddPrimary(NullableType nullable)
             {
                 var ok = true;
-                if (primary == null)
-                    primary = type;
-                else if (primary != type)
-                    ok = false;
+
+                if (!primary.Contains(nullable.TypeName))
+                    primary.Add(nullable.TypeName);
+                if (nullable.Nullable)
+                    primaryNullable = true;
                 return ok;
             }
 
-            public void SetSecondary(string type)
+            public void AddSecondary(string type)
             {
-                if (secondary == null)
-                    secondary = type;
+                secondary.Add(type);
             }
 
-            public bool TryGetType(out string? type)
+            public void AddSecondary(NullableType type)
             {
-                var ok = !string.IsNullOrEmpty(primary);
-                if (ok)
+                if (type != null)
                 {
-                    type = primary!;
+                    secondary.Add(type.TypeName);
+                    if (type.Nullable)
+                        secondaryNullable = true;
                 }
                 else
                 {
-                    ok = !string.IsNullOrEmpty(secondary);
-                    type = ok ? secondary : null;
+                    secondaryNullable = true;
+                }
+            }
+
+
+            public bool TryGetType(out string? type)
+            {
+                var ok = primary.Count > 0;
+                if (ok)
+                {
+                    type = primary[0];
+                }
+                else if (secondary.Count > 0)
+                {
+                    ok = true;
+                    type = secondary[0];
+                }
+                else 
+                {
+                    type = null;
                 }
                 return ok;
+            }
+
+            public string Nullable()
+            {
+                string result;
+                if (primary.Count > 0)
+                {
+                    result = primary[0];
+                    if (primaryNullable)
+                        result += "?";
+                }
+                else if (secondary != null)
+                {
+                    result = secondary[0];
+                }
+                else
+                {
+                    result = "(unknown)";
+                }
+                return result;
+            }
+
+            public bool TryGetNullable(out NullableType? type)
+            {
+                type = (primary.Count > 0) ?
+                    new NullableType(primary[0], primaryNullable) : 
+                    (secondary.Count > 0) ?
+                    new NullableType(secondary[0], secondaryNullable) : 
+                    null;
+                return (type != null);
             }
         }
     }

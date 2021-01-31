@@ -1063,7 +1063,7 @@ S72: (Transition = identifier)
     production: identifier · production_attr_option = prod_def_list, @Conflicts => 91
     production_attr_option: · production_attr, = => 92
     production_attr_option: ·, =
-    production_attr: · < Identifier func_opt >, = => 93
+    production_attr: · < Identifier nullable_opt >, = => 93
 
 S73: (Transition = token_expr)
     token: identifier token_attr = token_expr · ;, identifier => 94
@@ -1606,16 +1606,16 @@ S92: (Transition = production_attr)
     production_attr_option: production_attr ·, =
 
 S93: (Transition = <)
-    production_attr: < · Identifier func_opt >, = => 117
+    production_attr: < · Identifier nullable_opt >, = => 117
     Identifier: · identifier, ＄ => 118
     Identifier: · identifier, = => 118
     Identifier: · identifier, > => 118
-    Identifier: · identifier, ( => 118
+    Identifier: · identifier, ? => 118
     Identifier: · identifier, . => 118
     Identifier: · Identifier . identifier, ＄ => 117
     Identifier: · Identifier . identifier, = => 117
     Identifier: · Identifier . identifier, > => 117
-    Identifier: · Identifier . identifier, ( => 117
+    Identifier: · Identifier . identifier, ? => 117
     Identifier: · Identifier . identifier, . => 117
 
 S94: (Transition = ;)
@@ -2377,20 +2377,20 @@ S116: (Transition = =)
     prod_def_start: · prod_def_start prod_def |, @Conflicts => 133
 
 S117: (Transition = Identifier)
-    production_attr: < Identifier · func_opt >, = => 134
-    func_opt: ·, >
-    func_opt: · ( func_opt_arg_type ), > => 136
+    production_attr: < Identifier · nullable_opt >, = => 134
+    nullable_opt: ·, >
+    nullable_opt: · ?, > => 136
     Identifier: Identifier · . identifier, ＄ => 135
     Identifier: Identifier · . identifier, = => 135
     Identifier: Identifier · . identifier, > => 135
-    Identifier: Identifier · . identifier, ( => 135
+    Identifier: Identifier · . identifier, ? => 135
     Identifier: Identifier · . identifier, . => 135
 
 S118: (Transition = identifier)
     Identifier: identifier ·, ＄
     Identifier: identifier ·, =
     Identifier: identifier ·, >
-    Identifier: identifier ·, (
+    Identifier: identifier ·, ?
     Identifier: identifier ·, .
 
 S119: (Transition = token_quantifier)
@@ -2865,24 +2865,18 @@ S133: (Transition = prod_def_start)
     prod_expr_list: · prod_expr_list prod_expr, | => 144
     prod_expr_list: · prod_expr_list prod_expr, { => 144
 
-S134: (Transition = func_opt)
-    production_attr: < Identifier func_opt · >, = => 146
+S134: (Transition = nullable_opt)
+    production_attr: < Identifier nullable_opt · >, = => 146
 
 S135: (Transition = .)
     Identifier: Identifier . · identifier, ＄ => 147
     Identifier: Identifier . · identifier, = => 147
     Identifier: Identifier . · identifier, > => 147
-    Identifier: Identifier . · identifier, ( => 147
+    Identifier: Identifier . · identifier, ? => 147
     Identifier: Identifier . · identifier, . => 147
 
-S136: (Transition = ()
-    func_opt: ( · func_opt_arg_type ), > => 148
-    func_opt_arg_type: ·, )
-    func_opt_arg_type: · Identifier, ) => 149
-    Identifier: · identifier, ) => 150
-    Identifier: · identifier, . => 150
-    Identifier: · Identifier . identifier, ) => 149
-    Identifier: · Identifier . identifier, . => 149
+S136: (Transition = ?)
+    nullable_opt: ? ·, >
 
 S137: (Transition = })
     token_quantifier: token_primary { Integer } ·, identifier
@@ -2894,13 +2888,13 @@ S137: (Transition = })
     token_quantifier: token_primary { Integer } ·, (
 
 S138: (Transition = ,)
-    token_quantifier: token_primary { Integer , · Integer }, identifier => 151
-    token_quantifier: token_primary { Integer , · Integer }, char_class => 151
-    token_quantifier: token_primary { Integer , · Integer }, string => 151
-    token_quantifier: token_primary { Integer , · Integer }, char_string => 151
-    token_quantifier: token_primary { Integer , · Integer }, ; => 151
-    token_quantifier: token_primary { Integer , · Integer }, | => 151
-    token_quantifier: token_primary { Integer , · Integer }, ( => 151
+    token_quantifier: token_primary { Integer , · Integer }, identifier => 148
+    token_quantifier: token_primary { Integer , · Integer }, char_class => 148
+    token_quantifier: token_primary { Integer , · Integer }, string => 148
+    token_quantifier: token_primary { Integer , · Integer }, char_string => 148
+    token_quantifier: token_primary { Integer , · Integer }, ; => 148
+    token_quantifier: token_primary { Integer , · Integer }, | => 148
+    token_quantifier: token_primary { Integer , · Integer }, ( => 148
     Integer: · integer, } => 121
 
 S139: (Transition = token_quantifier)
@@ -2913,20 +2907,20 @@ S139: (Transition = token_quantifier)
     token_expr: token_expr | token_quantifier ·, )
 
 S140: (Transition = Integer)
-    token_quantifier: token_primary { Integer · }, identifier => 152
-    token_quantifier: token_primary { Integer · }, char_class => 152
-    token_quantifier: token_primary { Integer · }, string => 152
-    token_quantifier: token_primary { Integer · }, char_string => 152
-    token_quantifier: token_primary { Integer · }, | => 152
-    token_quantifier: token_primary { Integer · }, ( => 152
-    token_quantifier: token_primary { Integer · }, ) => 152
-    token_quantifier: token_primary { Integer · , Integer }, identifier => 153
-    token_quantifier: token_primary { Integer · , Integer }, char_class => 153
-    token_quantifier: token_primary { Integer · , Integer }, string => 153
-    token_quantifier: token_primary { Integer · , Integer }, char_string => 153
-    token_quantifier: token_primary { Integer · , Integer }, | => 153
-    token_quantifier: token_primary { Integer · , Integer }, ( => 153
-    token_quantifier: token_primary { Integer · , Integer }, ) => 153
+    token_quantifier: token_primary { Integer · }, identifier => 149
+    token_quantifier: token_primary { Integer · }, char_class => 149
+    token_quantifier: token_primary { Integer · }, string => 149
+    token_quantifier: token_primary { Integer · }, char_string => 149
+    token_quantifier: token_primary { Integer · }, | => 149
+    token_quantifier: token_primary { Integer · }, ( => 149
+    token_quantifier: token_primary { Integer · }, ) => 149
+    token_quantifier: token_primary { Integer · , Integer }, identifier => 150
+    token_quantifier: token_primary { Integer · , Integer }, char_class => 150
+    token_quantifier: token_primary { Integer · , Integer }, string => 150
+    token_quantifier: token_primary { Integer · , Integer }, char_string => 150
+    token_quantifier: token_primary { Integer · , Integer }, | => 150
+    token_quantifier: token_primary { Integer · , Integer }, ( => 150
+    token_quantifier: token_primary { Integer · , Integer }, ) => 150
 
 S141: (Transition = ))
     token_primary: ( token_expr ) ·, identifier
@@ -2942,13 +2936,13 @@ S141: (Transition = ))
     token_primary: ( token_expr ) ·, )
 
 S142: (Transition = Identifier)
-    conflict: Identifier , Identifier : Identifier · Identifier ;, ＄ => 154
-    conflict: Identifier , Identifier : Identifier · Identifier ;, identifier => 154
-    conflict: Identifier , Identifier : Identifier · Identifier ;, . => 154
+    conflict: Identifier , Identifier : Identifier · Identifier ;, ＄ => 151
+    conflict: Identifier , Identifier : Identifier · Identifier ;, identifier => 151
+    conflict: Identifier , Identifier : Identifier · Identifier ;, . => 151
     Identifier: · identifier, ; => 10
     Identifier: · identifier, . => 10
-    Identifier: · Identifier . identifier, ; => 154
-    Identifier: · Identifier . identifier, . => 154
+    Identifier: · Identifier . identifier, ; => 151
+    Identifier: · Identifier . identifier, . => 151
     Identifier: Identifier · . identifier, identifier => 67
     Identifier: Identifier · . identifier, . => 67
 
@@ -2957,71 +2951,71 @@ S143: (Transition = identifier)
     Identifier: Identifier . identifier ·, .
 
 S144: (Transition = prod_expr_list)
-    prod_def_list: prod_def_start prod_expr_list · ;, ＄ => 155
-    prod_def_list: prod_def_start prod_expr_list · ;, identifier => 155
-    prod_def_list: prod_def_start prod_expr_list · ;, @Conflicts => 155
-    prod_def_start: prod_def_start prod_expr_list · |, ＄ => 156
-    prod_def_start: prod_def_start prod_expr_list · |, identifier => 156
-    prod_def_start: prod_def_start prod_expr_list · |, string => 156
-    prod_def_start: prod_def_start prod_expr_list · |, char_string => 156
-    prod_def_start: prod_def_start prod_expr_list · |, ; => 156
-    prod_def_start: prod_def_start prod_expr_list · |, | => 156
-    prod_def_start: prod_def_start prod_expr_list · |, { => 156
-    prod_def_start: prod_def_start prod_expr_list · |, @Conflicts => 156
-    prod_def: prod_expr_list · prod_action optional_semicolon, ＄ => 158
-    prod_def: prod_expr_list · prod_action optional_semicolon, identifier => 158
-    prod_def: prod_expr_list · prod_action optional_semicolon, | => 158
-    prod_def: prod_expr_list · prod_action optional_semicolon, @Conflicts => 158
-    prod_expr_list: prod_expr_list · prod_expr, identifier => 157
-    prod_expr_list: prod_expr_list · prod_expr, string => 157
-    prod_expr_list: prod_expr_list · prod_expr, char_string => 157
-    prod_expr_list: prod_expr_list · prod_expr, ; => 157
-    prod_expr_list: prod_expr_list · prod_expr, | => 157
-    prod_expr_list: prod_expr_list · prod_expr, { => 157
-    prod_expr: · prod_expr_quantifier, identifier => 159
-    prod_expr: · prod_expr_quantifier, string => 159
-    prod_expr: · prod_expr_quantifier, char_string => 159
-    prod_expr: · prod_expr_quantifier, ; => 159
-    prod_expr: · prod_expr_quantifier, | => 159
-    prod_expr: · prod_expr_quantifier, { => 159
-    prod_expr_quantifier: · prod_expr_primary, identifier => 161
-    prod_expr_quantifier: · prod_expr_primary, string => 161
-    prod_expr_quantifier: · prod_expr_primary, char_string => 161
-    prod_expr_quantifier: · prod_expr_primary, ; => 161
-    prod_expr_quantifier: · prod_expr_primary, | => 161
-    prod_expr_quantifier: · prod_expr_primary, { => 161
-    prod_expr_quantifier: · prod_expr_primary ?, identifier => 161
-    prod_expr_quantifier: · prod_expr_primary ?, string => 161
-    prod_expr_quantifier: · prod_expr_primary ?, char_string => 161
-    prod_expr_quantifier: · prod_expr_primary ?, ; => 161
-    prod_expr_quantifier: · prod_expr_primary ?, | => 161
-    prod_expr_quantifier: · prod_expr_primary ?, { => 161
-    prod_expr_primary: · identifier, identifier => 162
-    prod_expr_primary: · identifier, string => 162
-    prod_expr_primary: · identifier, char_string => 162
-    prod_expr_primary: · identifier, ; => 162
-    prod_expr_primary: · identifier, | => 162
-    prod_expr_primary: · identifier, ? => 162
-    prod_expr_primary: · identifier, { => 162
-    prod_expr_primary: · string_literal, identifier => 163
-    prod_expr_primary: · string_literal, string => 163
-    prod_expr_primary: · string_literal, char_string => 163
-    prod_expr_primary: · string_literal, ; => 163
-    prod_expr_primary: · string_literal, | => 163
-    prod_expr_primary: · string_literal, ? => 163
-    prod_expr_primary: · string_literal, { => 163
-    prod_expr_primary: · Char, identifier => 164
-    prod_expr_primary: · Char, string => 164
-    prod_expr_primary: · Char, char_string => 164
-    prod_expr_primary: · Char, ; => 164
-    prod_expr_primary: · Char, | => 164
-    prod_expr_primary: · Char, ? => 164
-    prod_expr_primary: · Char, { => 164
-    prod_action: · { action_stmt }, ＄ => 160
-    prod_action: · { action_stmt }, identifier => 160
-    prod_action: · { action_stmt }, ; => 160
-    prod_action: · { action_stmt }, | => 160
-    prod_action: · { action_stmt }, @Conflicts => 160
+    prod_def_list: prod_def_start prod_expr_list · ;, ＄ => 152
+    prod_def_list: prod_def_start prod_expr_list · ;, identifier => 152
+    prod_def_list: prod_def_start prod_expr_list · ;, @Conflicts => 152
+    prod_def_start: prod_def_start prod_expr_list · |, ＄ => 153
+    prod_def_start: prod_def_start prod_expr_list · |, identifier => 153
+    prod_def_start: prod_def_start prod_expr_list · |, string => 153
+    prod_def_start: prod_def_start prod_expr_list · |, char_string => 153
+    prod_def_start: prod_def_start prod_expr_list · |, ; => 153
+    prod_def_start: prod_def_start prod_expr_list · |, | => 153
+    prod_def_start: prod_def_start prod_expr_list · |, { => 153
+    prod_def_start: prod_def_start prod_expr_list · |, @Conflicts => 153
+    prod_def: prod_expr_list · prod_action optional_semicolon, ＄ => 155
+    prod_def: prod_expr_list · prod_action optional_semicolon, identifier => 155
+    prod_def: prod_expr_list · prod_action optional_semicolon, | => 155
+    prod_def: prod_expr_list · prod_action optional_semicolon, @Conflicts => 155
+    prod_expr_list: prod_expr_list · prod_expr, identifier => 154
+    prod_expr_list: prod_expr_list · prod_expr, string => 154
+    prod_expr_list: prod_expr_list · prod_expr, char_string => 154
+    prod_expr_list: prod_expr_list · prod_expr, ; => 154
+    prod_expr_list: prod_expr_list · prod_expr, | => 154
+    prod_expr_list: prod_expr_list · prod_expr, { => 154
+    prod_expr: · prod_expr_quantifier, identifier => 156
+    prod_expr: · prod_expr_quantifier, string => 156
+    prod_expr: · prod_expr_quantifier, char_string => 156
+    prod_expr: · prod_expr_quantifier, ; => 156
+    prod_expr: · prod_expr_quantifier, | => 156
+    prod_expr: · prod_expr_quantifier, { => 156
+    prod_expr_quantifier: · prod_expr_primary, identifier => 158
+    prod_expr_quantifier: · prod_expr_primary, string => 158
+    prod_expr_quantifier: · prod_expr_primary, char_string => 158
+    prod_expr_quantifier: · prod_expr_primary, ; => 158
+    prod_expr_quantifier: · prod_expr_primary, | => 158
+    prod_expr_quantifier: · prod_expr_primary, { => 158
+    prod_expr_quantifier: · prod_expr_primary ?, identifier => 158
+    prod_expr_quantifier: · prod_expr_primary ?, string => 158
+    prod_expr_quantifier: · prod_expr_primary ?, char_string => 158
+    prod_expr_quantifier: · prod_expr_primary ?, ; => 158
+    prod_expr_quantifier: · prod_expr_primary ?, | => 158
+    prod_expr_quantifier: · prod_expr_primary ?, { => 158
+    prod_expr_primary: · identifier, identifier => 159
+    prod_expr_primary: · identifier, string => 159
+    prod_expr_primary: · identifier, char_string => 159
+    prod_expr_primary: · identifier, ; => 159
+    prod_expr_primary: · identifier, | => 159
+    prod_expr_primary: · identifier, ? => 159
+    prod_expr_primary: · identifier, { => 159
+    prod_expr_primary: · string_literal, identifier => 160
+    prod_expr_primary: · string_literal, string => 160
+    prod_expr_primary: · string_literal, char_string => 160
+    prod_expr_primary: · string_literal, ; => 160
+    prod_expr_primary: · string_literal, | => 160
+    prod_expr_primary: · string_literal, ? => 160
+    prod_expr_primary: · string_literal, { => 160
+    prod_expr_primary: · Char, identifier => 161
+    prod_expr_primary: · Char, string => 161
+    prod_expr_primary: · Char, char_string => 161
+    prod_expr_primary: · Char, ; => 161
+    prod_expr_primary: · Char, | => 161
+    prod_expr_primary: · Char, ? => 161
+    prod_expr_primary: · Char, { => 161
+    prod_action: · { action_stmt }, ＄ => 157
+    prod_action: · { action_stmt }, identifier => 157
+    prod_action: · { action_stmt }, ; => 157
+    prod_action: · { action_stmt }, | => 157
+    prod_action: · { action_stmt }, @Conflicts => 157
     Char: · char_string, identifier => 81
     Char: · char_string, string => 81
     Char: · char_string, char_string => 81
@@ -3048,47 +3042,35 @@ S145: (Transition = prod_def)
     prod_def_list: prod_def_start prod_def ·, ＄
     prod_def_list: prod_def_start prod_def ·, identifier
     prod_def_list: prod_def_start prod_def ·, @Conflicts
-    prod_def_start: prod_def_start prod_def · |, ＄ => 165
-    prod_def_start: prod_def_start prod_def · |, identifier => 165
-    prod_def_start: prod_def_start prod_def · |, string => 165
-    prod_def_start: prod_def_start prod_def · |, char_string => 165
-    prod_def_start: prod_def_start prod_def · |, ; => 165
-    prod_def_start: prod_def_start prod_def · |, | => 165
-    prod_def_start: prod_def_start prod_def · |, { => 165
-    prod_def_start: prod_def_start prod_def · |, @Conflicts => 165
+    prod_def_start: prod_def_start prod_def · |, ＄ => 162
+    prod_def_start: prod_def_start prod_def · |, identifier => 162
+    prod_def_start: prod_def_start prod_def · |, string => 162
+    prod_def_start: prod_def_start prod_def · |, char_string => 162
+    prod_def_start: prod_def_start prod_def · |, ; => 162
+    prod_def_start: prod_def_start prod_def · |, | => 162
+    prod_def_start: prod_def_start prod_def · |, { => 162
+    prod_def_start: prod_def_start prod_def · |, @Conflicts => 162
 
 S146: (Transition = >)
-    production_attr: < Identifier func_opt > ·, =
+    production_attr: < Identifier nullable_opt > ·, =
 
 S147: (Transition = identifier)
     Identifier: Identifier . identifier ·, ＄
     Identifier: Identifier . identifier ·, =
     Identifier: Identifier . identifier ·, >
-    Identifier: Identifier . identifier ·, (
+    Identifier: Identifier . identifier ·, ?
     Identifier: Identifier . identifier ·, .
 
-S148: (Transition = func_opt_arg_type)
-    func_opt: ( func_opt_arg_type · ), > => 166
+S148: (Transition = Integer)
+    token_quantifier: token_primary { Integer , Integer · }, identifier => 163
+    token_quantifier: token_primary { Integer , Integer · }, char_class => 163
+    token_quantifier: token_primary { Integer , Integer · }, string => 163
+    token_quantifier: token_primary { Integer , Integer · }, char_string => 163
+    token_quantifier: token_primary { Integer , Integer · }, ; => 163
+    token_quantifier: token_primary { Integer , Integer · }, | => 163
+    token_quantifier: token_primary { Integer , Integer · }, ( => 163
 
-S149: (Transition = Identifier)
-    func_opt_arg_type: Identifier ·, )
-    Identifier: Identifier · . identifier, ) => 167
-    Identifier: Identifier · . identifier, . => 167
-
-S150: (Transition = identifier)
-    Identifier: identifier ·, )
-    Identifier: identifier ·, .
-
-S151: (Transition = Integer)
-    token_quantifier: token_primary { Integer , Integer · }, identifier => 168
-    token_quantifier: token_primary { Integer , Integer · }, char_class => 168
-    token_quantifier: token_primary { Integer , Integer · }, string => 168
-    token_quantifier: token_primary { Integer , Integer · }, char_string => 168
-    token_quantifier: token_primary { Integer , Integer · }, ; => 168
-    token_quantifier: token_primary { Integer , Integer · }, | => 168
-    token_quantifier: token_primary { Integer , Integer · }, ( => 168
-
-S152: (Transition = })
+S149: (Transition = })
     token_quantifier: token_primary { Integer } ·, identifier
     token_quantifier: token_primary { Integer } ·, char_class
     token_quantifier: token_primary { Integer } ·, string
@@ -3097,29 +3079,29 @@ S152: (Transition = })
     token_quantifier: token_primary { Integer } ·, (
     token_quantifier: token_primary { Integer } ·, )
 
-S153: (Transition = ,)
-    token_quantifier: token_primary { Integer , · Integer }, identifier => 169
-    token_quantifier: token_primary { Integer , · Integer }, char_class => 169
-    token_quantifier: token_primary { Integer , · Integer }, string => 169
-    token_quantifier: token_primary { Integer , · Integer }, char_string => 169
-    token_quantifier: token_primary { Integer , · Integer }, | => 169
-    token_quantifier: token_primary { Integer , · Integer }, ( => 169
-    token_quantifier: token_primary { Integer , · Integer }, ) => 169
+S150: (Transition = ,)
+    token_quantifier: token_primary { Integer , · Integer }, identifier => 164
+    token_quantifier: token_primary { Integer , · Integer }, char_class => 164
+    token_quantifier: token_primary { Integer , · Integer }, string => 164
+    token_quantifier: token_primary { Integer , · Integer }, char_string => 164
+    token_quantifier: token_primary { Integer , · Integer }, | => 164
+    token_quantifier: token_primary { Integer , · Integer }, ( => 164
+    token_quantifier: token_primary { Integer , · Integer }, ) => 164
     Integer: · integer, } => 121
 
-S154: (Transition = Identifier)
-    conflict: Identifier , Identifier : Identifier Identifier · ;, ＄ => 170
-    conflict: Identifier , Identifier : Identifier Identifier · ;, identifier => 170
-    conflict: Identifier , Identifier : Identifier Identifier · ;, . => 170
+S151: (Transition = Identifier)
+    conflict: Identifier , Identifier : Identifier Identifier · ;, ＄ => 165
+    conflict: Identifier , Identifier : Identifier Identifier · ;, identifier => 165
+    conflict: Identifier , Identifier : Identifier Identifier · ;, . => 165
     Identifier: Identifier · . identifier, ; => 19
     Identifier: Identifier · . identifier, . => 19
 
-S155: (Transition = ;)
+S152: (Transition = ;)
     prod_def_list: prod_def_start prod_expr_list ; ·, ＄
     prod_def_list: prod_def_start prod_expr_list ; ·, identifier
     prod_def_list: prod_def_start prod_expr_list ; ·, @Conflicts
 
-S156: (Transition = |)
+S153: (Transition = |)
     prod_def_start: prod_def_start prod_expr_list | ·, ＄
     prod_def_start: prod_def_start prod_expr_list | ·, identifier
     prod_def_start: prod_def_start prod_expr_list | ·, string
@@ -3129,7 +3111,7 @@ S156: (Transition = |)
     prod_def_start: prod_def_start prod_expr_list | ·, {
     prod_def_start: prod_def_start prod_expr_list | ·, @Conflicts
 
-S157: (Transition = prod_expr)
+S154: (Transition = prod_expr)
     prod_expr_list: prod_expr_list prod_expr ·, identifier
     prod_expr_list: prod_expr_list prod_expr ·, string
     prod_expr_list: prod_expr_list prod_expr ·, char_string
@@ -3137,21 +3119,21 @@ S157: (Transition = prod_expr)
     prod_expr_list: prod_expr_list prod_expr ·, |
     prod_expr_list: prod_expr_list prod_expr ·, {
 
-S158: (Transition = prod_action)
-    prod_def: prod_expr_list prod_action · optional_semicolon, ＄ => 171
-    prod_def: prod_expr_list prod_action · optional_semicolon, identifier => 171
-    prod_def: prod_expr_list prod_action · optional_semicolon, | => 171
-    prod_def: prod_expr_list prod_action · optional_semicolon, @Conflicts => 171
+S155: (Transition = prod_action)
+    prod_def: prod_expr_list prod_action · optional_semicolon, ＄ => 166
+    prod_def: prod_expr_list prod_action · optional_semicolon, identifier => 166
+    prod_def: prod_expr_list prod_action · optional_semicolon, | => 166
+    prod_def: prod_expr_list prod_action · optional_semicolon, @Conflicts => 166
     optional_semicolon: ·, ＄
     optional_semicolon: ·, identifier
     optional_semicolon: ·, |
     optional_semicolon: ·, @Conflicts
-    optional_semicolon: · ;, ＄ => 172
-    optional_semicolon: · ;, identifier => 172
-    optional_semicolon: · ;, | => 172
-    optional_semicolon: · ;, @Conflicts => 172
+    optional_semicolon: · ;, ＄ => 167
+    optional_semicolon: · ;, identifier => 167
+    optional_semicolon: · ;, | => 167
+    optional_semicolon: · ;, @Conflicts => 167
 
-S159: (Transition = prod_expr_quantifier)
+S156: (Transition = prod_expr_quantifier)
     prod_expr: prod_expr_quantifier ·, identifier
     prod_expr: prod_expr_quantifier ·, string
     prod_expr: prod_expr_quantifier ·, char_string
@@ -3159,51 +3141,51 @@ S159: (Transition = prod_expr_quantifier)
     prod_expr: prod_expr_quantifier ·, |
     prod_expr: prod_expr_quantifier ·, {
 
-S160: (Transition = {)
-    prod_action: { · action_stmt }, ＄ => 173
-    prod_action: { · action_stmt }, identifier => 173
-    prod_action: { · action_stmt }, ; => 173
-    prod_action: { · action_stmt }, | => 173
-    prod_action: { · action_stmt }, @Conflicts => 173
+S157: (Transition = {)
+    prod_action: { · action_stmt }, ＄ => 168
+    prod_action: { · action_stmt }, identifier => 168
+    prod_action: { · action_stmt }, ; => 168
+    prod_action: { · action_stmt }, | => 168
+    prod_action: { · action_stmt }, @Conflicts => 168
     action_stmt: ·, }
-    action_stmt: · action_expr ;, } => 174
-    action_expr: · @new type ( action_args ), ; => 175
-    action_expr: · Identifier ( action_args ), ; => 176
-    action_expr: · action_primary_expr, ; => 177
-    action_primary_expr: · action_arg, ; => 179
-    action_primary_expr: · Identifier, ; => 176
-    action_primary_expr: · Integer, ; => 180
-    action_primary_expr: · string_literal, ; => 181
-    action_primary_expr: · Boolean, ; => 182
-    action_arg: · arg, ; => 183
-    action_arg: · arg : Identifier, ; => 183
-    Identifier: · identifier, ; => 178
-    Identifier: · identifier, ( => 178
-    Identifier: · identifier, . => 178
-    Identifier: · Identifier . identifier, ; => 176
-    Identifier: · Identifier . identifier, ( => 176
-    Identifier: · Identifier . identifier, . => 176
+    action_stmt: · action_expr ;, } => 169
+    action_expr: · @new type ( action_args ), ; => 170
+    action_expr: · Identifier ( action_args ), ; => 171
+    action_expr: · action_primary_expr, ; => 172
+    action_primary_expr: · action_arg, ; => 174
+    action_primary_expr: · Identifier, ; => 171
+    action_primary_expr: · Integer, ; => 175
+    action_primary_expr: · string_literal, ; => 176
+    action_primary_expr: · Boolean, ; => 177
+    action_arg: · arg, ; => 178
+    action_arg: · arg : Identifier, ; => 178
+    Identifier: · identifier, ; => 173
+    Identifier: · identifier, ( => 173
+    Identifier: · identifier, . => 173
+    Identifier: · Identifier . identifier, ; => 171
+    Identifier: · Identifier . identifier, ( => 171
+    Identifier: · Identifier . identifier, . => 171
     string_literal: · regular_string_literal, ; => 83
     regular_string_literal: · string, ; => 84
-    Integer: · integer, ; => 184
-    Boolean: · @true, ; => 185
-    Boolean: · @false, ; => 186
+    Integer: · integer, ; => 179
+    Boolean: · @true, ; => 180
+    Boolean: · @false, ; => 181
 
-S161: (Transition = prod_expr_primary)
+S158: (Transition = prod_expr_primary)
     prod_expr_quantifier: prod_expr_primary ·, identifier
     prod_expr_quantifier: prod_expr_primary ·, string
     prod_expr_quantifier: prod_expr_primary ·, char_string
     prod_expr_quantifier: prod_expr_primary ·, ;
     prod_expr_quantifier: prod_expr_primary ·, |
     prod_expr_quantifier: prod_expr_primary ·, {
-    prod_expr_quantifier: prod_expr_primary · ?, identifier => 187
-    prod_expr_quantifier: prod_expr_primary · ?, string => 187
-    prod_expr_quantifier: prod_expr_primary · ?, char_string => 187
-    prod_expr_quantifier: prod_expr_primary · ?, ; => 187
-    prod_expr_quantifier: prod_expr_primary · ?, | => 187
-    prod_expr_quantifier: prod_expr_primary · ?, { => 187
+    prod_expr_quantifier: prod_expr_primary · ?, identifier => 182
+    prod_expr_quantifier: prod_expr_primary · ?, string => 182
+    prod_expr_quantifier: prod_expr_primary · ?, char_string => 182
+    prod_expr_quantifier: prod_expr_primary · ?, ; => 182
+    prod_expr_quantifier: prod_expr_primary · ?, | => 182
+    prod_expr_quantifier: prod_expr_primary · ?, { => 182
 
-S162: (Transition = identifier)
+S159: (Transition = identifier)
     prod_expr_primary: identifier ·, identifier
     prod_expr_primary: identifier ·, string
     prod_expr_primary: identifier ·, char_string
@@ -3212,7 +3194,7 @@ S162: (Transition = identifier)
     prod_expr_primary: identifier ·, ?
     prod_expr_primary: identifier ·, {
 
-S163: (Transition = string_literal)
+S160: (Transition = string_literal)
     prod_expr_primary: string_literal ·, identifier
     prod_expr_primary: string_literal ·, string
     prod_expr_primary: string_literal ·, char_string
@@ -3221,7 +3203,7 @@ S163: (Transition = string_literal)
     prod_expr_primary: string_literal ·, ?
     prod_expr_primary: string_literal ·, {
 
-S164: (Transition = Char)
+S161: (Transition = Char)
     prod_expr_primary: Char ·, identifier
     prod_expr_primary: Char ·, string
     prod_expr_primary: Char ·, char_string
@@ -3230,7 +3212,7 @@ S164: (Transition = Char)
     prod_expr_primary: Char ·, ?
     prod_expr_primary: Char ·, {
 
-S165: (Transition = |)
+S162: (Transition = |)
     prod_def_start: prod_def_start prod_def | ·, ＄
     prod_def_start: prod_def_start prod_def | ·, identifier
     prod_def_start: prod_def_start prod_def | ·, string
@@ -3240,14 +3222,7 @@ S165: (Transition = |)
     prod_def_start: prod_def_start prod_def | ·, {
     prod_def_start: prod_def_start prod_def | ·, @Conflicts
 
-S166: (Transition = ))
-    func_opt: ( func_opt_arg_type ) ·, >
-
-S167: (Transition = .)
-    Identifier: Identifier . · identifier, ) => 188
-    Identifier: Identifier . · identifier, . => 188
-
-S168: (Transition = })
+S163: (Transition = })
     token_quantifier: token_primary { Integer , Integer } ·, identifier
     token_quantifier: token_primary { Integer , Integer } ·, char_class
     token_quantifier: token_primary { Integer , Integer } ·, string
@@ -3256,94 +3231,94 @@ S168: (Transition = })
     token_quantifier: token_primary { Integer , Integer } ·, |
     token_quantifier: token_primary { Integer , Integer } ·, (
 
-S169: (Transition = Integer)
-    token_quantifier: token_primary { Integer , Integer · }, identifier => 189
-    token_quantifier: token_primary { Integer , Integer · }, char_class => 189
-    token_quantifier: token_primary { Integer , Integer · }, string => 189
-    token_quantifier: token_primary { Integer , Integer · }, char_string => 189
-    token_quantifier: token_primary { Integer , Integer · }, | => 189
-    token_quantifier: token_primary { Integer , Integer · }, ( => 189
-    token_quantifier: token_primary { Integer , Integer · }, ) => 189
+S164: (Transition = Integer)
+    token_quantifier: token_primary { Integer , Integer · }, identifier => 183
+    token_quantifier: token_primary { Integer , Integer · }, char_class => 183
+    token_quantifier: token_primary { Integer , Integer · }, string => 183
+    token_quantifier: token_primary { Integer , Integer · }, char_string => 183
+    token_quantifier: token_primary { Integer , Integer · }, | => 183
+    token_quantifier: token_primary { Integer , Integer · }, ( => 183
+    token_quantifier: token_primary { Integer , Integer · }, ) => 183
 
-S170: (Transition = ;)
+S165: (Transition = ;)
     conflict: Identifier , Identifier : Identifier Identifier ; ·, ＄
     conflict: Identifier , Identifier : Identifier Identifier ; ·, identifier
     conflict: Identifier , Identifier : Identifier Identifier ; ·, .
 
-S171: (Transition = optional_semicolon)
+S166: (Transition = optional_semicolon)
     prod_def: prod_expr_list prod_action optional_semicolon ·, ＄
     prod_def: prod_expr_list prod_action optional_semicolon ·, identifier
     prod_def: prod_expr_list prod_action optional_semicolon ·, |
     prod_def: prod_expr_list prod_action optional_semicolon ·, @Conflicts
 
-S172: (Transition = ;)
+S167: (Transition = ;)
     optional_semicolon: ; ·, ＄
     optional_semicolon: ; ·, identifier
     optional_semicolon: ; ·, |
     optional_semicolon: ; ·, @Conflicts
 
-S173: (Transition = action_stmt)
-    prod_action: { action_stmt · }, ＄ => 190
-    prod_action: { action_stmt · }, identifier => 190
-    prod_action: { action_stmt · }, ; => 190
-    prod_action: { action_stmt · }, | => 190
-    prod_action: { action_stmt · }, @Conflicts => 190
+S168: (Transition = action_stmt)
+    prod_action: { action_stmt · }, ＄ => 184
+    prod_action: { action_stmt · }, identifier => 184
+    prod_action: { action_stmt · }, ; => 184
+    prod_action: { action_stmt · }, | => 184
+    prod_action: { action_stmt · }, @Conflicts => 184
 
-S174: (Transition = action_expr)
-    action_stmt: action_expr · ;, } => 191
+S169: (Transition = action_expr)
+    action_stmt: action_expr · ;, } => 185
 
-S175: (Transition = @new)
-    action_expr: @new · type ( action_args ), ; => 192
-    type: · Identifier, ( => 193
-    type: · Identifier < generic_args >, ( => 193
-    Identifier: · identifier, < => 194
-    Identifier: · identifier, ( => 194
-    Identifier: · identifier, . => 194
-    Identifier: · Identifier . identifier, < => 193
-    Identifier: · Identifier . identifier, ( => 193
-    Identifier: · Identifier . identifier, . => 193
+S170: (Transition = @new)
+    action_expr: @new · type ( action_args ), ; => 186
+    type: · Identifier, ( => 187
+    type: · Identifier < generic_args >, ( => 187
+    Identifier: · identifier, < => 188
+    Identifier: · identifier, ( => 188
+    Identifier: · identifier, . => 188
+    Identifier: · Identifier . identifier, < => 187
+    Identifier: · Identifier . identifier, ( => 187
+    Identifier: · Identifier . identifier, . => 187
 
-S176: (Transition = Identifier)
-    action_expr: Identifier · ( action_args ), ; => 195
+S171: (Transition = Identifier)
+    action_expr: Identifier · ( action_args ), ; => 189
     action_primary_expr: Identifier ·, ;
-    Identifier: Identifier · . identifier, ; => 196
-    Identifier: Identifier · . identifier, ( => 196
-    Identifier: Identifier · . identifier, . => 196
+    Identifier: Identifier · . identifier, ; => 190
+    Identifier: Identifier · . identifier, ( => 190
+    Identifier: Identifier · . identifier, . => 190
 
-S177: (Transition = action_primary_expr)
+S172: (Transition = action_primary_expr)
     action_expr: action_primary_expr ·, ;
 
-S178: (Transition = identifier)
+S173: (Transition = identifier)
     Identifier: identifier ·, ;
     Identifier: identifier ·, (
     Identifier: identifier ·, .
 
-S179: (Transition = action_arg)
+S174: (Transition = action_arg)
     action_primary_expr: action_arg ·, ;
 
-S180: (Transition = Integer)
+S175: (Transition = Integer)
     action_primary_expr: Integer ·, ;
 
-S181: (Transition = string_literal)
+S176: (Transition = string_literal)
     action_primary_expr: string_literal ·, ;
 
-S182: (Transition = Boolean)
+S177: (Transition = Boolean)
     action_primary_expr: Boolean ·, ;
 
-S183: (Transition = arg)
+S178: (Transition = arg)
     action_arg: arg ·, ;
-    action_arg: arg · : Identifier, ; => 197
+    action_arg: arg · : Identifier, ; => 191
 
-S184: (Transition = integer)
+S179: (Transition = integer)
     Integer: integer ·, ;
 
-S185: (Transition = @true)
+S180: (Transition = @true)
     Boolean: @true ·, ;
 
-S186: (Transition = @false)
+S181: (Transition = @false)
     Boolean: @false ·, ;
 
-S187: (Transition = ?)
+S182: (Transition = ?)
     prod_expr_quantifier: prod_expr_primary ? ·, identifier
     prod_expr_quantifier: prod_expr_primary ? ·, string
     prod_expr_quantifier: prod_expr_primary ? ·, char_string
@@ -3351,11 +3326,7 @@ S187: (Transition = ?)
     prod_expr_quantifier: prod_expr_primary ? ·, |
     prod_expr_quantifier: prod_expr_primary ? ·, {
 
-S188: (Transition = identifier)
-    Identifier: Identifier . identifier ·, )
-    Identifier: Identifier . identifier ·, .
-
-S189: (Transition = })
+S183: (Transition = })
     token_quantifier: token_primary { Integer , Integer } ·, identifier
     token_quantifier: token_primary { Integer , Integer } ·, char_class
     token_quantifier: token_primary { Integer , Integer } ·, string
@@ -3364,551 +3335,551 @@ S189: (Transition = })
     token_quantifier: token_primary { Integer , Integer } ·, (
     token_quantifier: token_primary { Integer , Integer } ·, )
 
-S190: (Transition = })
+S184: (Transition = })
     prod_action: { action_stmt } ·, ＄
     prod_action: { action_stmt } ·, identifier
     prod_action: { action_stmt } ·, ;
     prod_action: { action_stmt } ·, |
     prod_action: { action_stmt } ·, @Conflicts
 
-S191: (Transition = ;)
+S185: (Transition = ;)
     action_stmt: action_expr ; ·, }
 
-S192: (Transition = type)
-    action_expr: @new type · ( action_args ), ; => 198
+S186: (Transition = type)
+    action_expr: @new type · ( action_args ), ; => 192
 
-S193: (Transition = Identifier)
+S187: (Transition = Identifier)
     type: Identifier ·, (
-    type: Identifier · < generic_args >, ( => 199
-    Identifier: Identifier · . identifier, < => 200
-    Identifier: Identifier · . identifier, ( => 200
-    Identifier: Identifier · . identifier, . => 200
+    type: Identifier · < generic_args >, ( => 193
+    Identifier: Identifier · . identifier, < => 194
+    Identifier: Identifier · . identifier, ( => 194
+    Identifier: Identifier · . identifier, . => 194
 
-S194: (Transition = identifier)
+S188: (Transition = identifier)
     Identifier: identifier ·, <
     Identifier: identifier ·, (
     Identifier: identifier ·, .
 
-S195: (Transition = ()
-    action_expr: · @new type ( action_args ), , => 203
-    action_expr: · @new type ( action_args ), ) => 203
-    action_expr: · Identifier ( action_args ), , => 204
-    action_expr: · Identifier ( action_args ), ) => 204
-    action_expr: Identifier ( · action_args ), ; => 201
-    action_expr: · action_primary_expr, , => 205
-    action_expr: · action_primary_expr, ) => 205
+S189: (Transition = ()
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: Identifier ( · action_args ), ; => 195
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
     action_args: ·, ,
     action_args: ·, )
-    action_args: · action_expr, , => 202
-    action_args: · action_expr, ) => 202
-    action_args: · action_args , action_expr, , => 201
-    action_args: · action_args , action_expr, ) => 201
-    action_primary_expr: · action_arg, , => 207
-    action_primary_expr: · action_arg, ) => 207
-    action_primary_expr: · Identifier, , => 204
-    action_primary_expr: · Identifier, ) => 204
-    action_primary_expr: · Integer, , => 208
-    action_primary_expr: · Integer, ) => 208
-    action_primary_expr: · string_literal, , => 209
-    action_primary_expr: · string_literal, ) => 209
-    action_primary_expr: · Boolean, , => 210
-    action_primary_expr: · Boolean, ) => 210
-    action_arg: · arg, , => 211
-    action_arg: · arg, ) => 211
-    action_arg: · arg : Identifier, , => 211
-    action_arg: · arg : Identifier, ) => 211
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ( => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 204
-    Identifier: · Identifier . identifier, ( => 204
-    Identifier: · Identifier . identifier, ) => 204
-    Identifier: · Identifier . identifier, . => 204
-    string_literal: · regular_string_literal, , => 213
-    string_literal: · regular_string_literal, ) => 213
-    regular_string_literal: · string, , => 216
-    regular_string_literal: · string, ) => 216
-    Integer: · integer, , => 212
-    Integer: · integer, ) => 212
-    Boolean: · @true, , => 214
-    Boolean: · @true, ) => 214
-    Boolean: · @false, , => 215
-    Boolean: · @false, ) => 215
+    action_args: · action_expr, , => 196
+    action_args: · action_expr, ) => 196
+    action_args: · action_args , action_expr, , => 195
+    action_args: · action_args , action_expr, ) => 195
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : Identifier, , => 205
+    action_arg: · arg : Identifier, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
 
-S196: (Transition = .)
-    Identifier: Identifier . · identifier, ; => 217
-    Identifier: Identifier . · identifier, ( => 217
-    Identifier: Identifier . · identifier, . => 217
+S190: (Transition = .)
+    Identifier: Identifier . · identifier, ; => 211
+    Identifier: Identifier . · identifier, ( => 211
+    Identifier: Identifier . · identifier, . => 211
 
-S197: (Transition = :)
-    action_arg: arg : · Identifier, ; => 218
+S191: (Transition = :)
+    action_arg: arg : · Identifier, ; => 212
     Identifier: · identifier, ; => 10
     Identifier: · identifier, . => 10
-    Identifier: · Identifier . identifier, ; => 218
-    Identifier: · Identifier . identifier, . => 218
+    Identifier: · Identifier . identifier, ; => 212
+    Identifier: · Identifier . identifier, . => 212
 
-S198: (Transition = ()
-    action_expr: · @new type ( action_args ), , => 203
-    action_expr: · @new type ( action_args ), ) => 203
-    action_expr: @new type ( · action_args ), ; => 219
-    action_expr: · Identifier ( action_args ), , => 204
-    action_expr: · Identifier ( action_args ), ) => 204
-    action_expr: · action_primary_expr, , => 205
-    action_expr: · action_primary_expr, ) => 205
+S192: (Transition = ()
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: @new type ( · action_args ), ; => 213
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
     action_args: ·, ,
     action_args: ·, )
-    action_args: · action_expr, , => 202
-    action_args: · action_expr, ) => 202
-    action_args: · action_args , action_expr, , => 219
-    action_args: · action_args , action_expr, ) => 219
-    action_primary_expr: · action_arg, , => 207
-    action_primary_expr: · action_arg, ) => 207
-    action_primary_expr: · Identifier, , => 204
-    action_primary_expr: · Identifier, ) => 204
-    action_primary_expr: · Integer, , => 208
-    action_primary_expr: · Integer, ) => 208
-    action_primary_expr: · string_literal, , => 209
-    action_primary_expr: · string_literal, ) => 209
-    action_primary_expr: · Boolean, , => 210
-    action_primary_expr: · Boolean, ) => 210
-    action_arg: · arg, , => 211
-    action_arg: · arg, ) => 211
-    action_arg: · arg : Identifier, , => 211
-    action_arg: · arg : Identifier, ) => 211
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ( => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 204
-    Identifier: · Identifier . identifier, ( => 204
-    Identifier: · Identifier . identifier, ) => 204
-    Identifier: · Identifier . identifier, . => 204
-    string_literal: · regular_string_literal, , => 213
-    string_literal: · regular_string_literal, ) => 213
-    regular_string_literal: · string, , => 216
-    regular_string_literal: · string, ) => 216
-    Integer: · integer, , => 212
-    Integer: · integer, ) => 212
-    Boolean: · @true, , => 214
-    Boolean: · @true, ) => 214
-    Boolean: · @false, , => 215
-    Boolean: · @false, ) => 215
+    action_args: · action_expr, , => 196
+    action_args: · action_expr, ) => 196
+    action_args: · action_args , action_expr, , => 213
+    action_args: · action_args , action_expr, ) => 213
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : Identifier, , => 205
+    action_arg: · arg : Identifier, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
 
-S199: (Transition = <)
-    type: · Identifier, > => 222
-    type: · Identifier, , => 222
-    type: · Identifier < generic_args >, > => 222
-    type: · Identifier < generic_args >, , => 222
-    type: Identifier < · generic_args >, ( => 220
-    generic_args: · type, > => 221
-    generic_args: · type, , => 221
-    generic_args: · generic_args , type, > => 220
-    generic_args: · generic_args , type, , => 220
-    Identifier: · identifier, < => 223
-    Identifier: · identifier, > => 223
-    Identifier: · identifier, , => 223
-    Identifier: · identifier, . => 223
-    Identifier: · Identifier . identifier, < => 222
-    Identifier: · Identifier . identifier, > => 222
-    Identifier: · Identifier . identifier, , => 222
-    Identifier: · Identifier . identifier, . => 222
+S193: (Transition = <)
+    type: · Identifier, > => 216
+    type: · Identifier, , => 216
+    type: · Identifier < generic_args >, > => 216
+    type: · Identifier < generic_args >, , => 216
+    type: Identifier < · generic_args >, ( => 214
+    generic_args: · type, > => 215
+    generic_args: · type, , => 215
+    generic_args: · generic_args , type, > => 214
+    generic_args: · generic_args , type, , => 214
+    Identifier: · identifier, < => 217
+    Identifier: · identifier, > => 217
+    Identifier: · identifier, , => 217
+    Identifier: · identifier, . => 217
+    Identifier: · Identifier . identifier, < => 216
+    Identifier: · Identifier . identifier, > => 216
+    Identifier: · Identifier . identifier, , => 216
+    Identifier: · Identifier . identifier, . => 216
 
-S200: (Transition = .)
-    Identifier: Identifier . · identifier, < => 224
-    Identifier: Identifier . · identifier, ( => 224
-    Identifier: Identifier . · identifier, . => 224
+S194: (Transition = .)
+    Identifier: Identifier . · identifier, < => 218
+    Identifier: Identifier . · identifier, ( => 218
+    Identifier: Identifier . · identifier, . => 218
 
-S201: (Transition = action_args)
-    action_expr: Identifier ( action_args · ), ; => 225
-    action_args: action_args · , action_expr, , => 226
-    action_args: action_args · , action_expr, ) => 226
+S195: (Transition = action_args)
+    action_expr: Identifier ( action_args · ), ; => 219
+    action_args: action_args · , action_expr, , => 220
+    action_args: action_args · , action_expr, ) => 220
 
-S202: (Transition = action_expr)
+S196: (Transition = action_expr)
     action_args: action_expr ·, ,
     action_args: action_expr ·, )
 
-S203: (Transition = @new)
-    action_expr: @new · type ( action_args ), , => 227
-    action_expr: @new · type ( action_args ), ) => 227
-    type: · Identifier, ( => 193
-    type: · Identifier < generic_args >, ( => 193
-    Identifier: · identifier, < => 194
-    Identifier: · identifier, ( => 194
-    Identifier: · identifier, . => 194
-    Identifier: · Identifier . identifier, < => 193
-    Identifier: · Identifier . identifier, ( => 193
-    Identifier: · Identifier . identifier, . => 193
+S197: (Transition = @new)
+    action_expr: @new · type ( action_args ), , => 221
+    action_expr: @new · type ( action_args ), ) => 221
+    type: · Identifier, ( => 187
+    type: · Identifier < generic_args >, ( => 187
+    Identifier: · identifier, < => 188
+    Identifier: · identifier, ( => 188
+    Identifier: · identifier, . => 188
+    Identifier: · Identifier . identifier, < => 187
+    Identifier: · Identifier . identifier, ( => 187
+    Identifier: · Identifier . identifier, . => 187
 
-S204: (Transition = Identifier)
-    action_expr: Identifier · ( action_args ), , => 228
-    action_expr: Identifier · ( action_args ), ) => 228
+S198: (Transition = Identifier)
+    action_expr: Identifier · ( action_args ), , => 222
+    action_expr: Identifier · ( action_args ), ) => 222
     action_primary_expr: Identifier ·, ,
     action_primary_expr: Identifier ·, )
-    Identifier: Identifier · . identifier, , => 229
-    Identifier: Identifier · . identifier, ( => 229
-    Identifier: Identifier · . identifier, ) => 229
-    Identifier: Identifier · . identifier, . => 229
+    Identifier: Identifier · . identifier, , => 223
+    Identifier: Identifier · . identifier, ( => 223
+    Identifier: Identifier · . identifier, ) => 223
+    Identifier: Identifier · . identifier, . => 223
 
-S205: (Transition = action_primary_expr)
+S199: (Transition = action_primary_expr)
     action_expr: action_primary_expr ·, ,
     action_expr: action_primary_expr ·, )
 
-S206: (Transition = identifier)
+S200: (Transition = identifier)
     Identifier: identifier ·, ,
     Identifier: identifier ·, (
     Identifier: identifier ·, )
     Identifier: identifier ·, .
 
-S207: (Transition = action_arg)
+S201: (Transition = action_arg)
     action_primary_expr: action_arg ·, ,
     action_primary_expr: action_arg ·, )
 
-S208: (Transition = Integer)
+S202: (Transition = Integer)
     action_primary_expr: Integer ·, ,
     action_primary_expr: Integer ·, )
 
-S209: (Transition = string_literal)
+S203: (Transition = string_literal)
     action_primary_expr: string_literal ·, ,
     action_primary_expr: string_literal ·, )
 
-S210: (Transition = Boolean)
+S204: (Transition = Boolean)
     action_primary_expr: Boolean ·, ,
     action_primary_expr: Boolean ·, )
 
-S211: (Transition = arg)
+S205: (Transition = arg)
     action_arg: arg ·, ,
     action_arg: arg ·, )
-    action_arg: arg · : Identifier, , => 230
-    action_arg: arg · : Identifier, ) => 230
+    action_arg: arg · : Identifier, , => 224
+    action_arg: arg · : Identifier, ) => 224
 
-S212: (Transition = integer)
+S206: (Transition = integer)
     Integer: integer ·, ,
     Integer: integer ·, )
 
-S213: (Transition = regular_string_literal)
+S207: (Transition = regular_string_literal)
     string_literal: regular_string_literal ·, ,
     string_literal: regular_string_literal ·, )
 
-S214: (Transition = @true)
+S208: (Transition = @true)
     Boolean: @true ·, ,
     Boolean: @true ·, )
 
-S215: (Transition = @false)
+S209: (Transition = @false)
     Boolean: @false ·, ,
     Boolean: @false ·, )
 
-S216: (Transition = string)
+S210: (Transition = string)
     regular_string_literal: string ·, ,
     regular_string_literal: string ·, )
 
-S217: (Transition = identifier)
+S211: (Transition = identifier)
     Identifier: Identifier . identifier ·, ;
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, .
 
-S218: (Transition = Identifier)
+S212: (Transition = Identifier)
     action_arg: arg : Identifier ·, ;
     Identifier: Identifier · . identifier, ; => 19
     Identifier: Identifier · . identifier, . => 19
 
-S219: (Transition = action_args)
-    action_expr: @new type ( action_args · ), ; => 231
-    action_args: action_args · , action_expr, , => 226
-    action_args: action_args · , action_expr, ) => 226
+S213: (Transition = action_args)
+    action_expr: @new type ( action_args · ), ; => 225
+    action_args: action_args · , action_expr, , => 220
+    action_args: action_args · , action_expr, ) => 220
 
-S220: (Transition = generic_args)
-    type: Identifier < generic_args · >, ( => 232
-    generic_args: generic_args · , type, > => 233
-    generic_args: generic_args · , type, , => 233
+S214: (Transition = generic_args)
+    type: Identifier < generic_args · >, ( => 226
+    generic_args: generic_args · , type, > => 227
+    generic_args: generic_args · , type, , => 227
 
-S221: (Transition = type)
+S215: (Transition = type)
     generic_args: type ·, >
     generic_args: type ·, ,
 
-S222: (Transition = Identifier)
+S216: (Transition = Identifier)
     type: Identifier ·, >
     type: Identifier ·, ,
-    type: Identifier · < generic_args >, > => 234
-    type: Identifier · < generic_args >, , => 234
-    Identifier: Identifier · . identifier, < => 235
-    Identifier: Identifier · . identifier, > => 235
-    Identifier: Identifier · . identifier, , => 235
-    Identifier: Identifier · . identifier, . => 235
+    type: Identifier · < generic_args >, > => 228
+    type: Identifier · < generic_args >, , => 228
+    Identifier: Identifier · . identifier, < => 229
+    Identifier: Identifier · . identifier, > => 229
+    Identifier: Identifier · . identifier, , => 229
+    Identifier: Identifier · . identifier, . => 229
 
-S223: (Transition = identifier)
+S217: (Transition = identifier)
     Identifier: identifier ·, <
     Identifier: identifier ·, >
     Identifier: identifier ·, ,
     Identifier: identifier ·, .
 
-S224: (Transition = identifier)
+S218: (Transition = identifier)
     Identifier: Identifier . identifier ·, <
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, .
 
-S225: (Transition = ))
+S219: (Transition = ))
     action_expr: Identifier ( action_args ) ·, ;
 
-S226: (Transition = ,)
-    action_expr: · @new type ( action_args ), , => 203
-    action_expr: · @new type ( action_args ), ) => 203
-    action_expr: · Identifier ( action_args ), , => 204
-    action_expr: · Identifier ( action_args ), ) => 204
-    action_expr: · action_primary_expr, , => 205
-    action_expr: · action_primary_expr, ) => 205
-    action_args: action_args , · action_expr, , => 236
-    action_args: action_args , · action_expr, ) => 236
-    action_primary_expr: · action_arg, , => 207
-    action_primary_expr: · action_arg, ) => 207
-    action_primary_expr: · Identifier, , => 204
-    action_primary_expr: · Identifier, ) => 204
-    action_primary_expr: · Integer, , => 208
-    action_primary_expr: · Integer, ) => 208
-    action_primary_expr: · string_literal, , => 209
-    action_primary_expr: · string_literal, ) => 209
-    action_primary_expr: · Boolean, , => 210
-    action_primary_expr: · Boolean, ) => 210
-    action_arg: · arg, , => 211
-    action_arg: · arg, ) => 211
-    action_arg: · arg : Identifier, , => 211
-    action_arg: · arg : Identifier, ) => 211
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ( => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 204
-    Identifier: · Identifier . identifier, ( => 204
-    Identifier: · Identifier . identifier, ) => 204
-    Identifier: · Identifier . identifier, . => 204
-    string_literal: · regular_string_literal, , => 213
-    string_literal: · regular_string_literal, ) => 213
-    regular_string_literal: · string, , => 216
-    regular_string_literal: · string, ) => 216
-    Integer: · integer, , => 212
-    Integer: · integer, ) => 212
-    Boolean: · @true, , => 214
-    Boolean: · @true, ) => 214
-    Boolean: · @false, , => 215
-    Boolean: · @false, ) => 215
+S220: (Transition = ,)
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
+    action_args: action_args , · action_expr, , => 230
+    action_args: action_args , · action_expr, ) => 230
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : Identifier, , => 205
+    action_arg: · arg : Identifier, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
 
-S227: (Transition = type)
-    action_expr: @new type · ( action_args ), , => 237
-    action_expr: @new type · ( action_args ), ) => 237
+S221: (Transition = type)
+    action_expr: @new type · ( action_args ), , => 231
+    action_expr: @new type · ( action_args ), ) => 231
 
-S228: (Transition = ()
-    action_expr: · @new type ( action_args ), , => 203
-    action_expr: · @new type ( action_args ), ) => 203
-    action_expr: · Identifier ( action_args ), , => 204
-    action_expr: · Identifier ( action_args ), ) => 204
-    action_expr: Identifier ( · action_args ), , => 238
-    action_expr: Identifier ( · action_args ), ) => 238
-    action_expr: · action_primary_expr, , => 205
-    action_expr: · action_primary_expr, ) => 205
+S222: (Transition = ()
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: Identifier ( · action_args ), , => 232
+    action_expr: Identifier ( · action_args ), ) => 232
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
     action_args: ·, ,
     action_args: ·, )
-    action_args: · action_expr, , => 202
-    action_args: · action_expr, ) => 202
-    action_args: · action_args , action_expr, , => 238
-    action_args: · action_args , action_expr, ) => 238
-    action_primary_expr: · action_arg, , => 207
-    action_primary_expr: · action_arg, ) => 207
-    action_primary_expr: · Identifier, , => 204
-    action_primary_expr: · Identifier, ) => 204
-    action_primary_expr: · Integer, , => 208
-    action_primary_expr: · Integer, ) => 208
-    action_primary_expr: · string_literal, , => 209
-    action_primary_expr: · string_literal, ) => 209
-    action_primary_expr: · Boolean, , => 210
-    action_primary_expr: · Boolean, ) => 210
-    action_arg: · arg, , => 211
-    action_arg: · arg, ) => 211
-    action_arg: · arg : Identifier, , => 211
-    action_arg: · arg : Identifier, ) => 211
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ( => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 204
-    Identifier: · Identifier . identifier, ( => 204
-    Identifier: · Identifier . identifier, ) => 204
-    Identifier: · Identifier . identifier, . => 204
-    string_literal: · regular_string_literal, , => 213
-    string_literal: · regular_string_literal, ) => 213
-    regular_string_literal: · string, , => 216
-    regular_string_literal: · string, ) => 216
-    Integer: · integer, , => 212
-    Integer: · integer, ) => 212
-    Boolean: · @true, , => 214
-    Boolean: · @true, ) => 214
-    Boolean: · @false, , => 215
-    Boolean: · @false, ) => 215
+    action_args: · action_expr, , => 196
+    action_args: · action_expr, ) => 196
+    action_args: · action_args , action_expr, , => 232
+    action_args: · action_args , action_expr, ) => 232
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : Identifier, , => 205
+    action_arg: · arg : Identifier, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
 
-S229: (Transition = .)
-    Identifier: Identifier . · identifier, , => 239
-    Identifier: Identifier . · identifier, ( => 239
-    Identifier: Identifier . · identifier, ) => 239
-    Identifier: Identifier . · identifier, . => 239
+S223: (Transition = .)
+    Identifier: Identifier . · identifier, , => 233
+    Identifier: Identifier . · identifier, ( => 233
+    Identifier: Identifier . · identifier, ) => 233
+    Identifier: Identifier . · identifier, . => 233
 
-S230: (Transition = :)
-    action_arg: arg : · Identifier, , => 240
-    action_arg: arg : · Identifier, ) => 240
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 240
-    Identifier: · Identifier . identifier, ) => 240
-    Identifier: · Identifier . identifier, . => 240
+S224: (Transition = :)
+    action_arg: arg : · Identifier, , => 234
+    action_arg: arg : · Identifier, ) => 234
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 234
+    Identifier: · Identifier . identifier, ) => 234
+    Identifier: · Identifier . identifier, . => 234
 
-S231: (Transition = ))
+S225: (Transition = ))
     action_expr: @new type ( action_args ) ·, ;
 
-S232: (Transition = >)
+S226: (Transition = >)
     type: Identifier < generic_args > ·, (
 
-S233: (Transition = ,)
-    type: · Identifier, > => 222
-    type: · Identifier, , => 222
-    type: · Identifier < generic_args >, > => 222
-    type: · Identifier < generic_args >, , => 222
-    generic_args: generic_args , · type, > => 241
-    generic_args: generic_args , · type, , => 241
-    Identifier: · identifier, < => 223
-    Identifier: · identifier, > => 223
-    Identifier: · identifier, , => 223
-    Identifier: · identifier, . => 223
-    Identifier: · Identifier . identifier, < => 222
-    Identifier: · Identifier . identifier, > => 222
-    Identifier: · Identifier . identifier, , => 222
-    Identifier: · Identifier . identifier, . => 222
+S227: (Transition = ,)
+    type: · Identifier, > => 216
+    type: · Identifier, , => 216
+    type: · Identifier < generic_args >, > => 216
+    type: · Identifier < generic_args >, , => 216
+    generic_args: generic_args , · type, > => 235
+    generic_args: generic_args , · type, , => 235
+    Identifier: · identifier, < => 217
+    Identifier: · identifier, > => 217
+    Identifier: · identifier, , => 217
+    Identifier: · identifier, . => 217
+    Identifier: · Identifier . identifier, < => 216
+    Identifier: · Identifier . identifier, > => 216
+    Identifier: · Identifier . identifier, , => 216
+    Identifier: · Identifier . identifier, . => 216
 
-S234: (Transition = <)
-    type: · Identifier, > => 222
-    type: · Identifier, , => 222
-    type: · Identifier < generic_args >, > => 222
-    type: · Identifier < generic_args >, , => 222
-    type: Identifier < · generic_args >, > => 242
-    type: Identifier < · generic_args >, , => 242
-    generic_args: · type, > => 221
-    generic_args: · type, , => 221
-    generic_args: · generic_args , type, > => 242
-    generic_args: · generic_args , type, , => 242
-    Identifier: · identifier, < => 223
-    Identifier: · identifier, > => 223
-    Identifier: · identifier, , => 223
-    Identifier: · identifier, . => 223
-    Identifier: · Identifier . identifier, < => 222
-    Identifier: · Identifier . identifier, > => 222
-    Identifier: · Identifier . identifier, , => 222
-    Identifier: · Identifier . identifier, . => 222
+S228: (Transition = <)
+    type: · Identifier, > => 216
+    type: · Identifier, , => 216
+    type: · Identifier < generic_args >, > => 216
+    type: · Identifier < generic_args >, , => 216
+    type: Identifier < · generic_args >, > => 236
+    type: Identifier < · generic_args >, , => 236
+    generic_args: · type, > => 215
+    generic_args: · type, , => 215
+    generic_args: · generic_args , type, > => 236
+    generic_args: · generic_args , type, , => 236
+    Identifier: · identifier, < => 217
+    Identifier: · identifier, > => 217
+    Identifier: · identifier, , => 217
+    Identifier: · identifier, . => 217
+    Identifier: · Identifier . identifier, < => 216
+    Identifier: · Identifier . identifier, > => 216
+    Identifier: · Identifier . identifier, , => 216
+    Identifier: · Identifier . identifier, . => 216
 
-S235: (Transition = .)
-    Identifier: Identifier . · identifier, < => 243
-    Identifier: Identifier . · identifier, > => 243
-    Identifier: Identifier . · identifier, , => 243
-    Identifier: Identifier . · identifier, . => 243
+S229: (Transition = .)
+    Identifier: Identifier . · identifier, < => 237
+    Identifier: Identifier . · identifier, > => 237
+    Identifier: Identifier . · identifier, , => 237
+    Identifier: Identifier . · identifier, . => 237
 
-S236: (Transition = action_expr)
+S230: (Transition = action_expr)
     action_args: action_args , action_expr ·, ,
     action_args: action_args , action_expr ·, )
 
-S237: (Transition = ()
-    action_expr: · @new type ( action_args ), , => 203
-    action_expr: · @new type ( action_args ), ) => 203
-    action_expr: @new type ( · action_args ), , => 244
-    action_expr: @new type ( · action_args ), ) => 244
-    action_expr: · Identifier ( action_args ), , => 204
-    action_expr: · Identifier ( action_args ), ) => 204
-    action_expr: · action_primary_expr, , => 205
-    action_expr: · action_primary_expr, ) => 205
+S231: (Transition = ()
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: @new type ( · action_args ), , => 238
+    action_expr: @new type ( · action_args ), ) => 238
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
     action_args: ·, ,
     action_args: ·, )
-    action_args: · action_expr, , => 202
-    action_args: · action_expr, ) => 202
-    action_args: · action_args , action_expr, , => 244
-    action_args: · action_args , action_expr, ) => 244
-    action_primary_expr: · action_arg, , => 207
-    action_primary_expr: · action_arg, ) => 207
-    action_primary_expr: · Identifier, , => 204
-    action_primary_expr: · Identifier, ) => 204
-    action_primary_expr: · Integer, , => 208
-    action_primary_expr: · Integer, ) => 208
-    action_primary_expr: · string_literal, , => 209
-    action_primary_expr: · string_literal, ) => 209
-    action_primary_expr: · Boolean, , => 210
-    action_primary_expr: · Boolean, ) => 210
-    action_arg: · arg, , => 211
-    action_arg: · arg, ) => 211
-    action_arg: · arg : Identifier, , => 211
-    action_arg: · arg : Identifier, ) => 211
-    Identifier: · identifier, , => 206
-    Identifier: · identifier, ( => 206
-    Identifier: · identifier, ) => 206
-    Identifier: · identifier, . => 206
-    Identifier: · Identifier . identifier, , => 204
-    Identifier: · Identifier . identifier, ( => 204
-    Identifier: · Identifier . identifier, ) => 204
-    Identifier: · Identifier . identifier, . => 204
-    string_literal: · regular_string_literal, , => 213
-    string_literal: · regular_string_literal, ) => 213
-    regular_string_literal: · string, , => 216
-    regular_string_literal: · string, ) => 216
-    Integer: · integer, , => 212
-    Integer: · integer, ) => 212
-    Boolean: · @true, , => 214
-    Boolean: · @true, ) => 214
-    Boolean: · @false, , => 215
-    Boolean: · @false, ) => 215
+    action_args: · action_expr, , => 196
+    action_args: · action_expr, ) => 196
+    action_args: · action_args , action_expr, , => 238
+    action_args: · action_args , action_expr, ) => 238
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : Identifier, , => 205
+    action_arg: · arg : Identifier, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
 
-S238: (Transition = action_args)
-    action_expr: Identifier ( action_args · ), , => 245
-    action_expr: Identifier ( action_args · ), ) => 245
-    action_args: action_args · , action_expr, , => 226
-    action_args: action_args · , action_expr, ) => 226
+S232: (Transition = action_args)
+    action_expr: Identifier ( action_args · ), , => 239
+    action_expr: Identifier ( action_args · ), ) => 239
+    action_args: action_args · , action_expr, , => 220
+    action_args: action_args · , action_expr, ) => 220
 
-S239: (Transition = identifier)
+S233: (Transition = identifier)
     Identifier: Identifier . identifier ·, ,
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, )
     Identifier: Identifier . identifier ·, .
 
-S240: (Transition = Identifier)
+S234: (Transition = Identifier)
     action_arg: arg : Identifier ·, ,
     action_arg: arg : Identifier ·, )
-    Identifier: Identifier · . identifier, , => 229
-    Identifier: Identifier · . identifier, ) => 229
-    Identifier: Identifier · . identifier, . => 229
+    Identifier: Identifier · . identifier, , => 223
+    Identifier: Identifier · . identifier, ) => 223
+    Identifier: Identifier · . identifier, . => 223
 
-S241: (Transition = type)
+S235: (Transition = type)
     generic_args: generic_args , type ·, >
     generic_args: generic_args , type ·, ,
 
-S242: (Transition = generic_args)
-    type: Identifier < generic_args · >, > => 246
-    type: Identifier < generic_args · >, , => 246
-    generic_args: generic_args · , type, > => 233
-    generic_args: generic_args · , type, , => 233
+S236: (Transition = generic_args)
+    type: Identifier < generic_args · >, > => 240
+    type: Identifier < generic_args · >, , => 240
+    generic_args: generic_args · , type, > => 227
+    generic_args: generic_args · , type, , => 227
 
-S243: (Transition = identifier)
+S237: (Transition = identifier)
     Identifier: Identifier . identifier ·, <
     Identifier: Identifier . identifier ·, >
     Identifier: Identifier . identifier ·, ,
     Identifier: Identifier . identifier ·, .
 
-S244: (Transition = action_args)
-    action_expr: @new type ( action_args · ), , => 247
-    action_expr: @new type ( action_args · ), ) => 247
-    action_args: action_args · , action_expr, , => 226
-    action_args: action_args · , action_expr, ) => 226
+S238: (Transition = action_args)
+    action_expr: @new type ( action_args · ), , => 241
+    action_expr: @new type ( action_args · ), ) => 241
+    action_args: action_args · , action_expr, , => 220
+    action_args: action_args · , action_expr, ) => 220
 
-S245: (Transition = ))
+S239: (Transition = ))
     action_expr: Identifier ( action_args ) ·, ,
     action_expr: Identifier ( action_args ) ·, )
 
-S246: (Transition = >)
+S240: (Transition = >)
     type: Identifier < generic_args > ·, >
     type: Identifier < generic_args > ·, ,
 
-S247: (Transition = ))
+S241: (Transition = ))
     action_expr: @new type ( action_args ) ·, ,
     action_expr: @new type ( action_args ) ·, )

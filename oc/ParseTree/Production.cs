@@ -37,34 +37,13 @@ namespace Opal.ParseTree
                 item.DeclareTokens(context);
         }
 
-        public Productions.AttributeBase BuildAttribute()
-        {
-            Productions.AttributeBase result;
-            if (attr == null)
-                result = new Productions.NoAttribute();
-            else if (attr.Option.Value == "ignore")
-                result = new Productions.IgnoreAttribute();
-            else if (attr.IsMethod)
-                result = new Productions.MethodAttribute(attr.Option);
-            else if (attr.Option.Value == "true" || attr.Option.Value == "false")
-                result = new Productions.ValueAttribute(attr.Option.Value);
-            else
-                result = new Productions.NewAttribute(attr.Option);
-            return result;
-        }
-
         public IEnumerable<ProductionExpr> Expressions =>
             definitions.SelectMany(x => x.Right);
 
         public void AddActionType(ProductionActionTypeContext context)
         {
-            if ((attr != null) && 
-                !attr.IsMethod && 
-                (attr.Option != null) &&
-                (attr.Option.Value != "ignore"))
-            {
-                context.Add(name.Value, attr.Option.Value);
-            }
+            if (attr != null)
+                context.Add(name.Value, attr);
 
             var defContext = context.DefinitionContext(name.Value);
             foreach (var def in Definitions)

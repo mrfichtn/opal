@@ -1,5 +1,4 @@
 ﻿using Generators;
-using System;
 
 namespace Opal.ParseTree
 {

@@ -1,5 +1,4 @@
 ﻿using Opal.Logging;
-using System;
 using System.Text;
 
 namespace Opal

@@ -1,6 +1,6 @@
 ﻿using Opal;
 $(usings)
-#nullable enable
+$(if nullable)#nullable $(nullable)$(endif)
 
 $(namespace.start)
 $(if !no.parser)public partial class Parser: ParserBase

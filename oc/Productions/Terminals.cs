@@ -12,14 +12,14 @@ namespace Opal.Productions
         int Length { get; }
 
         IReduction Reduction(ReduceContext context);
-        IReductionExpr Reduce(ReduceContext context);
+        IReduceExpr Reduce(ReduceContext context);
     }
 
     public static class TerminalsExt
     {
-        public static IReductionExpr[] CreateArgs(this ITerminals terminals, ReduceContext context)
+        public static IReduceExpr[] CreateArgs(this ITerminals terminals, ReduceContext context)
         {
-            var result = new IReductionExpr[terminals.Length];
+            var result = new IReduceExpr[terminals.Length];
             for (var i = 0; i < result.Length; i++)
                 result[i] = terminals[i].Reduce(context);
             return result;
@@ -50,7 +50,7 @@ namespace Opal.Productions
         public IReduction Reduction(ReduceContext context) =>
             new Reduce(1, context.Id, context.ActionReduce());
 
-        public IReductionExpr Reduce(ReduceContext context) => new ArgReductionExpr(0);
+        public IReduceExpr Reduce(ReduceContext context) => new ReduceArgExpr(0);
     }
 
     public class Terminals: ITerminals
@@ -67,7 +67,7 @@ namespace Opal.Productions
         public IReduction Reduction(ReduceContext context) =>
             new Reduce(data.Length, context.Id, context.ActionReduce());
 
-        public IReductionExpr Reduce(ReduceContext context) => 
+        public IReduceExpr Reduce(ReduceContext context) => 
             context.DefaultReduce();
 
         public IEnumerator<TerminalBase> GetEnumerator() =>
@@ -94,6 +94,6 @@ namespace Opal.Productions
         public IReduction Reduction(ReduceContext context) =>
             new PushReduce(context.Id, context.ActionReduce());
 
-        public IReductionExpr Reduce(ReduceContext context) => new NullReductionExpr();
+        public IReduceExpr Reduce(ReduceContext context) => new ReduceNullExpr();
     }
 }
