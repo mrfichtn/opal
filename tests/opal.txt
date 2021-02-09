@@ -237,7 +237,11 @@ Productions language
 						| Boolean                               { new ActionBoolConstant($0); }
 
 	action_arg = arg											{ new ActionArg($0); }
-	           | arg ':' Identifier                             { ActionArgCasted.Create($0, $2); }
+	           | arg ':' nullable_type                          { ActionArgCasted.Create($0, $2); }
+
+
+	nullable_type = type                                       { new NullableType($0); }
+	              | type '?'                                   { new NullableType($0, $1); }
 
 	type	=	Identifier										{ $0:Identifier; }
 			|	Identifier '<' generic_args '>'					{ Identifier.MakeType($0:Identifier, $2:GenericArgs); }

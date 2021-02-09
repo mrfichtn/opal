@@ -3158,7 +3158,7 @@ S157: (Transition = {)
     action_primary_expr: · string_literal, ; => 176
     action_primary_expr: · Boolean, ; => 177
     action_arg: · arg, ; => 178
-    action_arg: · arg : Identifier, ; => 178
+    action_arg: · arg : nullable_type, ; => 178
     Identifier: · identifier, ; => 173
     Identifier: · identifier, ( => 173
     Identifier: · identifier, . => 173
@@ -3307,7 +3307,7 @@ S177: (Transition = Boolean)
 
 S178: (Transition = arg)
     action_arg: arg ·, ;
-    action_arg: arg · : Identifier, ; => 191
+    action_arg: arg · : nullable_type, ; => 191
 
 S179: (Transition = integer)
     Integer: integer ·, ;
@@ -3386,8 +3386,8 @@ S189: (Transition = ()
     action_primary_expr: · Boolean, ) => 204
     action_arg: · arg, , => 205
     action_arg: · arg, ) => 205
-    action_arg: · arg : Identifier, , => 205
-    action_arg: · arg : Identifier, ) => 205
+    action_arg: · arg : nullable_type, , => 205
+    action_arg: · arg : nullable_type, ) => 205
     Identifier: · identifier, , => 200
     Identifier: · identifier, ( => 200
     Identifier: · identifier, ) => 200
@@ -3413,16 +3413,26 @@ S190: (Transition = .)
     Identifier: Identifier . · identifier, . => 211
 
 S191: (Transition = :)
-    action_arg: arg : · Identifier, ; => 212
-    Identifier: · identifier, ; => 10
-    Identifier: · identifier, . => 10
-    Identifier: · Identifier . identifier, ; => 212
-    Identifier: · Identifier . identifier, . => 212
+    action_arg: arg : · nullable_type, ; => 212
+    nullable_type: · type, ; => 213
+    nullable_type: · type ?, ; => 213
+    type: · Identifier, ; => 214
+    type: · Identifier, ? => 214
+    type: · Identifier < generic_args >, ; => 214
+    type: · Identifier < generic_args >, ? => 214
+    Identifier: · identifier, ; => 215
+    Identifier: · identifier, < => 215
+    Identifier: · identifier, ? => 215
+    Identifier: · identifier, . => 215
+    Identifier: · Identifier . identifier, ; => 214
+    Identifier: · Identifier . identifier, < => 214
+    Identifier: · Identifier . identifier, ? => 214
+    Identifier: · Identifier . identifier, . => 214
 
 S192: (Transition = ()
     action_expr: · @new type ( action_args ), , => 197
     action_expr: · @new type ( action_args ), ) => 197
-    action_expr: @new type ( · action_args ), ; => 213
+    action_expr: @new type ( · action_args ), ; => 216
     action_expr: · Identifier ( action_args ), , => 198
     action_expr: · Identifier ( action_args ), ) => 198
     action_expr: · action_primary_expr, , => 199
@@ -3431,8 +3441,8 @@ S192: (Transition = ()
     action_args: ·, )
     action_args: · action_expr, , => 196
     action_args: · action_expr, ) => 196
-    action_args: · action_args , action_expr, , => 213
-    action_args: · action_args , action_expr, ) => 213
+    action_args: · action_args , action_expr, , => 216
+    action_args: · action_args , action_expr, ) => 216
     action_primary_expr: · action_arg, , => 201
     action_primary_expr: · action_arg, ) => 201
     action_primary_expr: · Identifier, , => 198
@@ -3445,8 +3455,8 @@ S192: (Transition = ()
     action_primary_expr: · Boolean, ) => 204
     action_arg: · arg, , => 205
     action_arg: · arg, ) => 205
-    action_arg: · arg : Identifier, , => 205
-    action_arg: · arg : Identifier, ) => 205
+    action_arg: · arg : nullable_type, , => 205
+    action_arg: · arg : nullable_type, ) => 205
     Identifier: · identifier, , => 200
     Identifier: · identifier, ( => 200
     Identifier: · identifier, ) => 200
@@ -3467,41 +3477,41 @@ S192: (Transition = ()
     Boolean: · @false, ) => 209
 
 S193: (Transition = <)
-    type: · Identifier, > => 216
-    type: · Identifier, , => 216
-    type: · Identifier < generic_args >, > => 216
-    type: · Identifier < generic_args >, , => 216
-    type: Identifier < · generic_args >, ( => 214
-    generic_args: · type, > => 215
-    generic_args: · type, , => 215
-    generic_args: · generic_args , type, > => 214
-    generic_args: · generic_args , type, , => 214
-    Identifier: · identifier, < => 217
-    Identifier: · identifier, > => 217
-    Identifier: · identifier, , => 217
-    Identifier: · identifier, . => 217
-    Identifier: · Identifier . identifier, < => 216
-    Identifier: · Identifier . identifier, > => 216
-    Identifier: · Identifier . identifier, , => 216
-    Identifier: · Identifier . identifier, . => 216
+    type: · Identifier, > => 219
+    type: · Identifier, , => 219
+    type: · Identifier < generic_args >, > => 219
+    type: · Identifier < generic_args >, , => 219
+    type: Identifier < · generic_args >, ( => 217
+    generic_args: · type, > => 218
+    generic_args: · type, , => 218
+    generic_args: · generic_args , type, > => 217
+    generic_args: · generic_args , type, , => 217
+    Identifier: · identifier, < => 220
+    Identifier: · identifier, > => 220
+    Identifier: · identifier, , => 220
+    Identifier: · identifier, . => 220
+    Identifier: · Identifier . identifier, < => 219
+    Identifier: · Identifier . identifier, > => 219
+    Identifier: · Identifier . identifier, , => 219
+    Identifier: · Identifier . identifier, . => 219
 
 S194: (Transition = .)
-    Identifier: Identifier . · identifier, < => 218
-    Identifier: Identifier . · identifier, ( => 218
-    Identifier: Identifier . · identifier, . => 218
+    Identifier: Identifier . · identifier, < => 221
+    Identifier: Identifier . · identifier, ( => 221
+    Identifier: Identifier . · identifier, . => 221
 
 S195: (Transition = action_args)
-    action_expr: Identifier ( action_args · ), ; => 219
-    action_args: action_args · , action_expr, , => 220
-    action_args: action_args · , action_expr, ) => 220
+    action_expr: Identifier ( action_args · ), ; => 222
+    action_args: action_args · , action_expr, , => 223
+    action_args: action_args · , action_expr, ) => 223
 
 S196: (Transition = action_expr)
     action_args: action_expr ·, ,
     action_args: action_expr ·, )
 
 S197: (Transition = @new)
-    action_expr: @new · type ( action_args ), , => 221
-    action_expr: @new · type ( action_args ), ) => 221
+    action_expr: @new · type ( action_args ), , => 224
+    action_expr: @new · type ( action_args ), ) => 224
     type: · Identifier, ( => 187
     type: · Identifier < generic_args >, ( => 187
     Identifier: · identifier, < => 188
@@ -3512,14 +3522,14 @@ S197: (Transition = @new)
     Identifier: · Identifier . identifier, . => 187
 
 S198: (Transition = Identifier)
-    action_expr: Identifier · ( action_args ), , => 222
-    action_expr: Identifier · ( action_args ), ) => 222
+    action_expr: Identifier · ( action_args ), , => 225
+    action_expr: Identifier · ( action_args ), ) => 225
     action_primary_expr: Identifier ·, ,
     action_primary_expr: Identifier ·, )
-    Identifier: Identifier · . identifier, , => 223
-    Identifier: Identifier · . identifier, ( => 223
-    Identifier: Identifier · . identifier, ) => 223
-    Identifier: Identifier · . identifier, . => 223
+    Identifier: Identifier · . identifier, , => 226
+    Identifier: Identifier · . identifier, ( => 226
+    Identifier: Identifier · . identifier, ) => 226
+    Identifier: Identifier · . identifier, . => 226
 
 S199: (Transition = action_primary_expr)
     action_expr: action_primary_expr ·, ,
@@ -3550,8 +3560,8 @@ S204: (Transition = Boolean)
 S205: (Transition = arg)
     action_arg: arg ·, ,
     action_arg: arg ·, )
-    action_arg: arg · : Identifier, , => 224
-    action_arg: arg · : Identifier, ) => 224
+    action_arg: arg · : nullable_type, , => 227
+    action_arg: arg · : nullable_type, ) => 227
 
 S206: (Transition = integer)
     Integer: integer ·, ,
@@ -3578,58 +3588,76 @@ S211: (Transition = identifier)
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, .
 
-S212: (Transition = Identifier)
-    action_arg: arg : Identifier ·, ;
-    Identifier: Identifier · . identifier, ; => 19
-    Identifier: Identifier · . identifier, . => 19
+S212: (Transition = nullable_type)
+    action_arg: arg : nullable_type ·, ;
 
-S213: (Transition = action_args)
-    action_expr: @new type ( action_args · ), ; => 225
-    action_args: action_args · , action_expr, , => 220
-    action_args: action_args · , action_expr, ) => 220
+S213: (Transition = type)
+    nullable_type: type ·, ;
+    nullable_type: type · ?, ; => 228
 
-S214: (Transition = generic_args)
-    type: Identifier < generic_args · >, ( => 226
-    generic_args: generic_args · , type, > => 227
-    generic_args: generic_args · , type, , => 227
+S214: (Transition = Identifier)
+    type: Identifier ·, ;
+    type: Identifier ·, ?
+    type: Identifier · < generic_args >, ; => 229
+    type: Identifier · < generic_args >, ? => 229
+    Identifier: Identifier · . identifier, ; => 230
+    Identifier: Identifier · . identifier, < => 230
+    Identifier: Identifier · . identifier, ? => 230
+    Identifier: Identifier · . identifier, . => 230
 
-S215: (Transition = type)
+S215: (Transition = identifier)
+    Identifier: identifier ·, ;
+    Identifier: identifier ·, <
+    Identifier: identifier ·, ?
+    Identifier: identifier ·, .
+
+S216: (Transition = action_args)
+    action_expr: @new type ( action_args · ), ; => 231
+    action_args: action_args · , action_expr, , => 223
+    action_args: action_args · , action_expr, ) => 223
+
+S217: (Transition = generic_args)
+    type: Identifier < generic_args · >, ( => 232
+    generic_args: generic_args · , type, > => 233
+    generic_args: generic_args · , type, , => 233
+
+S218: (Transition = type)
     generic_args: type ·, >
     generic_args: type ·, ,
 
-S216: (Transition = Identifier)
+S219: (Transition = Identifier)
     type: Identifier ·, >
     type: Identifier ·, ,
-    type: Identifier · < generic_args >, > => 228
-    type: Identifier · < generic_args >, , => 228
-    Identifier: Identifier · . identifier, < => 229
-    Identifier: Identifier · . identifier, > => 229
-    Identifier: Identifier · . identifier, , => 229
-    Identifier: Identifier · . identifier, . => 229
+    type: Identifier · < generic_args >, > => 234
+    type: Identifier · < generic_args >, , => 234
+    Identifier: Identifier · . identifier, < => 235
+    Identifier: Identifier · . identifier, > => 235
+    Identifier: Identifier · . identifier, , => 235
+    Identifier: Identifier · . identifier, . => 235
 
-S217: (Transition = identifier)
+S220: (Transition = identifier)
     Identifier: identifier ·, <
     Identifier: identifier ·, >
     Identifier: identifier ·, ,
     Identifier: identifier ·, .
 
-S218: (Transition = identifier)
+S221: (Transition = identifier)
     Identifier: Identifier . identifier ·, <
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, .
 
-S219: (Transition = ))
+S222: (Transition = ))
     action_expr: Identifier ( action_args ) ·, ;
 
-S220: (Transition = ,)
+S223: (Transition = ,)
     action_expr: · @new type ( action_args ), , => 197
     action_expr: · @new type ( action_args ), ) => 197
     action_expr: · Identifier ( action_args ), , => 198
     action_expr: · Identifier ( action_args ), ) => 198
     action_expr: · action_primary_expr, , => 199
     action_expr: · action_primary_expr, ) => 199
-    action_args: action_args , · action_expr, , => 230
-    action_args: action_args , · action_expr, ) => 230
+    action_args: action_args , · action_expr, , => 236
+    action_args: action_args , · action_expr, ) => 236
     action_primary_expr: · action_arg, , => 201
     action_primary_expr: · action_arg, ) => 201
     action_primary_expr: · Identifier, , => 198
@@ -3642,8 +3670,8 @@ S220: (Transition = ,)
     action_primary_expr: · Boolean, ) => 204
     action_arg: · arg, , => 205
     action_arg: · arg, ) => 205
-    action_arg: · arg : Identifier, , => 205
-    action_arg: · arg : Identifier, ) => 205
+    action_arg: · arg : nullable_type, , => 205
+    action_arg: · arg : nullable_type, ) => 205
     Identifier: · identifier, , => 200
     Identifier: · identifier, ( => 200
     Identifier: · identifier, ) => 200
@@ -3663,133 +3691,17 @@ S220: (Transition = ,)
     Boolean: · @false, , => 209
     Boolean: · @false, ) => 209
 
-S221: (Transition = type)
-    action_expr: @new type · ( action_args ), , => 231
-    action_expr: @new type · ( action_args ), ) => 231
+S224: (Transition = type)
+    action_expr: @new type · ( action_args ), , => 237
+    action_expr: @new type · ( action_args ), ) => 237
 
-S222: (Transition = ()
+S225: (Transition = ()
     action_expr: · @new type ( action_args ), , => 197
     action_expr: · @new type ( action_args ), ) => 197
     action_expr: · Identifier ( action_args ), , => 198
     action_expr: · Identifier ( action_args ), ) => 198
-    action_expr: Identifier ( · action_args ), , => 232
-    action_expr: Identifier ( · action_args ), ) => 232
-    action_expr: · action_primary_expr, , => 199
-    action_expr: · action_primary_expr, ) => 199
-    action_args: ·, ,
-    action_args: ·, )
-    action_args: · action_expr, , => 196
-    action_args: · action_expr, ) => 196
-    action_args: · action_args , action_expr, , => 232
-    action_args: · action_args , action_expr, ) => 232
-    action_primary_expr: · action_arg, , => 201
-    action_primary_expr: · action_arg, ) => 201
-    action_primary_expr: · Identifier, , => 198
-    action_primary_expr: · Identifier, ) => 198
-    action_primary_expr: · Integer, , => 202
-    action_primary_expr: · Integer, ) => 202
-    action_primary_expr: · string_literal, , => 203
-    action_primary_expr: · string_literal, ) => 203
-    action_primary_expr: · Boolean, , => 204
-    action_primary_expr: · Boolean, ) => 204
-    action_arg: · arg, , => 205
-    action_arg: · arg, ) => 205
-    action_arg: · arg : Identifier, , => 205
-    action_arg: · arg : Identifier, ) => 205
-    Identifier: · identifier, , => 200
-    Identifier: · identifier, ( => 200
-    Identifier: · identifier, ) => 200
-    Identifier: · identifier, . => 200
-    Identifier: · Identifier . identifier, , => 198
-    Identifier: · Identifier . identifier, ( => 198
-    Identifier: · Identifier . identifier, ) => 198
-    Identifier: · Identifier . identifier, . => 198
-    string_literal: · regular_string_literal, , => 207
-    string_literal: · regular_string_literal, ) => 207
-    regular_string_literal: · string, , => 210
-    regular_string_literal: · string, ) => 210
-    Integer: · integer, , => 206
-    Integer: · integer, ) => 206
-    Boolean: · @true, , => 208
-    Boolean: · @true, ) => 208
-    Boolean: · @false, , => 209
-    Boolean: · @false, ) => 209
-
-S223: (Transition = .)
-    Identifier: Identifier . · identifier, , => 233
-    Identifier: Identifier . · identifier, ( => 233
-    Identifier: Identifier . · identifier, ) => 233
-    Identifier: Identifier . · identifier, . => 233
-
-S224: (Transition = :)
-    action_arg: arg : · Identifier, , => 234
-    action_arg: arg : · Identifier, ) => 234
-    Identifier: · identifier, , => 200
-    Identifier: · identifier, ) => 200
-    Identifier: · identifier, . => 200
-    Identifier: · Identifier . identifier, , => 234
-    Identifier: · Identifier . identifier, ) => 234
-    Identifier: · Identifier . identifier, . => 234
-
-S225: (Transition = ))
-    action_expr: @new type ( action_args ) ·, ;
-
-S226: (Transition = >)
-    type: Identifier < generic_args > ·, (
-
-S227: (Transition = ,)
-    type: · Identifier, > => 216
-    type: · Identifier, , => 216
-    type: · Identifier < generic_args >, > => 216
-    type: · Identifier < generic_args >, , => 216
-    generic_args: generic_args , · type, > => 235
-    generic_args: generic_args , · type, , => 235
-    Identifier: · identifier, < => 217
-    Identifier: · identifier, > => 217
-    Identifier: · identifier, , => 217
-    Identifier: · identifier, . => 217
-    Identifier: · Identifier . identifier, < => 216
-    Identifier: · Identifier . identifier, > => 216
-    Identifier: · Identifier . identifier, , => 216
-    Identifier: · Identifier . identifier, . => 216
-
-S228: (Transition = <)
-    type: · Identifier, > => 216
-    type: · Identifier, , => 216
-    type: · Identifier < generic_args >, > => 216
-    type: · Identifier < generic_args >, , => 216
-    type: Identifier < · generic_args >, > => 236
-    type: Identifier < · generic_args >, , => 236
-    generic_args: · type, > => 215
-    generic_args: · type, , => 215
-    generic_args: · generic_args , type, > => 236
-    generic_args: · generic_args , type, , => 236
-    Identifier: · identifier, < => 217
-    Identifier: · identifier, > => 217
-    Identifier: · identifier, , => 217
-    Identifier: · identifier, . => 217
-    Identifier: · Identifier . identifier, < => 216
-    Identifier: · Identifier . identifier, > => 216
-    Identifier: · Identifier . identifier, , => 216
-    Identifier: · Identifier . identifier, . => 216
-
-S229: (Transition = .)
-    Identifier: Identifier . · identifier, < => 237
-    Identifier: Identifier . · identifier, > => 237
-    Identifier: Identifier . · identifier, , => 237
-    Identifier: Identifier . · identifier, . => 237
-
-S230: (Transition = action_expr)
-    action_args: action_args , action_expr ·, ,
-    action_args: action_args , action_expr ·, )
-
-S231: (Transition = ()
-    action_expr: · @new type ( action_args ), , => 197
-    action_expr: · @new type ( action_args ), ) => 197
-    action_expr: @new type ( · action_args ), , => 238
-    action_expr: @new type ( · action_args ), ) => 238
-    action_expr: · Identifier ( action_args ), , => 198
-    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: Identifier ( · action_args ), , => 238
+    action_expr: Identifier ( · action_args ), ) => 238
     action_expr: · action_primary_expr, , => 199
     action_expr: · action_primary_expr, ) => 199
     action_args: ·, ,
@@ -3810,8 +3722,8 @@ S231: (Transition = ()
     action_primary_expr: · Boolean, ) => 204
     action_arg: · arg, , => 205
     action_arg: · arg, ) => 205
-    action_arg: · arg : Identifier, , => 205
-    action_arg: · arg : Identifier, ) => 205
+    action_arg: · arg : nullable_type, , => 205
+    action_arg: · arg : nullable_type, ) => 205
     Identifier: · identifier, , => 200
     Identifier: · identifier, ( => 200
     Identifier: · identifier, ) => 200
@@ -3831,55 +3743,304 @@ S231: (Transition = ()
     Boolean: · @false, , => 209
     Boolean: · @false, ) => 209
 
-S232: (Transition = action_args)
-    action_expr: Identifier ( action_args · ), , => 239
-    action_expr: Identifier ( action_args · ), ) => 239
-    action_args: action_args · , action_expr, , => 220
-    action_args: action_args · , action_expr, ) => 220
+S226: (Transition = .)
+    Identifier: Identifier . · identifier, , => 239
+    Identifier: Identifier . · identifier, ( => 239
+    Identifier: Identifier . · identifier, ) => 239
+    Identifier: Identifier . · identifier, . => 239
 
-S233: (Transition = identifier)
+S227: (Transition = :)
+    action_arg: arg : · nullable_type, , => 240
+    action_arg: arg : · nullable_type, ) => 240
+    nullable_type: · type, , => 241
+    nullable_type: · type, ) => 241
+    nullable_type: · type ?, , => 241
+    nullable_type: · type ?, ) => 241
+    type: · Identifier, ? => 242
+    type: · Identifier, , => 242
+    type: · Identifier, ) => 242
+    type: · Identifier < generic_args >, ? => 242
+    type: · Identifier < generic_args >, , => 242
+    type: · Identifier < generic_args >, ) => 242
+    Identifier: · identifier, < => 243
+    Identifier: · identifier, ? => 243
+    Identifier: · identifier, , => 243
+    Identifier: · identifier, ) => 243
+    Identifier: · identifier, . => 243
+    Identifier: · Identifier . identifier, < => 242
+    Identifier: · Identifier . identifier, ? => 242
+    Identifier: · Identifier . identifier, , => 242
+    Identifier: · Identifier . identifier, ) => 242
+    Identifier: · Identifier . identifier, . => 242
+
+S228: (Transition = ?)
+    nullable_type: type ? ·, ;
+
+S229: (Transition = <)
+    type: · Identifier, > => 219
+    type: · Identifier, , => 219
+    type: · Identifier < generic_args >, > => 219
+    type: · Identifier < generic_args >, , => 219
+    type: Identifier < · generic_args >, ; => 244
+    type: Identifier < · generic_args >, ? => 244
+    generic_args: · type, > => 218
+    generic_args: · type, , => 218
+    generic_args: · generic_args , type, > => 244
+    generic_args: · generic_args , type, , => 244
+    Identifier: · identifier, < => 220
+    Identifier: · identifier, > => 220
+    Identifier: · identifier, , => 220
+    Identifier: · identifier, . => 220
+    Identifier: · Identifier . identifier, < => 219
+    Identifier: · Identifier . identifier, > => 219
+    Identifier: · Identifier . identifier, , => 219
+    Identifier: · Identifier . identifier, . => 219
+
+S230: (Transition = .)
+    Identifier: Identifier . · identifier, ; => 245
+    Identifier: Identifier . · identifier, < => 245
+    Identifier: Identifier . · identifier, ? => 245
+    Identifier: Identifier . · identifier, . => 245
+
+S231: (Transition = ))
+    action_expr: @new type ( action_args ) ·, ;
+
+S232: (Transition = >)
+    type: Identifier < generic_args > ·, (
+
+S233: (Transition = ,)
+    type: · Identifier, > => 219
+    type: · Identifier, , => 219
+    type: · Identifier < generic_args >, > => 219
+    type: · Identifier < generic_args >, , => 219
+    generic_args: generic_args , · type, > => 246
+    generic_args: generic_args , · type, , => 246
+    Identifier: · identifier, < => 220
+    Identifier: · identifier, > => 220
+    Identifier: · identifier, , => 220
+    Identifier: · identifier, . => 220
+    Identifier: · Identifier . identifier, < => 219
+    Identifier: · Identifier . identifier, > => 219
+    Identifier: · Identifier . identifier, , => 219
+    Identifier: · Identifier . identifier, . => 219
+
+S234: (Transition = <)
+    type: · Identifier, > => 219
+    type: · Identifier, , => 219
+    type: · Identifier < generic_args >, > => 219
+    type: · Identifier < generic_args >, , => 219
+    type: Identifier < · generic_args >, > => 247
+    type: Identifier < · generic_args >, , => 247
+    generic_args: · type, > => 218
+    generic_args: · type, , => 218
+    generic_args: · generic_args , type, > => 247
+    generic_args: · generic_args , type, , => 247
+    Identifier: · identifier, < => 220
+    Identifier: · identifier, > => 220
+    Identifier: · identifier, , => 220
+    Identifier: · identifier, . => 220
+    Identifier: · Identifier . identifier, < => 219
+    Identifier: · Identifier . identifier, > => 219
+    Identifier: · Identifier . identifier, , => 219
+    Identifier: · Identifier . identifier, . => 219
+
+S235: (Transition = .)
+    Identifier: Identifier . · identifier, < => 248
+    Identifier: Identifier . · identifier, > => 248
+    Identifier: Identifier . · identifier, , => 248
+    Identifier: Identifier . · identifier, . => 248
+
+S236: (Transition = action_expr)
+    action_args: action_args , action_expr ·, ,
+    action_args: action_args , action_expr ·, )
+
+S237: (Transition = ()
+    action_expr: · @new type ( action_args ), , => 197
+    action_expr: · @new type ( action_args ), ) => 197
+    action_expr: @new type ( · action_args ), , => 249
+    action_expr: @new type ( · action_args ), ) => 249
+    action_expr: · Identifier ( action_args ), , => 198
+    action_expr: · Identifier ( action_args ), ) => 198
+    action_expr: · action_primary_expr, , => 199
+    action_expr: · action_primary_expr, ) => 199
+    action_args: ·, ,
+    action_args: ·, )
+    action_args: · action_expr, , => 196
+    action_args: · action_expr, ) => 196
+    action_args: · action_args , action_expr, , => 249
+    action_args: · action_args , action_expr, ) => 249
+    action_primary_expr: · action_arg, , => 201
+    action_primary_expr: · action_arg, ) => 201
+    action_primary_expr: · Identifier, , => 198
+    action_primary_expr: · Identifier, ) => 198
+    action_primary_expr: · Integer, , => 202
+    action_primary_expr: · Integer, ) => 202
+    action_primary_expr: · string_literal, , => 203
+    action_primary_expr: · string_literal, ) => 203
+    action_primary_expr: · Boolean, , => 204
+    action_primary_expr: · Boolean, ) => 204
+    action_arg: · arg, , => 205
+    action_arg: · arg, ) => 205
+    action_arg: · arg : nullable_type, , => 205
+    action_arg: · arg : nullable_type, ) => 205
+    Identifier: · identifier, , => 200
+    Identifier: · identifier, ( => 200
+    Identifier: · identifier, ) => 200
+    Identifier: · identifier, . => 200
+    Identifier: · Identifier . identifier, , => 198
+    Identifier: · Identifier . identifier, ( => 198
+    Identifier: · Identifier . identifier, ) => 198
+    Identifier: · Identifier . identifier, . => 198
+    string_literal: · regular_string_literal, , => 207
+    string_literal: · regular_string_literal, ) => 207
+    regular_string_literal: · string, , => 210
+    regular_string_literal: · string, ) => 210
+    Integer: · integer, , => 206
+    Integer: · integer, ) => 206
+    Boolean: · @true, , => 208
+    Boolean: · @true, ) => 208
+    Boolean: · @false, , => 209
+    Boolean: · @false, ) => 209
+
+S238: (Transition = action_args)
+    action_expr: Identifier ( action_args · ), , => 250
+    action_expr: Identifier ( action_args · ), ) => 250
+    action_args: action_args · , action_expr, , => 223
+    action_args: action_args · , action_expr, ) => 223
+
+S239: (Transition = identifier)
     Identifier: Identifier . identifier ·, ,
     Identifier: Identifier . identifier ·, (
     Identifier: Identifier . identifier ·, )
     Identifier: Identifier . identifier ·, .
 
-S234: (Transition = Identifier)
-    action_arg: arg : Identifier ·, ,
-    action_arg: arg : Identifier ·, )
-    Identifier: Identifier · . identifier, , => 223
-    Identifier: Identifier · . identifier, ) => 223
-    Identifier: Identifier · . identifier, . => 223
+S240: (Transition = nullable_type)
+    action_arg: arg : nullable_type ·, ,
+    action_arg: arg : nullable_type ·, )
 
-S235: (Transition = type)
+S241: (Transition = type)
+    nullable_type: type ·, ,
+    nullable_type: type ·, )
+    nullable_type: type · ?, , => 251
+    nullable_type: type · ?, ) => 251
+
+S242: (Transition = Identifier)
+    type: Identifier ·, ?
+    type: Identifier ·, ,
+    type: Identifier ·, )
+    type: Identifier · < generic_args >, ? => 252
+    type: Identifier · < generic_args >, , => 252
+    type: Identifier · < generic_args >, ) => 252
+    Identifier: Identifier · . identifier, < => 253
+    Identifier: Identifier · . identifier, ? => 253
+    Identifier: Identifier · . identifier, , => 253
+    Identifier: Identifier · . identifier, ) => 253
+    Identifier: Identifier · . identifier, . => 253
+
+S243: (Transition = identifier)
+    Identifier: identifier ·, <
+    Identifier: identifier ·, ?
+    Identifier: identifier ·, ,
+    Identifier: identifier ·, )
+    Identifier: identifier ·, .
+
+S244: (Transition = generic_args)
+    type: Identifier < generic_args · >, ; => 254
+    type: Identifier < generic_args · >, ? => 254
+    generic_args: generic_args · , type, > => 233
+    generic_args: generic_args · , type, , => 233
+
+S245: (Transition = identifier)
+    Identifier: Identifier . identifier ·, ;
+    Identifier: Identifier . identifier ·, <
+    Identifier: Identifier . identifier ·, ?
+    Identifier: Identifier . identifier ·, .
+
+S246: (Transition = type)
     generic_args: generic_args , type ·, >
     generic_args: generic_args , type ·, ,
 
-S236: (Transition = generic_args)
-    type: Identifier < generic_args · >, > => 240
-    type: Identifier < generic_args · >, , => 240
-    generic_args: generic_args · , type, > => 227
-    generic_args: generic_args · , type, , => 227
+S247: (Transition = generic_args)
+    type: Identifier < generic_args · >, > => 255
+    type: Identifier < generic_args · >, , => 255
+    generic_args: generic_args · , type, > => 233
+    generic_args: generic_args · , type, , => 233
 
-S237: (Transition = identifier)
+S248: (Transition = identifier)
     Identifier: Identifier . identifier ·, <
     Identifier: Identifier . identifier ·, >
     Identifier: Identifier . identifier ·, ,
     Identifier: Identifier . identifier ·, .
 
-S238: (Transition = action_args)
-    action_expr: @new type ( action_args · ), , => 241
-    action_expr: @new type ( action_args · ), ) => 241
-    action_args: action_args · , action_expr, , => 220
-    action_args: action_args · , action_expr, ) => 220
+S249: (Transition = action_args)
+    action_expr: @new type ( action_args · ), , => 256
+    action_expr: @new type ( action_args · ), ) => 256
+    action_args: action_args · , action_expr, , => 223
+    action_args: action_args · , action_expr, ) => 223
 
-S239: (Transition = ))
+S250: (Transition = ))
     action_expr: Identifier ( action_args ) ·, ,
     action_expr: Identifier ( action_args ) ·, )
 
-S240: (Transition = >)
+S251: (Transition = ?)
+    nullable_type: type ? ·, ,
+    nullable_type: type ? ·, )
+
+S252: (Transition = <)
+    type: · Identifier, > => 219
+    type: · Identifier, , => 219
+    type: · Identifier < generic_args >, > => 219
+    type: · Identifier < generic_args >, , => 219
+    type: Identifier < · generic_args >, ? => 257
+    type: Identifier < · generic_args >, , => 257
+    type: Identifier < · generic_args >, ) => 257
+    generic_args: · type, > => 218
+    generic_args: · type, , => 218
+    generic_args: · generic_args , type, > => 257
+    generic_args: · generic_args , type, , => 257
+    Identifier: · identifier, < => 220
+    Identifier: · identifier, > => 220
+    Identifier: · identifier, , => 220
+    Identifier: · identifier, . => 220
+    Identifier: · Identifier . identifier, < => 219
+    Identifier: · Identifier . identifier, > => 219
+    Identifier: · Identifier . identifier, , => 219
+    Identifier: · Identifier . identifier, . => 219
+
+S253: (Transition = .)
+    Identifier: Identifier . · identifier, < => 258
+    Identifier: Identifier . · identifier, ? => 258
+    Identifier: Identifier . · identifier, , => 258
+    Identifier: Identifier . · identifier, ) => 258
+    Identifier: Identifier . · identifier, . => 258
+
+S254: (Transition = >)
+    type: Identifier < generic_args > ·, ;
+    type: Identifier < generic_args > ·, ?
+
+S255: (Transition = >)
     type: Identifier < generic_args > ·, >
     type: Identifier < generic_args > ·, ,
 
-S241: (Transition = ))
+S256: (Transition = ))
     action_expr: @new type ( action_args ) ·, ,
     action_expr: @new type ( action_args ) ·, )
+
+S257: (Transition = generic_args)
+    type: Identifier < generic_args · >, ? => 259
+    type: Identifier < generic_args · >, , => 259
+    type: Identifier < generic_args · >, ) => 259
+    generic_args: generic_args · , type, > => 233
+    generic_args: generic_args · , type, , => 233
+
+S258: (Transition = identifier)
+    Identifier: Identifier . identifier ·, <
+    Identifier: Identifier . identifier ·, ?
+    Identifier: Identifier . identifier ·, ,
+    Identifier: Identifier . identifier ·, )
+    Identifier: Identifier . identifier ·, .
+
+S259: (Transition = >)
+    type: Identifier < generic_args > ·, ?
+    type: Identifier < generic_args > ·, ,
+    type: Identifier < generic_args > ·, )

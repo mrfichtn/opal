@@ -74,18 +74,19 @@ Symbols:
 [72] = action_args
 [73] = action_primary_expr
 [74] = action_arg
-[75] = type
-[76] = generic_args
-[77] = conflict_section
-[78] = conflict_list
-[79] = conflict
-[80] = Identifier
-[81] = CharClass
-[82] = Char
-[83] = string_literal
-[84] = regular_string_literal
-[85] = Integer
-[86] = Boolean
+[75] = nullable_type
+[76] = type
+[77] = generic_args
+[78] = conflict_section
+[79] = conflict_list
+[80] = conflict
+[81] = Identifier
+[82] = CharClass
+[83] = Char
+[84] = string_literal
+[85] = regular_string_literal
+[86] = Integer
+[87] = Boolean
 
 R0: S' -> language
 R1: language -> using_section namespace_section option_section characters_section token_section production_section conflict_section
@@ -176,22 +177,24 @@ R85: action_primary_expr -> Integer
 R86: action_primary_expr -> string_literal
 R87: action_primary_expr -> Boolean
 R88: action_arg -> arg
-R89: action_arg -> arg : Identifier
-R90: type -> Identifier
-R91: type -> Identifier < generic_args >
-R92: generic_args -> type
-R93: generic_args -> generic_args , type
-R94: conflict_section ->
-R95: conflict_section -> @Conflicts conflict_list
-R96: conflict_list ->
-R97: conflict_list -> conflict_list conflict
-R98: conflict -> Identifier , Identifier : Identifier Identifier ;
-R99: Identifier -> identifier
-R100: Identifier -> Identifier . identifier
-R101: CharClass -> char_class
-R102: Char -> char_string
-R103: string_literal -> regular_string_literal
-R104: regular_string_literal -> string
-R105: Integer -> integer
-R106: Boolean -> @true
-R107: Boolean -> @false
+R89: action_arg -> arg : nullable_type
+R90: nullable_type -> type
+R91: nullable_type -> type ?
+R92: type -> Identifier
+R93: type -> Identifier < generic_args >
+R94: generic_args -> type
+R95: generic_args -> generic_args , type
+R96: conflict_section ->
+R97: conflict_section -> @Conflicts conflict_list
+R98: conflict_list ->
+R99: conflict_list -> conflict_list conflict
+R100: conflict -> Identifier , Identifier : Identifier Identifier ;
+R101: Identifier -> identifier
+R102: Identifier -> Identifier . identifier
+R103: CharClass -> char_class
+R104: Char -> char_string
+R105: string_literal -> regular_string_literal
+R106: regular_string_literal -> string
+R107: Integer -> integer
+R108: Boolean -> @true
+R109: Boolean -> @false

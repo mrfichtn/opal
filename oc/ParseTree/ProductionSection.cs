@@ -1,5 +1,4 @@
-﻿using Opal.Containers;
-using Opal.Nfa;
+﻿using Opal.Nfa;
 using System.Collections.Generic;
 
 namespace Opal.ParseTree
@@ -24,55 +23,11 @@ namespace Opal.ParseTree
             IEnumerable<Symbol> symbols,
             Options options)
         {
-            var context = new ProductionContext(logger);
-            context.AddTerminals(symbols);
-            context.AddDeclarations(productions);
-
-            var list = new List<Productions.Production>();
-            var ruleId = 0;
-
-            context.TypeTable.Write("types.txt");
-
-            foreach (var prod in productions)
-            {
-                context.TryFind(prod.Name.Value, out var id, out var isTerminal);
-                foreach (var definition in prod.Definitions)
-                {
-                    var terms = definition.Build(context);
-                    
-                    options.TryGet("no_action", out var noAction);
-                    var reduceContext = new Productions.ReduceContext(
-                        context.TypeTable,
-                        terms,
-                        definition.Action,
-                        GetOption(noAction),
-                        id);
-                    
-                    var reduction = reduceContext.Reduce();
-                    var production = new Productions.Production(
-                        prod.Name,
-                        id,
-                        ruleId++,
-                        terms,
-                        reduction);
-                    list.Add(production);
-                }
-            }
-            
-            return new Productions.Grammar(Start.Value,
-                context.Symbols,
-                list.ToArray(),
-                context.TypeTable);
+            return new Productions.GrammarBuilder(logger, Start)
+                .Options(options)
+                .Terminals(symbols)
+                .ProductionList(productions)
+                .Build();
         }
-
-        private static Productions.INoAction GetOption(string? noAction)
-        {
-            if (noAction.EqualsI("null"))
-                return new Productions.NullNoAction();
-            if (noAction.EqualsI("tuple"))
-                return new Productions.TupleNoAction();
-            return new Productions.FirstNoAction();
-        }
-
     }
 }

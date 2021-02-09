@@ -24,8 +24,6 @@ namespace Opal.Productions
 
         public int Id { get; }
 
-        public IReduction Reduce() => terminals.Reduction(this);
-
         public IReduceExpr ActionReduce() => action.Reduce(this);
 
         public IReduceExpr TerminalsReduce() => terminals.Reduce(this);

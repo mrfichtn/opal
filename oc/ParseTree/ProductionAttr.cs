@@ -13,8 +13,8 @@ namespace Opal.ParseTree
         public Identifier Type { get; }
         public bool IsNullable { get; }
 
-        public NullableType NullableType =>
-            new NullableType(Type.Value, IsNullable);
+        public Productions.NullableType NullableType =>
+            new Productions.NullableType(Type.Value, IsNullable);
 
         public override string ToString()
         {

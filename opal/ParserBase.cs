@@ -74,7 +74,7 @@ namespace Opal
 						break;
 
 					case ActionType.Reduce:
-						var rule = result;
+					var rule = result;
 						var reducedState = Reduce(rule);
 						if (rule == 0)
 						{

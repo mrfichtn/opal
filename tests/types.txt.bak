@@ -35,8 +35,6 @@ arg: Token
 language: Language
 using_section: UsingList
 using_decl: Using
-namespace_section: Identifier
-option_section: OptionList
 option_list: OptionList
 option: Option
 characters_section: CharacterList
@@ -45,7 +43,6 @@ character: Character
 char_class_concat: CharacterExpr
 char_class_unary: CharacterExpr
 char_class_primary: CharacterExpr
-token_section: TokenList
 token_list: TokenList
 token: TokenDeclaration
 token_attr: Token
@@ -55,16 +52,12 @@ token_primary: TokenExpr
 production_section: ProductionSection
 prod_list: ProductionList
 production: Production
-production_attr_option: ProductionAttr
 production_attr: ProductionAttr
-nullable_opt: bool
-func_opt_arg_type: Identifier
+func_opt: FuncOption
 prod_def_list: ProdDefList
 prod_def_start: ProdDefList
 prod_def: ProdDef
-optional_semicolon: Token
 prod_expr_list: ProductionExprList
-prod_expr: ProductionExpr
 prod_expr_quantifier: QuestionProdExpr
 prod_expr_primary: SymbolProdExpr
 action_stmt: ActionNullExpr
@@ -72,7 +65,6 @@ action_expr: ActionNewExpr
 action_args: ActionArgs
 action_primary_expr: ActionMember
 action_arg: ActionArg
-nullable_type: NullableType
 type: Identifier
 generic_args: GenericArgs
 conflict_section: ConflictList
@@ -85,4 +77,8 @@ string_literal: StringConst
 regular_string_literal: EscString
 Integer: DecInteger
 Boolean: BoolConst
+namespace_section: Identifier
+option_section: OptionList
+token_section: TokenList
+production_attr_option: ProductionAttr
 prod_action: ActionNullExpr

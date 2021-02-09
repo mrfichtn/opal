@@ -5,20 +5,23 @@ namespace Opal.ParseTree
     public class DefinitionActionTypeContext
     {
         private readonly TypeTable typeTable;
-        private readonly string productionName;
         private readonly MissingReferenceTable missing;
+        private readonly INoAction noAction;
+        private readonly string productionName;
         private ProductionExprList? expressions;
         
         public DefinitionActionTypeContext(TypeTable typeTable,
-            string productionName,
-            MissingReferenceTable missing)
+            MissingReferenceTable missing,
+            INoAction noAction,
+            string productionName)
         {
             this.typeTable = typeTable;
-            this.productionName = productionName;
             this.missing = missing;
+            this.noAction = noAction;
+            this.productionName = productionName;
         }
 
-        public void Add(string typeName) =>
+        public void Add(string? typeName) =>
             typeTable.AddActionType(productionName, typeName);
 
         public void SetExpressions(ProductionExprList expressions) =>
@@ -41,6 +44,16 @@ namespace Opal.ParseTree
                 result = false;
             }
             return result;
+        }
+
+        public void AddTypeFromActionEmpty()
+        {
+            if ((expressions == null) || (expressions.Count == 0))
+                Add(null);
+            else if (expressions.Count == 1)
+                AddFromActionExpr(0);
+            else
+                noAction.AddType(this);
         }
     }
 }

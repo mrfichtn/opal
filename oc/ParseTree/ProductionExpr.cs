@@ -14,13 +14,11 @@ namespace Opal.ParseTree
         public virtual void DeclareToken(DeclareTokenContext context)
         {}
 
-        public Productions.TerminalBase Build(ProductionContext context) =>
-            Create(context);
+        public abstract Productions.TerminalBase Build(Productions.GrammarBuilder builder);
+
 
         public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
         {}
-
-        protected abstract Productions.TerminalBase Create(ProductionContext context);
 
         #region Properties
 
@@ -49,6 +47,7 @@ namespace Opal.ParseTree
         public virtual void WriteType(StringBuilder builder, string? @default)
         {
         }
+
     }
 
     public class SymbolProdExpr : ProductionExpr
@@ -69,24 +68,16 @@ namespace Opal.ParseTree
 
         public override string Name => name.Value;
 
-        protected override Productions.TerminalBase Create(ProductionContext context)
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder)
         {
-            if (context.TryFind(name.Value, out var id, out var isTerminal))
+            if (builder.TryFind(name.Value, out var id, out var isTerminal))
             {
                 return isTerminal ?
                     new Productions.TerminalSymbol(name, id) :
                     new Productions.NonTerminalSymbol(name, id);
             }
-            return context.MissingSymbol(name);
+            return builder.MissingSymbol(name);
         }
-
-        //public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        //{
-        //    if (wroteArg)
-        //        generator.Write(", ");
-        //    generator.Write($"{Name} {PropName}");
-        //    return true;
-        //}
 
         public override bool WriteArg(Generator generator, bool wroteArg, int index, string type)
         {
@@ -126,7 +117,8 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             (name, id) = context.AddDefinition(text);
 
-        protected override Productions.TerminalBase Create(ProductionContext context) =>
+
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder) =>
             new Productions.TerminalString(text, name!, id);
 
         public override string ToString() => $"\"{text.Value.ToEsc()}\"";
@@ -159,9 +151,10 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             (name, id) = context.AddDefinition(text);
 
-        protected override Productions.TerminalBase Create(ProductionContext context) =>
+
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder) =>
             new Productions.TerminalString(text,
-                name!, 
+                name!,
                 id);
 
         public override string ToString() => $"\'{Opal.Containers.Strings.ToEsc(ch.Value)}\'";
@@ -188,16 +181,18 @@ namespace Opal.ParseTree
         public override void DeclareToken(DeclareTokenContext context) =>
             expr.DeclareToken(context);
 
-        protected sealed override Productions.TerminalBase Create(ProductionContext context)
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder)
         {
-            var symbol = expr.Build(context);
-            return Create(context, symbol);
+            var symbol = expr.Build(builder);
+            return Build(builder, symbol);
         }
 
-        protected abstract Productions.TerminalBase Create(ProductionContext context,
+        protected abstract Productions.TerminalBase Build(
+            Productions.GrammarBuilder grammar,
             Productions.TerminalBase symbol);
+
     }
-    
+
     public class QuestionProdExpr: UnaryProdExpr
     {
         public QuestionProdExpr(ProductionExpr expr, Segment segment)
@@ -229,7 +224,8 @@ namespace Opal.ParseTree
         }
 
 
-        protected override Productions.TerminalBase Create(ProductionContext context, 
+        protected override Productions.TerminalBase Build(
+            Productions.GrammarBuilder grammar,
             Productions.TerminalBase symbol)
         {
             var baseName = symbol.Name + "_option";
@@ -237,7 +233,7 @@ namespace Opal.ParseTree
             int id;
             while (true)
             {
-                var found = context.TryFind(name, out id, out var isTerminal);
+                var found = grammar.TryFind(name, out id, out var isTerminal);
                 if (found)
                 {
                     if (!isTerminal)
@@ -263,6 +259,7 @@ namespace Opal.ParseTree
 
             return new Productions.TerminalSymbol(this, name, id);
         }
+
 
         //public static ProductionExpr CreateOption(ProductionExpr expr, Token qualifier)
         //{

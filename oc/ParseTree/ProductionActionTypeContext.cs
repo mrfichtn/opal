@@ -6,10 +6,13 @@ namespace Opal.ParseTree
     {
         private readonly TypeTable typeTable;
         private readonly MissingReferenceTable missing;
+        private readonly INoAction noAction;
 
-        public ProductionActionTypeContext(TypeTable typeTable)
+        public ProductionActionTypeContext(TypeTable typeTable,
+            INoAction noAction)
         {
             this.typeTable = typeTable;
+            this.noAction = noAction;
             missing = new MissingReferenceTable();
         }
 
@@ -18,8 +21,9 @@ namespace Opal.ParseTree
 
         public DefinitionActionTypeContext DefinitionContext(string productionName) =>
             new DefinitionActionTypeContext(typeTable,
-                productionName,
-                missing);
+                missing,
+                noAction,
+                productionName);
 
         public void Resolve() => missing.Resolve(typeTable);
     }

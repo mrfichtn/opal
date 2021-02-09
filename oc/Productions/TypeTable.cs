@@ -1,5 +1,4 @@
-﻿using Opal.ParseTree;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Opal.Productions
@@ -56,7 +55,7 @@ namespace Opal.Productions
             rec.AddPrimary(nullable);
         }
 
-        public void AddActionType(string name, string type)
+        public void AddActionType(string name, string? type)
         {
             if (!data.TryGetValue(name, out var rec))
             {
@@ -101,9 +100,12 @@ namespace Opal.Productions
                 return ok;
             }
 
-            public void AddSecondary(string type)
+            public void AddSecondary(string? type)
             {
-                secondary.Add(type);
+                if (type != null)
+                    secondary.Add(type);
+                else
+                    secondaryNullable = true;
             }
 
             public void AddSecondary(NullableType type)

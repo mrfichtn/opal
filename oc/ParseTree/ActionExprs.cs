@@ -54,33 +54,39 @@ namespace Opal.ParseTree
 
     public class ActionArgCasted: ActionArg
     {
-        public ActionArgCasted(Token t, Identifier cast)
+        public ActionArgCasted(Token t, NullableType cast)
             : base(t)
         {
             Cast = cast;
         }
 
-        public Identifier Cast { get; private set; }
+        public NullableType Cast { get; private set; }
 
         public override void AddType(DefinitionActionTypeContext context) =>
-            context.Add(Cast.Value);
+            context.Add(Cast.TypeName);
 
         public override string ToString() =>
             new StringBuilder('$')
                 .Append(position)
-                .Append(Cast.Value)
+                .Append(Cast.TypeName)
                 .ToString();
 
         public override IReduceExpr Reduce(ReduceContext context) =>
-            new ReduceCastedArgExpr(position, Cast.Value);
+            new ReduceCastedArgExpr(position, Cast.TypeName);
 
-        public static ActionArg Create(Token t, Identifier cast)
+        public static ActionArg Create(Token t, NullableType cast)
         {
-            if (cast.Value == "object")
-                return new ActionArg(t);
-            if (cast.Value == "string")
-                return new ActionArgString(t, cast);
-            return new ActionArgCasted(t, cast);
+            return cast.TypeName switch
+            {
+                "object" => new ActionArg(t),
+                "string" => new ActionArgString(t, cast),
+                _ => new ActionArgCasted(t, cast)
+            };
+            //if (cast.Value == "object")
+            //    return new ActionArg(t);
+            //if (cast.Value == "string")
+            //    return new ActionArgString(t, cast);
+            //return new ActionArgCasted(t, cast);
         }
     }
 
@@ -109,22 +115,27 @@ namespace Opal.ParseTree
     {
         public override IReduceExpr Reduce(ReduceContext context) =>
             context.TerminalsReduce();
+
+        public override void AddType(DefinitionActionTypeContext context)
+        {
+            context.AddTypeFromActionEmpty();
+        }
     }
 
     public class ActionArgString: ActionArgCasted
     {
-        public ActionArgString(Token t, Identifier cast)
+        public ActionArgString(Token t, NullableType cast)
             : base(t, cast)
         {
         }
 
         public override void AddType(DefinitionActionTypeContext context) =>
-            context.Add(Cast.Value);
+            context.Add(Cast.TypeName);
 
         public override string ToString() =>
             new StringBuilder('$')
                 .Append(position)
-                .Append(Cast.Value)
+                .Append(Cast.TypeName)
                 .ToString();
 
 
@@ -133,7 +144,7 @@ namespace Opal.ParseTree
             context.TryFindProductionType(position, out var productionType);
             return (productionType == "Token") ?
                 new ReduceFieldExpr(new ReduceCastedArgExpr(position, "Token"), "Value") :
-                new ReduceCastedArgExpr(position, Cast.Value);
+                new ReduceCastedArgExpr(position, Cast.TypeName);
         }
     }
 
@@ -228,5 +239,10 @@ namespace Opal.ParseTree
 
         public override IReduceExpr Reduce(ReduceContext context) =>
             new ReduceNullExpr();
+
+        public override void AddType(DefinitionActionTypeContext context)
+        {
+            context.Add(null);
+        }
     }
 }
