@@ -6,28 +6,26 @@ namespace Opal.ParseTree
     public class ProductionSection
     {
         private readonly ProductionList productions;
+        private readonly Identifier start;
 
         public ProductionSection(Token start, 
             ProductionList productions)
         {
-            Start = new Identifier(start);
+            this.start = new Identifier(start);
             this.productions = productions;
         }
 
-        public Identifier Start { get; }
 
         public void AddStringTokens(DeclareTokenContext context) =>
             productions.AddStringTokens(context);
 
         public Productions.Grammar Build(Logger logger, 
             IEnumerable<Symbol> symbols,
-            Options options)
-        {
-            return new Productions.GrammarBuilder(logger, Start)
+            Options options) =>
+            new Productions.GrammarBuilder(logger, start)
                 .Options(options)
                 .Terminals(symbols)
                 .ProductionList(productions)
                 .Build();
-        }
     }
 }
