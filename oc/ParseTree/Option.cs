@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
@@ -25,9 +24,7 @@ namespace Opal.ParseTree
             result[name.Value] = constant.Value;
         }
 
-        public void MergeTo(Options options)
-        {
+        public void MergeTo(Options options) =>
             options.Add(name.Value, constant.Value);
-        }
     }
 }

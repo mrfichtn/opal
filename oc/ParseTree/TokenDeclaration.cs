@@ -17,12 +17,12 @@ namespace Opal.ParseTree
             this.expr = expr;
         }
 
-        public Graph Build(TokenBuilderContext context)
+        public Graph Build(GraphBuilder builder)
         {
-            var graph = expr.BuildGraph(context);
-            return Graph.MarkEnd(id:name, 
-                attr:attr, 
-                g:graph);
+            var graph = expr.BuildGraph(builder);
+            return Graph.MarkEnd(id: name,
+                attr: attr,
+                g: graph);
         }
     }
 }

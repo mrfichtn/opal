@@ -1,7 +1,6 @@
 ﻿using Opal.Nfa;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 
 namespace Opal.ParseTree
 {
@@ -49,13 +48,13 @@ namespace Opal.ParseTree
             INfaWriter writer,
             [NotNullWhen(true)] out Graph? graph)
         {
-            var charMap = Characters.Build(logger);
-            graph = tokens.Build(logger, charMap);
+            graph = new NfaBuilder(logger)
+                .Characters(Characters)
+                .Tokens(tokens)
+                .Productions(Productions)
+                .Build();
             if (graph == null)
                 return false;
-            
-            var context = new DeclareTokenContext(logger, graph);
-            Productions.AddStringTokens(context);
 
             writer.Write(graph, srcFile);
             return true;
@@ -63,9 +62,7 @@ namespace Opal.ParseTree
 
         public Productions.Grammar? BuildGrammar(Logger logger, 
             IEnumerable<Symbol> symbols,
-            Options options)
-        {
-            return Productions.Build(logger, symbols, options);
-        }
+            Options options) =>
+            Productions.Build(logger, symbols, options);
     }
 }

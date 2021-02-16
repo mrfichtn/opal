@@ -1,9 +1,10 @@
 ﻿using Opal.Nfa;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
-    public class CharacterList
+    public class CharacterList: IEnumerable<Character>
     {
         private readonly List<Character> data;
 
@@ -27,35 +28,9 @@ namespace Opal.ParseTree
             return list;
         }
 
-        public Dictionary<string, IMatch> Build(Logger logger)
-        {
-            var context = new CharacterContext(logger);
-            var missing = new List<Character>();
-            var last = 0;
+        public IEnumerator<Character> GetEnumerator() =>
+            data.GetEnumerator();
 
-            foreach (var character in data)
-            {
-                if (context.Duplicate(character.name))
-                    continue;
-                if (!character.TryAdd(context))
-                    missing.Add(character);
-            }
-            while (missing.Count > 0 && missing.Count != last)
-            {
-                var old = missing;
-                missing = new List<Character>();
-                foreach (var character in old)
-                {
-                    if (context.Duplicate(character.name))
-                        continue;
-                    if (!character.TryAdd(context))
-                        missing.Add(character);
-                }
-            }
-            foreach (var item in missing)
-                item.expr.LogMissing(context);
-
-            return context.Matches;
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

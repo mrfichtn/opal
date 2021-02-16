@@ -15,7 +15,6 @@ namespace Opal.ParseTree
             this.productions = productions;
         }
 
-
         public void AddStringTokens(DeclareTokenContext context) =>
             productions.AddStringTokens(context);
 

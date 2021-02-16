@@ -48,21 +48,17 @@ namespace Opal.Productions
         }
 
         
-        public GrammarBuilder ProductionList(ParseTree.ProductionList prods)
-        {
-            return NonTerminals(prods)
+        public GrammarBuilder ProductionList(ParseTree.ProductionList prods) =>
+            NonTerminals(prods)
                 .ActionTypes(prods)
                 .Declarations(prods)
                 .Productions(prods);
-        }
         
-        public Grammar Build()
-        {
-            return new Grammar(start.Value,
+        public Grammar Build() =>
+            new Grammar(start.Value,
                 symbols.Symbols,
                 productions.ToArray(),
                 TypeTable);
-        }
 
         private GrammarBuilder NonTerminals(ParseTree.ProductionList prods)
         {
@@ -123,7 +119,8 @@ namespace Opal.Productions
 
         public bool TryFind(string value, out int id, out bool isTerminal) =>
             symbols.TryGetValue(value, out id, out isTerminal);
-        public Productions.TerminalBase MissingSymbol(ParseTree.Identifier name)
+
+        public TerminalBase MissingSymbol(ParseTree.Identifier name)
         {
             logger.LogError($"Missing symbol '{name}'",
                 name);

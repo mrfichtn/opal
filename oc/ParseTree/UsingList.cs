@@ -6,10 +6,7 @@ namespace Opal.ParseTree
 {
     public class UsingList
     {
-        private readonly List<Using> data;
-        
-        public UsingList() =>
-            data = new List<Using>();
+        private readonly List<Using> data = new List<Using>();
 
         public static UsingList Add(UsingList list, Using item)
         {
@@ -21,14 +18,6 @@ namespace Opal.ParseTree
         {
             foreach (var item in data)
                 item.Write(generator);
-        }
-        
-        public string Build()
-        {
-            var builder = new StringBuilder();
-            foreach (var item in data)
-                item.AppendTo(builder);
-            return builder.ToString();
         }
     }
 }

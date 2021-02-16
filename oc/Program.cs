@@ -2,7 +2,6 @@
 using Opal.Logging;
 using System;
 using System.IO;
-using System.Text;
 
 namespace Opal
 {

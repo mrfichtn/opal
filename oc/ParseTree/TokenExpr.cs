@@ -4,7 +4,7 @@ namespace Opal.ParseTree
 {
     public abstract class TokenExpr
     {
-        public abstract Graph BuildGraph(TokenBuilderContext context);
+        public abstract Graph BuildGraph(GraphBuilder builder);
     }
 
     public class SymbolTokenExpr: TokenExpr
@@ -20,12 +20,12 @@ namespace Opal.ParseTree
             this.name = name;
         }
 
-        public override Graph BuildGraph(TokenBuilderContext context)
+        public override Graph BuildGraph(GraphBuilder builder)
         {
-            var found = context.TryFindMatch(name, out var match);
+            var found = builder.TryFindMatch(name, out var match);
             return found ?
-                context.Graph.Create(match!) :
-                context.Graph.Create();
+                builder.Create(match!) :
+                builder.Create();
         }
     }
 
@@ -36,8 +36,8 @@ namespace Opal.ParseTree
         public CharTokenExpr(CharConst ch) =>
             this.ch = ch;
 
-        public override Graph BuildGraph(TokenBuilderContext context) =>
-            context.Graph.Create(new SingleChar(ch.Value));
+        public override Graph BuildGraph(GraphBuilder builder) =>
+            builder.Create(new SingleChar(ch.Value));
     }
 
     public class CharClassTokenExpr: TokenExpr
@@ -47,8 +47,8 @@ namespace Opal.ParseTree
         public CharClassTokenExpr(CharClass ch) =>
             this.cc = ch;
 
-        public override Graph BuildGraph(TokenBuilderContext context) =>
-            context.Graph.Create(cc);
+        public override Graph BuildGraph(GraphBuilder builder) =>
+            builder.Create(cc);
     }
 
     public class StringLiteralTokenExpr: TokenExpr
@@ -58,8 +58,8 @@ namespace Opal.ParseTree
         public StringLiteralTokenExpr(StringConst str) =>
             this.str = str;
 
-        public override Graph BuildGraph(TokenBuilderContext context) =>
-            context.Graph.Create(str);
+        public override Graph BuildGraph(GraphBuilder builder) =>
+            builder.Create(str);
     }
 
     public abstract class UnaryTokenExpr: TokenExpr
@@ -69,10 +69,10 @@ namespace Opal.ParseTree
         public UnaryTokenExpr(TokenExpr expr) =>
             this.expr = expr;
 
-        public override sealed Graph BuildGraph(TokenBuilderContext context) =>
-            BuildGraph(context, expr.BuildGraph(context));
+        public override sealed Graph BuildGraph(GraphBuilder builder) =>
+            BuildGraph(builder, expr.BuildGraph(builder));
 
-        protected abstract Graph BuildGraph(TokenBuilderContext context, Graph graph);
+        protected abstract Graph BuildGraph(GraphBuilder builder, Graph graph);
     }
 
     public class PlusClosureExpr: UnaryTokenExpr
@@ -81,7 +81,7 @@ namespace Opal.ParseTree
             : base(expr)
         { }
 
-        protected override Graph BuildGraph(TokenBuilderContext context, Graph graph) =>
+        protected override Graph BuildGraph(GraphBuilder builder, Graph graph) =>
             Graph.PlusClosure(graph);
     }
 
@@ -91,7 +91,7 @@ namespace Opal.ParseTree
             : base(expr)
         { }
 
-        protected override Graph BuildGraph(TokenBuilderContext context, Graph graph) =>
+        protected override Graph BuildGraph(GraphBuilder builder, Graph graph) =>
             Graph.StarClosure(graph);
     }
 
@@ -101,7 +101,7 @@ namespace Opal.ParseTree
             : base(expr)
         { }
 
-        protected override Graph BuildGraph(TokenBuilderContext context, Graph graph) =>
+        protected override Graph BuildGraph(GraphBuilder builder, Graph graph) =>
             Graph.QuestionClosure(graph);
     }
 
@@ -115,7 +115,7 @@ namespace Opal.ParseTree
             this.integer = integer;
         }
 
-        protected override Graph BuildGraph(TokenBuilderContext context, Graph graph) =>
+        protected override Graph BuildGraph(GraphBuilder builder, Graph graph) =>
             Graph.Quantifier(graph, integer);
     }
 
@@ -131,7 +131,7 @@ namespace Opal.ParseTree
             this.max = max;
         }
 
-        protected override Graph BuildGraph(TokenBuilderContext context, Graph graph) =>
+        protected override Graph BuildGraph(GraphBuilder builder, Graph graph) =>
             Graph.RangeQuantifier(graph, min, max);
     }
 
@@ -146,10 +146,10 @@ namespace Opal.ParseTree
             this.right = right;
         }
 
-        public sealed override Graph BuildGraph(TokenBuilderContext context)
+        public sealed override Graph BuildGraph(GraphBuilder builder)
         {
-            var leftGraph = left.BuildGraph(context);
-            var rightGraph = right.BuildGraph(context);
+            var leftGraph = left.BuildGraph(builder);
+            var rightGraph = right.BuildGraph(builder);
             return BuildGraph(leftGraph, rightGraph);
         }
 

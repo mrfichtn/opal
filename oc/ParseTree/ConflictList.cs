@@ -1,13 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace Opal.ParseTree
 {
-    public class ConflictList: List<Conflict>
+    public class ConflictList: IEnumerable<Conflict>
     {
+        private readonly List<Conflict> data;
+
+        public ConflictList()
+        {
+            data = new List<Conflict>();
+        }
+        
         public static ConflictList Add(ConflictList list, Conflict conflict)
         {
-            list.Add(conflict);
+            list.data.Add(conflict);
             return list;
         }
+
+        public IEnumerator<Conflict> GetEnumerator() => data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

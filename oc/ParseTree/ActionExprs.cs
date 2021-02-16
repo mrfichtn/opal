@@ -82,11 +82,6 @@ namespace Opal.ParseTree
                 "string" => new ActionArgString(t, cast),
                 _ => new ActionArgCasted(t, cast)
             };
-            //if (cast.Value == "object")
-            //    return new ActionArg(t);
-            //if (cast.Value == "string")
-            //    return new ActionArgString(t, cast);
-            //return new ActionArgCasted(t, cast);
         }
     }
 

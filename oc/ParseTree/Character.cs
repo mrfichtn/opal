@@ -1,6 +1,4 @@
-﻿using Opal.Nfa;
-
-namespace Opal.ParseTree
+﻿namespace Opal.ParseTree
 {
     public class Character: Segment
     {
@@ -18,15 +16,14 @@ namespace Opal.ParseTree
             this.expr = expr;
         }
 
-        public bool TryAdd(CharacterContext context)
+        public bool TryAdd(Nfa.CharacterClassBuilder builder)
         {
-            var result = expr.Create(context, out var match);
+            var result = expr.Create(builder, out var match);
             if (result)
-                context.Add(name, match!);
+                builder.Add(name, match!);
             return result;
         }
 
-        public override string ToString() =>
-            $"{name} = {expr}";
+        public override string ToString() => $"{name} = {expr}";
     }
 }

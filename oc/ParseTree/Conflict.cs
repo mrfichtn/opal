@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Opal.ParseTree
 {
@@ -20,7 +16,7 @@ namespace Opal.ParseTree
             if (state.Value.Length > 0)
                 int.TryParse(state.Value.Substring(1), out this.state);
 
-            this.Symbol = symbol.Value;
+            Symbol = symbol.Value;
             Shift = !string.Equals(action.Value, 
                 "reduce", 
                 StringComparison.InvariantCultureIgnoreCase);

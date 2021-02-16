@@ -1,5 +1,4 @@
 ﻿using Generators;
-using System.Text;
 
 namespace Opal.ParseTree
 {
@@ -17,14 +16,6 @@ namespace Opal.ParseTree
             generator.Write("using ")
                 .Write(value)
                 .WriteLine(";");
-        }
-
-        public void AppendTo(StringBuilder builder)
-        {
-            builder.Append("using ")
-                .Append(value)
-                .Append(';')
-                .AppendLine();
         }
     }
 }

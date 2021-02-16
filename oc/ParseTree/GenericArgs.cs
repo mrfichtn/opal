@@ -4,17 +4,17 @@ namespace Opal.ParseTree
 {
     public class GenericArgs: Segment
     {
-        private readonly StringBuilder _builder;
+        private readonly StringBuilder builder;
 
         public GenericArgs(Identifier arg)
             : base(arg)
         {
-            _builder = new StringBuilder(arg.Value);
+            builder = new StringBuilder(arg.Value);
         }
 
         public void Add(Identifier arg)
         {
-            _builder.Append(',')
+            builder.Append(',')
                 .Append(arg);
             End = arg.End;
         }
@@ -25,9 +25,6 @@ namespace Opal.ParseTree
             return args;
         }
 
-        public override string ToString()
-        {
-            return _builder.ToString();
-        }
+        public override string ToString() => builder.ToString();
     }
 }

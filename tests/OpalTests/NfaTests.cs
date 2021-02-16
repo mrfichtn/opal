@@ -65,7 +65,7 @@ namespace OpalTests
             Verify(expected, actual);
         }
 
-        void Verify(int[] expected, int[,] actual)
+        private static void Verify(int[] expected, int[,] actual)
         {
             var index = 0;
             foreach (var item in actual)

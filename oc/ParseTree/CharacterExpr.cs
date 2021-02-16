@@ -13,10 +13,10 @@ namespace Opal.ParseTree
         { }
 
 
-        public abstract bool Create(CharacterContext context, 
+        public abstract bool Create(CharacterClassBuilder builder, 
             out IMatch? match);
 
-        public virtual void LogMissing(CharacterContext context)
+        public virtual void LogMissing(CharacterClassBuilder builder)
         { }
     }
 
@@ -32,12 +32,13 @@ namespace Opal.ParseTree
             this.right = right;
         }
 
-        public sealed override bool Create(CharacterContext context, out IMatch? match)
+        public sealed override bool Create(CharacterClassBuilder builder, 
+            out IMatch? match)
         {
-            var result = left.Create(context, out var leftMatch);
+            var result = left.Create(builder, out var leftMatch);
             if (result)
             {
-                result = right.Create(context, out var rightMatch);
+                result = right.Create(builder, out var rightMatch);
                 match = result ? Create(leftMatch!, rightMatch!) : null;
             }
             else
@@ -45,10 +46,10 @@ namespace Opal.ParseTree
             return result;
         }
 
-        public sealed override void LogMissing(CharacterContext context)
+        public sealed override void LogMissing(CharacterClassBuilder builder)
         {
-            left.LogMissing(context);
-            right.LogMissing(context);
+            left.LogMissing(builder);
+            right.LogMissing(builder);
         }
 
         protected abstract IMatch Create(IMatch leftMatch, IMatch rightMatch);
@@ -83,16 +84,17 @@ namespace Opal.ParseTree
             this.expr = expr;
         }
 
-        public override bool Create(CharacterContext context, out IMatch? match)
+        public override bool Create(CharacterClassBuilder builder,
+            out IMatch? match)
         {
-            var result = expr.Create(context, out match);
+            var result = expr.Create(builder, out match);
             if (result)
                 match = match!.Invert();
             return result;
         }
 
-        public override void LogMissing(CharacterContext context) =>
-            expr.LogMissing(context);
+        public override void LogMissing(CharacterClassBuilder builder) =>
+            expr.LogMissing(builder);
     }
 
     public class CharacterClass: CharacterExpr
@@ -105,7 +107,8 @@ namespace Opal.ParseTree
             this.charClass = charClass;
         }
 
-        public override bool Create(CharacterContext context, out IMatch? match)
+        public override bool Create(CharacterClassBuilder builder, 
+            out IMatch? match)
         {
             match = charClass;
             return true;
@@ -122,7 +125,7 @@ namespace Opal.ParseTree
             this.ch = ch;
         }
 
-        public override bool Create(CharacterContext context, 
+        public override bool Create(CharacterClassBuilder builder, 
             out IMatch? match)
         {
             match = new SingleChar(ch);
@@ -144,10 +147,11 @@ namespace Opal.ParseTree
             this.name = name;
         }
 
-        public override bool Create(CharacterContext context, out IMatch? match) =>
-            context.TryFind(name, out match);
+        public override bool Create(CharacterClassBuilder builder, 
+            out IMatch? match) =>
+            builder.TryFind(name, out match);
 
-        public override void LogMissing(CharacterContext context) =>
-            context.LogMissing(name);
+        public override void LogMissing(CharacterClassBuilder builder) =>
+            builder.LogMissing(name);
     }
 }
