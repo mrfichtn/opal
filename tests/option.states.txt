@@ -1,0 +1,28 @@
+S0
+    S': · expr, ＄ => 1
+    expr: · @start int_decl_list, ＄ => 2
+
+S1: (Transition = expr)
+    S': expr ·, ＄
+
+S2: (Transition = @start)
+    expr: @start · int_decl_list, ＄ => 3
+    int_decl_list: ·, ＄
+    int_decl_list: ·, Int
+    int_decl_list: · int_decl_list int_decl, ＄ => 3
+    int_decl_list: · int_decl_list int_decl, Int => 3
+
+S3: (Transition = int_decl_list)
+    expr: @start int_decl_list ·, ＄
+    int_decl: · Int, ＄ => 5
+    int_decl: · Int, Int => 5
+    int_decl_list: int_decl_list · int_decl, ＄ => 4
+    int_decl_list: int_decl_list · int_decl, Int => 4
+
+S4: (Transition = int_decl)
+    int_decl_list: int_decl_list int_decl ·, ＄
+    int_decl_list: int_decl_list int_decl ·, Int
+
+S5: (Transition = Int)
+    int_decl: Int ·, ＄
+    int_decl: Int ·, Int

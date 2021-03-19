@@ -34,12 +34,15 @@ namespace Opal.LR1
             //	FindFirst(grammar, i);
 
             //New method
-            var groups = grammar.GroupBy(x => x.Left.Id).ToDictionary(x => x.Key, y => y.ToArray());
+            var groups = grammar.GroupBy(x => x.Left.Id)
+                .ToDictionary(x => x.Key, y => y.ToArray());
             foreach (var g in groups)
                 FindFirst(grammar, groups, g.Key);
         }
 
-        private HashSet<uint> FindFirst(Grammar grammar, Dictionary<uint, Rule[]> groups, uint symbolIndex)
+        private HashSet<uint> FindFirst(Grammar grammar, 
+            Dictionary<uint, Rule[]> groups, 
+            uint symbolIndex)
         {
             var set = _terminalSets[symbolIndex];
             if (set == null)
@@ -70,19 +73,29 @@ namespace Opal.LR1
             return set;
         }
 
-        public HashSet<uint> this[uint index]
-		{
-			get { return _terminalSets[index]; }
-		}
+        public HashSet<uint> this[uint index] => _terminalSets[index];
 
-		private HashSet<uint> FindFirst(Grammar grammar, uint symbolIndex)
-		{
-			var set = _terminalSets[symbolIndex];
-			if (set == null)
-			{
-				set = _terminalSets[symbolIndex] = new HashSet<uint>();
-				foreach (var rule in grammar.Where(x => x.Left.Id == symbolIndex))
-				{
+        public bool HasEmpty(uint symbolId)
+        {
+            bool result;
+            if (symbolId < _terminalSets.Length)
+            {
+                var set = _terminalSets[symbolId];
+                result = (set != null) && set.Contains(0);
+            }
+            else
+                result = false;
+            return result;
+        }
+
+        private HashSet<uint> FindFirst(Grammar grammar, uint symbolIndex)
+        {
+            var set = _terminalSets[symbolIndex];
+            if (set == null)
+            {
+                set = _terminalSets[symbolIndex] = new HashSet<uint>();
+                foreach (var rule in grammar.Where(x => x.Left.Id == symbolIndex))
+                {
                     if (rule.IsEpsilon)
                     {
                         set.Add(0);
@@ -100,22 +113,9 @@ namespace Opal.LR1
                             }
                         }
                     }
-				}
-			}
-			return set;
-		}
-
-        public bool HasEmpty(uint symbolId)
-        {
-            bool result;
-            if (symbolId < _terminalSets.Length)
-            {
-                var set = _terminalSets[symbolId];
-                result = (set != null) && set.Contains(0);
+                }
             }
-            else
-                result = false;
-            return result;
+            return set;
         }
     }
 }

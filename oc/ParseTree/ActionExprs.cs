@@ -33,6 +33,11 @@ namespace Opal.ParseTree
             position = int.Parse(t.Value.Substring(1));
         }
 
+        public ActionArg(int position)
+        {
+            this.position = position;
+        }
+
         public override void AddType(DefinitionActionTypeContext context) =>
             context.AddFromActionExpr(position);
 
@@ -92,6 +97,12 @@ namespace Opal.ParseTree
 
         public ActionArgs(ActionExpr arg) =>
             Add(arg);
+
+        public ActionArgs(params ActionExpr[] args)
+        {
+            foreach (var arg in args)
+                Add(arg);
+        }
 
         public IReduceExpr[] Reduce(ReduceContext context) =>
             this.Select(x => x.Reduce(context)).ToArray();

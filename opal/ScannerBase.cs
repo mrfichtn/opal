@@ -33,7 +33,5 @@ namespace Opal
 
 		public string Line(Position position) =>
 			buffer.Line(position);
-
-
 	}
 }

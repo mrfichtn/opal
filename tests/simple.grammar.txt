@@ -1,13 +1,14 @@
 Symbols:
 [0] = (T)
-[1] = t1(T)
-[2] = t2(T)
-[3] = t3(T)
-[4] = expr
-[5] = t3_list
+[1] = comma(T)
+[2] = t1(T)
+[3] = t2(T)
+[4] = t3(T)
+[5] = expr
+[6] = t3_list
 
 R0: S' -> expr
 R1: expr -> t1
 R2: expr -> t2
-R3: expr -> t3_list
+R3: expr -> t3
 R4: t3_list -> t3

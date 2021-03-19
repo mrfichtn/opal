@@ -112,7 +112,7 @@ Productions language
 	option_section	= 
 					| "Options" option_list						{ $1; }
 
-	option_list = option										{ new OptionList($0); }
+	option_list =        										{ new OptionList(); }
 				| option_list option		                    { OptionList.Add($0, $1); }
 
 	option	=	Identifier '=' string_literal                   { new Option($0, $2); }
@@ -211,6 +211,8 @@ Productions language
 
 	prod_expr_quantifier = prod_expr_primary						
 						 | prod_expr_primary '?'				{ new QuestionProdExpr($0, $1); }
+						 | prod_expr_primary '+'                { new PlusProdExpr($0, $1); }
+						 | prod_expr_primary '*'                { new StarProdExpr($0, $1); }
 						 ;
 
 	prod_expr_primary	= identifier							{ new SymbolProdExpr($0); }

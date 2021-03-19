@@ -1,0 +1,13 @@
+Symbols:
+[0] = (T)
+[1] = Int(T)
+[2] = @start(T)
+[3] = expr
+[4] = int_decl
+[5] = int_decl_list
+
+R0: S' -> expr
+R1: expr -> @start int_decl_list
+R2: int_decl -> Int
+R3: int_decl_list ->
+R4: int_decl_list -> int_decl_list int_decl

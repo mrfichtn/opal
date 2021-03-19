@@ -5,6 +5,12 @@ namespace Opal.ParseTree
     public class OptionList
     {
         private readonly List<Option> data;
+        
+        public OptionList()
+        {
+            data = new List<Option>();
+        }
+
         public OptionList(Option option)
         {
             data = new List<Option> { option };

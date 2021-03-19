@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Text;
 
 namespace Opal
 {
     public abstract class ParserBase: IDisposable
     {
-        protected readonly ScannerBase scanner;
+		private readonly ScannerBuffer scanner;
 		protected readonly Logger logger;
-		private ImmutableQueue<Token> peekToken;
 		private readonly int maxTerminal;
 		private readonly string[] symbols;
 		private readonly int[,] actions;
@@ -24,9 +22,8 @@ namespace Opal
 			this.symbols = symbols;
 			this.actions = actions;
 
-			this.scanner = scanner;
 			logger = new Logger(scanner);
-			peekToken = ImmutableQueue<Token>.Empty;
+			this.scanner = new ScannerBuffer(scanner, logger);
 			stack = LRStack.Root;
 
 			Init();
@@ -47,13 +44,14 @@ namespace Opal
 
 		public bool Parse()
 		{
-			var token = NextToken();
+			var token = scanner.NextToken();
 			var errorState = 0U;
 			var suppressError = 0;
 
 			while (true)
 			{
-				if (suppressError > 0) --suppressError;
+				if (suppressError > 0) 
+					--suppressError;
 
 				var state = stack.State;
 				var actionType = GetAction(state, (uint)token.State, out var result);
@@ -67,14 +65,13 @@ namespace Opal
 						{
 							if (errorState == state)
 								return false;
-							else
-								errorState = state;
+							errorState = state;
 						}
 						suppressError = 2;
 						break;
 
 					case ActionType.Reduce:
-					var rule = result;
+						var rule = result;
 						var reducedState = Reduce(rule);
 						if (rule == 0)
 						{
@@ -88,7 +85,7 @@ namespace Opal
 
 					case ActionType.Shift:
 						stack = stack.Shift(result, token);
-						token = NextToken();
+						token = scanner.NextToken();
 						break;
 				}
 			}
@@ -119,40 +116,6 @@ namespace Opal
 			return actionType;
 		}
 
-		private Token NextToken()
-		{
-			while (!peekToken.IsEmpty)
-			{
-				peekToken = peekToken.Dequeue(out var token);
-				if (token.State >= 0)
-					return token;
-				SyntaxError(token);
-			}
-
-			while (true)
-			{
-				var token = scanner.NextToken();
-				if (token.State >= 0)
-					return token;
-				SyntaxError(token);
-			}
-		}
-
-		private Token PeekToken()
-		{
-			while (true)
-			{
-				var token = scanner.NextToken();
-				peekToken = peekToken.Enqueue(token);
-				if (token.State >= 0)
-					return token;
-			}
-		}
-
-		private void SyntaxError(Token token) =>
-			logger.LogError("Syntax error", token);
-
-
 		private bool TryRecover(uint state, ref Token token, bool suppress)
 		{
 			var isOk = false;
@@ -177,13 +140,13 @@ namespace Opal
 
 			if (token.State != 0)
 			{
-				var nextToken = PeekToken();
+				var nextToken = scanner.PeekToken();
 				if (nextToken.State >= 0)
 				{
 					stack.GetState(0, out var newState);
 					if (actions[newState, nextToken.State] != -1)
 					{
-						token = NextToken();
+						token = scanner.NextToken();
 						return true;
 					}
 				}
@@ -201,7 +164,7 @@ namespace Opal
 				}
 				if (token.State == 0)
 					break;
-				token = NextToken();
+				token = scanner.NextToken();
 			}
 			return isOk;
 		}

@@ -13,6 +13,13 @@ namespace Opal.ParseTree
             Add(prodDef);
         }
 
+        public ProdDefList(params ProdDef[] prodDef)
+        {
+            foreach (var item in prodDef)
+                Add(item);
+        }
+
+
         public static ProdDefList Add(ProdDefList list, ProdDef prodDef)
         {
             list.Add(prodDef);

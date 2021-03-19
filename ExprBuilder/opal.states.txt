@@ -105,16 +105,16 @@ S0
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S1: (Transition = expr)
     S': expr ·, ＄
@@ -238,16 +238,16 @@ S11: (Transition = -)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S12: (Transition = +)
     unary: + · primary, ＄ => 31
@@ -305,16 +305,16 @@ S12: (Transition = +)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S13: (Transition = !)
     unary: ! · primary, ＄ => 32
@@ -372,16 +372,16 @@ S13: (Transition = !)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S14: (Transition = ~)
     unary: ~ · primary, ＄ => 33
@@ -439,16 +439,16 @@ S14: (Transition = ~)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S15: (Transition = ()
     expr: · assignable, ) => 35
@@ -561,16 +561,16 @@ S15: (Transition = ()
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S16: (Transition = constant)
     primary: constant ·, ＄
@@ -621,19 +621,19 @@ S22: (Transition = DoubleInt)
     double: DoubleInt ·, *
     double: DoubleInt ·, /
 
-S23: (Transition = true)
-    bool: true ·, ＄
-    bool: true ·, +
-    bool: true ·, -
-    bool: true ·, *
-    bool: true ·, /
+S23: (Transition = @true)
+    bool: @true ·, ＄
+    bool: @true ·, +
+    bool: @true ·, -
+    bool: @true ·, *
+    bool: @true ·, /
 
-S24: (Transition = false)
-    bool: false ·, ＄
-    bool: false ·, +
-    bool: false ·, -
-    bool: false ·, *
-    bool: false ·, /
+S24: (Transition = @false)
+    bool: @false ·, ＄
+    bool: @false ·, +
+    bool: @false ·, -
+    bool: @false ·, *
+    bool: @false ·, /
 
 S25: (Transition = +)
     sum: sum + · term, ＄ => 58
@@ -729,16 +729,16 @@ S25: (Transition = +)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S26: (Transition = -)
     sum: sum - · term, ＄ => 59
@@ -834,16 +834,16 @@ S26: (Transition = -)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S27: (Transition = *)
     term: term * · unary, ＄ => 60
@@ -926,16 +926,16 @@ S27: (Transition = *)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S28: (Transition = /)
     term: term / · unary, ＄ => 61
@@ -1018,16 +1018,16 @@ S28: (Transition = /)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S29: (Transition = =>)
     lambda: identifier => · sum, ＄ => 62
@@ -1130,16 +1130,16 @@ S29: (Transition = =>)
     double: · DoubleInt, - => 22
     double: · DoubleInt, * => 22
     double: · DoubleInt, / => 22
-    bool: · true, ＄ => 23
-    bool: · true, + => 23
-    bool: · true, - => 23
-    bool: · true, * => 23
-    bool: · true, / => 23
-    bool: · false, ＄ => 24
-    bool: · false, + => 24
-    bool: · false, - => 24
-    bool: · false, * => 24
-    bool: · false, / => 24
+    bool: · @true, ＄ => 23
+    bool: · @true, + => 23
+    bool: · @true, - => 23
+    bool: · @true, * => 23
+    bool: · @true, / => 23
+    bool: · @false, ＄ => 24
+    bool: · @false, + => 24
+    bool: · @false, - => 24
+    bool: · @false, * => 24
+    bool: · @false, / => 24
 
 S30: (Transition = primary)
     unary: - primary ·, ＄
@@ -1295,16 +1295,16 @@ S44: (Transition = -)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S45: (Transition = +)
     unary: + · primary, ) => 70
@@ -1362,16 +1362,16 @@ S45: (Transition = +)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S46: (Transition = !)
     unary: ! · primary, ) => 71
@@ -1429,16 +1429,16 @@ S46: (Transition = !)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S47: (Transition = ~)
     unary: ~ · primary, ) => 72
@@ -1496,16 +1496,16 @@ S47: (Transition = ~)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S48: (Transition = ()
     expr: · assignable, ) => 35
@@ -1618,16 +1618,16 @@ S48: (Transition = ()
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S49: (Transition = constant)
     primary: constant ·, )
@@ -1678,19 +1678,19 @@ S55: (Transition = DoubleInt)
     double: DoubleInt ·, *
     double: DoubleInt ·, /
 
-S56: (Transition = true)
-    bool: true ·, )
-    bool: true ·, +
-    bool: true ·, -
-    bool: true ·, *
-    bool: true ·, /
+S56: (Transition = @true)
+    bool: @true ·, )
+    bool: @true ·, +
+    bool: @true ·, -
+    bool: @true ·, *
+    bool: @true ·, /
 
-S57: (Transition = false)
-    bool: false ·, )
-    bool: false ·, +
-    bool: false ·, -
-    bool: false ·, *
-    bool: false ·, /
+S57: (Transition = @false)
+    bool: @false ·, )
+    bool: @false ·, +
+    bool: @false ·, -
+    bool: @false ·, *
+    bool: @false ·, /
 
 S58: (Transition = term)
     sum: sum + term ·, ＄
@@ -1846,16 +1846,16 @@ S64: (Transition = +)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S65: (Transition = -)
     sum: sum - · term, ) => 75
@@ -1951,16 +1951,16 @@ S65: (Transition = -)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S66: (Transition = *)
     term: term * · unary, ) => 76
@@ -2043,16 +2043,16 @@ S66: (Transition = *)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S67: (Transition = /)
     term: term / · unary, ) => 77
@@ -2135,16 +2135,16 @@ S67: (Transition = /)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S68: (Transition = =>)
     lambda: identifier => · sum, ) => 78
@@ -2247,16 +2247,16 @@ S68: (Transition = =>)
     double: · DoubleInt, - => 55
     double: · DoubleInt, * => 55
     double: · DoubleInt, / => 55
-    bool: · true, ) => 56
-    bool: · true, + => 56
-    bool: · true, - => 56
-    bool: · true, * => 56
-    bool: · true, / => 56
-    bool: · false, ) => 57
-    bool: · false, + => 57
-    bool: · false, - => 57
-    bool: · false, * => 57
-    bool: · false, / => 57
+    bool: · @true, ) => 56
+    bool: · @true, + => 56
+    bool: · @true, - => 56
+    bool: · @true, * => 56
+    bool: · @true, / => 56
+    bool: · @false, ) => 57
+    bool: · @false, + => 57
+    bool: · @false, - => 57
+    bool: · @false, * => 57
+    bool: · @false, / => 57
 
 S69: (Transition = primary)
     unary: - primary ·, )

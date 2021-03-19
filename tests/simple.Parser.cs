@@ -1,23 +1,24 @@
 using Opal;
 using System.Linq.Expressions;
 
-#nullable enable
+
 
 namespace CalcTest
 {
 	
 	public partial class Parser: ParserBase
 	{
+		private readonly string? srcFile;
+		
 		public Parser(Scanner scanner)
-			: base(scanner, 
-				_maxTerminal, 
-				_symbols, 
-				_actions)
+			: base(scanner, _maxTerminal, _symbols, _actions)
 		{}
 	
-		public Parser(string filePath)
-			: this(Scanner.FromFile(filePath)) 
-		{}
+		public Parser(string srcFile)
+			: this(Scanner.FromFile(srcFile)) 
+		{
+			this.srcFile = srcFile;
+		}
 	
 		public static Parser FromString(string text)
 		{
@@ -31,21 +32,21 @@ namespace CalcTest
 	
 			switch (rule)
 			{
-				case 1: // expr = t1;
+				case 1: // expr = t1
 					items = 1;
-					state = Reduce(-1, Expr.Add(At(0)));
+					state = Reduce(5, Expr.Add(At<Token>(0)));
 					break;
-				case 2: // expr = t2;
+				case 2: // expr = t2
 					items = 1;
-					state = Reduce(-1, At(0));
+					state = Reduce(5, At(0));
 					break;
-				case 3: // expr = t3_list;
+				case 3: // expr = t3
 					items = 1;
-					state = Reduce(-1, At(0));
+					state = Reduce(5, At(0));
 					break;
-				case 4: // t3_list = t3;
+				case 4: // t3_list = t3
 					items = 1;
-					state = Reduce(-2, new List<T3>(At(0)));
+					state = Reduce(6, new List<T3>(At<Token>(0)));
 					break;
 	
 			}
@@ -55,20 +56,20 @@ namespace CalcTest
 		#region Actions Table
 		private static readonly int[,] _actions = 
 		{
-			{ -1, 2, 3, 5, 1, 4 },
-			{ -2, -1, -1, -1, -1, -1 },
-			{ -3, -1, -1, -1, -1, -1 },
-			{ -4, -1, -1, -1, -1, -1 },
-			{ -5, -1, -1, -1, -1, -1 },
-			{ -6, -1, -1, -1, -1, -1 },
+			{ -1, -1, 2, 3, 4, 1, -1 },
+			{ -2, -1, -1, -1, -1, -1, -1 },
+			{ -3, -1, -1, -1, -1, -1, -1 },
+			{ -4, -1, -1, -1, -1, -1, -1 },
+			{ -5, -1, -1, -1, -1, -1, -1 },
 		};
 	
 		#endregion
 		#region Symbols
-		protected const int _maxTerminal = 3;
+		protected const int _maxTerminal = 4;
 		protected static readonly string[] _symbols =
 		{
 			"𝜖",
+			"comma",
 			"t1",
 			"t2",
 			"t3",
@@ -286,6 +287,10 @@ namespace CalcTest
 	{
 		public const int SyntaxError = -1;
 		public const int Empty = 0;
+		public const int comma = 1;
+		public const int t1 = 2;
+		public const int t2 = 3;
+		public const int t3 = 4;
 	}
 	
 	

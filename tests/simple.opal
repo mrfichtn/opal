@@ -22,7 +22,8 @@ Tokens
 Productions expr
 	expr	= t1							{ Expr.Add($0); }
 			| t2                            { $0; }
-			| t3_list                       { $0; }
+			| t3?	                        { $0; }
 			;
 
-	t3_list = t3							{ new List<T3>($0); }
+//	t3_list = t3							{ new List<T3>($0); }
+

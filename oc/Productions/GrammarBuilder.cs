@@ -8,20 +8,19 @@ namespace Opal.Productions
         private readonly Logger logger;
         private readonly SymbolTable symbols;
         private readonly List<Production> productions;
-
-        private INoAction noAction;
         private readonly ParseTree.Identifier start;
 
+        private INoAction noAction;
 
         public GrammarBuilder(Logger logger,
             ParseTree.Identifier start)
         {
             this.logger = logger;
+            this.start = start;
             noAction = new FirstNoAction();
             symbols = new SymbolTable();
             TypeTable = new TypeTable();
             productions = new List<Production>();
-            this.start = start;
         }
 
         public TypeTable TypeTable { get; }
@@ -46,7 +45,6 @@ namespace Opal.Productions
             }
             return this;
         }
-
         
         public GrammarBuilder ProductionList(ParseTree.ProductionList prods) =>
             NonTerminals(prods)
@@ -60,6 +58,9 @@ namespace Opal.Productions
                 productions.ToArray(),
                 TypeTable);
 
+        /// <summary>
+        /// Adds production name to symbol table as non-terminal
+        /// </summary>
         private GrammarBuilder NonTerminals(ParseTree.ProductionList prods)
         {
             foreach (var production in prods)
@@ -69,9 +70,12 @@ namespace Opal.Productions
 
         private GrammarBuilder Declarations(ParseTree.ProductionList prods)
         {
-            var context = new ParseTree.ImproptuDeclContext(symbols);
+            var context = new ParseTree.ImproptuDeclContext(symbols,
+                TypeTable);
             foreach (var expr in prods.Expressions)
                 expr.AddImproptuDeclaration(context);
+            ActionTypes(context.Productions);
+            context.CopyTo(prods);
             return this;
         }
 
@@ -124,7 +128,7 @@ namespace Opal.Productions
         {
             logger.LogError($"Missing symbol '{name}'",
                 name);
-            return new Productions.MissingSymbolTerminal(name);
+            return new MissingSymbolTerminal(name);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace CalcTest;
 
 Options
-	scanner		= "switch"
+	// scanner		= "switch"
 
 Characters
 	plus_char   = [+]

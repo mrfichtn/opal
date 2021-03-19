@@ -9,45 +9,24 @@ namespace Opal.ParseTree
             : base(segment)
         {}
 
+
         public abstract string Name { get; }
 
+
+        /// <summary>
+        /// If an expression is a character or string, then this method adds the string to 
+        /// the token section.  This is how inline tokens (keywords) are processed.
+        /// </summary>
         public virtual void DeclareToken(DeclareTokenContext context)
         {}
 
+        public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
+        { }
+
+
         public abstract Productions.TerminalBase Build(Productions.GrammarBuilder builder);
 
-
-        public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
-        {}
-
-        #region Properties
-
-
-        #region Ignore Property
-        public bool Ignore { get; protected set; }
-        #endregion
-
-        public bool IsTerminal { get; set; }
-
-        #region CallMethod Property
-        public bool CallMethod { get; set; }
-        #endregion
-
-        public string? PropName { get; set; }
-
-        public Identifier? Type { get; set; }
-
-        #endregion
-
         public override string ToString() => Name;
-
-        public virtual bool WriteArg(Generator generator, bool wroteArg, int index, string type) =>
-            wroteArg;
-
-        public virtual void WriteType(StringBuilder builder, string? @default)
-        {
-        }
-
     }
 
     public class SymbolProdExpr : ProductionExpr
@@ -78,25 +57,6 @@ namespace Opal.ParseTree
             }
             return builder.MissingSymbol(name);
         }
-
-        public override bool WriteArg(Generator generator, bool wroteArg, int index, string type)
-        {
-            if (wroteArg)
-                generator.Write(", ");
-
-            generator.Write("a{0}", index);
-            return true;
-        }
-
-        public override void WriteType(StringBuilder builder, string? @default)
-        {
-            if (!string.IsNullOrEmpty(PropName))
-                builder.Append('<').Append(PropName).Append('>');
-            else if (!string.IsNullOrEmpty(@default))
-                builder.Append('<').Append(@default).Append('>');
-            else if (IsTerminal)
-                builder.Append("<Token>");
-        }
     }
 
     public class StringTokenProd : ProductionExpr
@@ -122,14 +82,6 @@ namespace Opal.ParseTree
             new Productions.TerminalString(text, name!, id);
 
         public override string ToString() => $"\"{text.Value.ToEsc()}\"";
-
-        public override void WriteType(StringBuilder builder, string? @default)
-        {
-            if (!string.IsNullOrEmpty(@default))
-                builder.Append('<').Append(@default).Append('>');
-            else
-                builder.Append("<Token>");
-        }
     }
 
     public class CharTokenProd: ProductionExpr
@@ -158,14 +110,6 @@ namespace Opal.ParseTree
                 id);
 
         public override string ToString() => $"\'{Opal.Containers.Strings.ToEsc(ch.Value)}\'";
-
-        public override void WriteType(StringBuilder builder, string? @default)
-        {
-            if (!string.IsNullOrEmpty(@default))
-                builder.Append('<').Append(@default).Append('>');
-            else
-                builder.Append("<Token>");
-        }
     }
 
     public abstract class UnaryProdExpr: ProductionExpr
@@ -178,6 +122,10 @@ namespace Opal.ParseTree
             this.expr = expr;
         }
 
+        public override string Name => expr.Name + NameSuffix;
+
+        protected abstract string NameSuffix { get; }
+
         public override void DeclareToken(DeclareTokenContext context) =>
             expr.DeclareToken(context);
 
@@ -187,10 +135,19 @@ namespace Opal.ParseTree
             return Build(builder, symbol);
         }
 
-        protected abstract Productions.TerminalBase Build(
-            Productions.GrammarBuilder grammar,
-            Productions.TerminalBase symbol);
+        protected virtual Productions.TerminalBase Build(
+            Productions.GrammarBuilder grammarBuilder,
+            Productions.TerminalBase symbol)
+        {
+            var name = symbol.Name + NameSuffix;
+            var found = grammarBuilder.TryFind(name, out var id, out var isTerminal);
+            if (!found)
+                return grammarBuilder.MissingSymbol(new Identifier(this, name));
 
+            return !isTerminal ?
+                new Productions.NonTerminalSymbol(this, name, id) :
+                new Productions.TerminalSymbol(this, name, id);
+        }
     }
 
     public class QuestionProdExpr: UnaryProdExpr
@@ -199,8 +156,7 @@ namespace Opal.ParseTree
             : base(expr, segment)
         {}
 
-        public override string Name => expr.Name + "_option";
-
+        protected override string NameSuffix => "_option";
 
         public override void AddImproptuDeclaration(ImproptuDeclContext context)
         {
@@ -209,8 +165,7 @@ namespace Opal.ParseTree
                 return;
 
             var definitions = new ProdDefList(
-                new ProdDef(new ProductionExprList(
-                    new SymbolProdExpr(expr, expr.Name))))
+                new ProdDef(new ProductionExprList(expr)))
             {
                 new ProdDef()
             };
@@ -222,52 +177,87 @@ namespace Opal.ParseTree
 
             context.Add(production);
         }
+    }
 
+    public class PlusProdExpr: UnaryProdExpr
+    {
+        public PlusProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        { }
 
-        protected override Productions.TerminalBase Build(
-            Productions.GrammarBuilder grammar,
-            Productions.TerminalBase symbol)
+        protected override string NameSuffix => "_list";
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
         {
-            var baseName = symbol.Name + "_option";
-            string name = baseName;
-            int id;
-            while (true)
-            {
-                var found = grammar.TryFind(name, out id, out var isTerminal);
-                if (found)
-                {
-                    if (!isTerminal)
-                        return new Productions.NonTerminalSymbol(this,
-                            name,
-                            id);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            //if (!context.TryFindProd(name, out var id))
-            //{
-            //    internalProds.AddOption(name, expr);
-            //}
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
 
-            //var segment = new Segment(expr.Start, qualifier.End);
-            //if (!productions.Any(x => x.Name == optionName))
-            //    internalProds.AddOption(optionName, expr);
-            //return new SymbolProdExpr(segment, optionName);
+            if (!context.TryFindType(expr.Name, out var exprType))
+                exprType = "Object";
 
+            var actionType = new Identifier(exprType + "List");
 
-            return new Productions.TerminalSymbol(this, name, id);
+            var definitions = new ProdDefList(
+                new ProdDef(
+                    new ProductionExprList(expr),
+                    new ActionNewExpr(actionType,
+                        new ActionArgs(new ActionArg(0)))),
+                new ProdDef(
+                    new ProductionExprList(
+                        new SymbolProdExpr(this, baseName),
+                        expr),
+                    new ActionFuncExpr(
+                        actionType,
+                        new ActionArgs(new ActionArg(0), new ActionArg(1)))));
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
         }
+    }
 
+    public class StarProdExpr: UnaryProdExpr
+    {
+        public StarProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        { }
 
-        //public static ProductionExpr CreateOption(ProductionExpr expr, Token qualifier)
-        //{
-        //    var optionName = expr.Name + "_option";
-        //    var segment = new Segment(expr.Start, qualifier.End);
-        //    if (!productions.Any(x => x.Name == optionName))
-        //        internalProds.AddOption(optionName, expr);
-        //    return new SymbolProdExpr(segment, optionName);
-        //}
+        protected override string NameSuffix => "_list";
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
+        {
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
+
+            if (!context.TryFindType(expr.Name, out var exprType))
+                exprType = "Object";
+
+            var actionType = new Identifier(exprType + "List");
+
+            var definitions = new ProdDefList(
+                new ProdDef(
+                    new ProductionExprList(),
+                    new ActionNewExpr(actionType,
+                        new ActionArgs())),
+                new ProdDef(
+                    new ProductionExprList(
+                        new SymbolProdExpr(this, baseName),
+                        expr),
+                    new ActionFuncExpr(
+                        actionType,
+                        new ActionArgs(new ActionArg(0), new ActionArg(1)))));
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
+        }
     }
 }

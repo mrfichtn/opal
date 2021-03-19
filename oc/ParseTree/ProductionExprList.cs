@@ -13,6 +13,13 @@ namespace Opal.ParseTree
             Add(expr);
         }
 
+        public ProductionExprList(params ProductionExpr[] exprs)
+        {
+            foreach (var item in exprs)
+                Add(item);
+        }
+
+
         public static ProductionExprList Add(ProductionExprList exprs, ProductionExpr expr)
         {
             exprs.Add(expr);

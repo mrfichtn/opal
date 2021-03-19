@@ -22,11 +22,11 @@ namespace Opal.Dfa
         public void WriteInit(Generator generator)
         {
             generator
-                .Write("_states = Opal.ScannerStates.")
+                .Write("_states = ScannerStates.")
                 .Write(dfa.GetStatesDecompressMethod())
                 .WriteLine("(_compressedStates,")
-                .Write("  maxClasses: ").Write(dfa.MaxClass + 1).Write(',').WriteLine()
-                .Write("  maxStates: ").Write(tableFactory.Rows).WriteLine(");");
+                .Write("    maxClasses: ").Write(dfa.MaxClass + 1).Write(',').WriteLine()
+                .Write("    maxStates: ").Write(tableFactory.Rows).WriteLine(");");
         }
 
         public void WriteData(Generator generator)
