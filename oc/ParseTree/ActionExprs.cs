@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Opal.ParseTree
 {
+    /// <summary>
+    /// Parse action expression
+    /// </summary>
     public abstract class ActionExpr: Segment, IReducer
     {
         protected ActionExpr(Segment segment)
@@ -23,6 +26,9 @@ namespace Opal.ParseTree
         }
     }
 
+    /// <summary>
+    /// Positional arg (e.g. $1)
+    /// </summary>
     public class ActionArg: ActionExpr, IReducer
     {
         protected readonly int position;
@@ -57,6 +63,9 @@ namespace Opal.ParseTree
                 .ToString();
     }
 
+    /// <summary>
+    /// Casted, positional arg
+    /// </summary>
     public class ActionArgCasted: ActionArg
     {
         public ActionArgCasted(Token t, NullableType cast)
@@ -90,6 +99,9 @@ namespace Opal.ParseTree
         }
     }
 
+    /// <summary>
+    /// List of args
+    /// </summary>
     public class ActionArgs: List<ActionExpr>
     {
         public ActionArgs()
@@ -128,6 +140,9 @@ namespace Opal.ParseTree
         }
     }
 
+    /// <summary>
+    /// Expr casted as string
+    /// </summary>
     public class ActionArgString: ActionArgCasted
     {
         public ActionArgString(Token t, NullableType cast)
@@ -154,6 +169,9 @@ namespace Opal.ParseTree
         }
     }
 
+    /// <summary>
+    /// String constant
+    /// </summary>
     public class ActionStringConstant: ActionExpr
     {
         private readonly StringConst value;
@@ -168,6 +186,9 @@ namespace Opal.ParseTree
             new ReduceStringExpr(value.Value);
     }
 
+    /// <summary>
+    /// Boolean constant
+    /// </summary>
     public class ActionBoolConstant: ActionExpr
     {
         private readonly BoolConst value;
@@ -181,6 +202,9 @@ namespace Opal.ParseTree
             context.Add("bool");
     }
 
+    /// <summary>
+    /// Function expression
+    /// </summary>
     public class ActionFuncExpr: ActionExpr
     {
         protected readonly Identifier id;
@@ -197,6 +221,9 @@ namespace Opal.ParseTree
             new ReduceMethodExpr(id.Value, args.Reduce(context));
     }
 
+    /// <summary>
+    /// Integer constant
+    /// </summary>
     public class ActionIntConstant: ActionExpr
     {
         private readonly Integer value;
@@ -211,6 +238,9 @@ namespace Opal.ParseTree
             new ReduceValueExpr(value.ToString()!);
     }
 
+    /// <summary>
+    /// Member call
+    /// </summary>
     public class ActionMember: ActionExpr
     {
         private readonly Identifier id;
@@ -221,6 +251,9 @@ namespace Opal.ParseTree
             new ReduceValueExpr(id.Value);
     }
 
+    /// <summary>
+    /// New expression
+    /// </summary>
     public class ActionNewExpr: ActionFuncExpr
     {
         public ActionNewExpr(Identifier id, ActionArgs args)
@@ -235,6 +268,9 @@ namespace Opal.ParseTree
             context.Add(id.Value);
     }
 
+    /// <summary>
+    /// Null constant
+    /// </summary>
     public class ActionNullExpr: ActionExpr
     {
         public ActionNullExpr()

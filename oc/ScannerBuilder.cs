@@ -1,10 +1,14 @@
 ﻿using Generators;
 using Opal.Dfa;
+using Opal.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Opal
 {
+    /// <summary>
+    /// Using options, constructs object used to write scanner code
+    /// </summary>
     public class ScannerBuilder
     {
         private readonly IScannerWriterFactory scannerWriterFactory;

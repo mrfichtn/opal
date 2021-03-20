@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Generators;
+using Opal.Logging;
 using Opal.ParseTree;
 
 namespace Opal.LR1

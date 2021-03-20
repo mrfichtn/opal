@@ -1,4 +1,5 @@
 ﻿using Opal.Containers;
+using Opal.Logging;
 using Opal.Nfa;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,5 @@
 ﻿using Generators;
+using Opal.Logging;
 using Opal.Templates;
 using System;
 using System.Collections.Generic;

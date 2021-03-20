@@ -1,8 +1,4 @@
-﻿using Opal.Nfa;
-using Opal.ParseTree;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Opal.ParseTree;
 
 namespace Opal
 {
@@ -15,10 +11,6 @@ namespace Opal
             return result;
         }
         
-        #region Properties
-
         public Language? Language => Root as Language;
-
-        #endregion
     }
 }

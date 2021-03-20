@@ -9,8 +9,6 @@
     <IsTool>True</IsTool>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Logging\ConsoleLogger.cs" />
-	  <Compile Remove="Logging\ILogger.cs" />
 	  <Compile Remove="Logging\Importance.cs" />
 	</ItemGroup>
 	<ItemGroup>

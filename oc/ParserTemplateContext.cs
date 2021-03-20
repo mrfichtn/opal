@@ -4,6 +4,10 @@ using Opal.Templates;
 
 namespace Opal
 {
+    /// <summary>
+    /// Provides macros to template generator for the purposes
+    /// of generating the parser.
+    /// </summary>
     public class ParserTemplateContext: ITemplateContext
     {
         private readonly Options options;

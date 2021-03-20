@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shell.Interop;
+using Opal.Logging;
 using System;
 using System.IO;
 
@@ -12,8 +13,7 @@ namespace Opal
             string inputFileContents,
             string defaultNamespace,
             TextWriter output,
-            IVsGeneratorProgress progress
-            )
+            IVsGeneratorProgress progress)
         {
             InputFilePath = inputFilePath;
             InputContents = inputFileContents;

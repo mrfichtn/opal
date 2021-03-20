@@ -13,17 +13,6 @@ namespace Opal.ParseTree
             this.constant = constant;
         }
 
-        public void AddTo(Logger logger, Dictionary<string, object> result)
-        {
-            if (result.TryGetValue(name.Value, out var oldValue))
-            {
-                logger.LogWarning(
-                    $"option entry '{name.Value}' is overridding previous setting {oldValue}",
-                    name);
-            }
-            result[name.Value] = constant.Value;
-        }
-
         public void MergeTo(Options options) =>
             options.Add(name.Value, constant.Value);
     }

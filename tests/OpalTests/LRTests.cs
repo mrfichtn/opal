@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Opal.Logging;
 using Opal.LR1;
 using Opal.ParseTree;
 
@@ -25,7 +26,7 @@ R3: C -> d
             Assert.AreEqual(expected, text);
 
             var test = "test.log";
-            var logger = new Opal.ConsoleLogger(test);
+            var logger = new ConsoleLogger(test);
             var conflicts = new ConflictList();
             var builder = new LR1Parser(logger, grammar, conflicts);
             var states = builder.States.ToString(false);

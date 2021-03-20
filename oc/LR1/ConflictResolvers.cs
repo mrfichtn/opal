@@ -1,4 +1,5 @@
-﻿using Opal.ParseTree;
+﻿using Opal.Logging;
+using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,6 +32,15 @@ namespace Opal.LR1
             }
         }
 
+
+        public int Count => data.Count;
+
+        public bool TryFind(int state, uint symbol, out int action)
+        {
+            var key = new Key(state, symbol);
+            return data.TryGetValue(key, out action);
+        }
+
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -41,13 +51,6 @@ namespace Opal.LR1
             return builder.ToString();
         }
 
-        public int Count => data.Count;
-
-        public bool TryFind(int state, uint symbol, out int action)
-        {
-            var key = new Key(state, symbol);
-            return data.TryGetValue(key, out action);
-        }
 
         struct Key: IEquatable<Key>
         {

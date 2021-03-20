@@ -28,7 +28,7 @@ namespace Opal.Logging
 		public ConsoleLog Info(string msg) => Normal(msg);
 		public ConsoleLog InfoLine(string msg) => LogLine(ConsoleColor.Gray, msg);
 
-		public ConsoleLog WarningLine(string message) =>
+		public ConsoleLog WarnLine(string message) =>
 			LogLine(ConsoleColor.Yellow, message);
 
 		public ConsoleLog HighLine(string message) =>
