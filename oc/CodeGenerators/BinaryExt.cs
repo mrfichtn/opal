@@ -126,10 +126,8 @@ namespace Generators
             generator.EndBlock(";");
         }
 
-        private static void Write8(this Stream stream, int cls)
-        {
+        private static void Write8(this Stream stream, int cls) =>
             stream.WriteByte((byte)(cls & 0xFF));
-        }
 
         private static void Write16(this Stream stream, int cls)
         {
