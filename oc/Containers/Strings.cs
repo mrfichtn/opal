@@ -54,19 +54,26 @@ namespace Opal.Containers
             return result;
         }
 
+        /// <summary>
+        /// Converts to character from character string
+        /// (e.g. ch = '\n')
+        /// </summary>
         public static bool FromEscCharString(this string text, out char result)
         {
-            var isOk = true;
             if (text.Length < 2)
             {
                 result = '\0';
-                isOk = false;
+                return false;
             }
+
             if (text.Length == 2)
             {
                 result = '\0';
+                return true;
             }
-            else if (text[1] == '\\')
+
+            var isOk = true;
+            if (text[1] == '\\')
             {
                 if (text.Length == 3)
                 {
@@ -87,7 +94,7 @@ namespace Opal.Containers
                             isOk = FromHexDigit(ch, out int value);
                             if (isOk)
                                 break;
-                            ch = (char)((ch << 4) + value);
+                            result = (char)((result << 4) + value);
                         }
                     }
                 }
@@ -104,9 +111,9 @@ namespace Opal.Containers
                         {
                             var ch = text[i];
                             isOk = FromHexDigit(ch, out int value);
-                            if (isOk)
+                            if (!isOk)
                                 break;
-                            ch = (char)((ch << 4) + value);
+                            result = (char)((result << 4) + value);
                         }
                     }
                 }

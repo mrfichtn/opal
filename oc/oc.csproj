@@ -12,6 +12,7 @@
 	  <Compile Remove="Logging\Importance.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="FrameFiles\LibParser.txt" />
 	  <None Remove="FrameFiles\Parser.txt" />
 	  <None Remove="FrameFiles\StateScanner.txt" />
 	  <None Remove="FrameFiles\SwitchScanner.txt" />
@@ -19,6 +20,7 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\LibParser.txt" />
     <EmbeddedResource Include="FrameFiles\Parser.txt" />
     <EmbeddedResource Include="FrameFiles\SwitchScanner.txt" />
   </ItemGroup>

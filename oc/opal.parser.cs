@@ -962,6 +962,4 @@ namespace Opal
 		public const int multi_line_comment = -4;
 	}
 	
-	
-	
 }

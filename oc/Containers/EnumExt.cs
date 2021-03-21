@@ -32,8 +32,8 @@ namespace Opal.Containers
             T result;
             if (items != null)
             {
-                using (var e = items.Where(pred).GetEnumerator())
-                    result = e.MoveNext() ? e.Current : @default;
+                using var e = items.Where(pred).GetEnumerator();
+                result = e.MoveNext() ? e.Current : @default;
             }
             else
             {
@@ -47,11 +47,9 @@ namespace Opal.Containers
             var isFound = false;
             if (items != null)
             {
-                using (var e = items.GetEnumerator())
-                {
-                    isFound = e.MoveNext();
-                    result = isFound ? e.Current : default!;
-                }
+                using var e = items.GetEnumerator();
+                isFound = e.MoveNext();
+                result = isFound ? e.Current : default!;
             }
             else
             {

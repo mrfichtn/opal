@@ -28,7 +28,7 @@ namespace Opal.Dfa
 
         public string GetStatesDecompressMethod() => GetMethod("Decompress", States.Length);
 
-        public string GetMethod(string method, int max)
+        public static string GetMethod(string method, int max)
         {
             string result;
             if (max <= byte.MaxValue)

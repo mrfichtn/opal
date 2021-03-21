@@ -86,9 +86,9 @@ namespace Generators
                         {
                             var ch = text[i];
                             isOk = FromHexDigit(ch, out int value);
-                            if (isOk)
+                            if (!isOk)
                                 break;
-                            result = (char)((ch << 4) + value);
+                            result = (char)((result << 4) + value);
                         }
                     }
                 }
@@ -101,13 +101,13 @@ namespace Generators
                     }
                     else
                     {
-                        for (var i = 3; i < text.Length - 2; i++)
+                        for (var i = 3; i < text.Length - 1; i++)
                         {
                             var ch = text[i];
                             isOk = FromHexDigit(ch, out int value);
-                            if (isOk)
+                            if (!isOk)
                                 break;
-                            result = (char)((ch << 4) + value);
+                            result = (char)((result << 4) + value);
                         }
                     }
                 }

@@ -80,15 +80,13 @@ namespace Opal.Containers
 		public static string GetTextFromAssembly(string name)
 		{
 			var assm = typeof(TemplateProcessor).Assembly;
-            using (var stream = assm.GetManifestResourceStream(name))
-            {
-				if (stream == null)
-					return string.Empty;
+            using var stream = assm.GetManifestResourceStream(name);
+            if (stream == null)
+                return string.Empty;
 
-				var reader = new StreamReader(stream);
-                return reader.ReadToEnd();
-            }
-		}
+            var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
 
 		private TokenType GetToken(StringBuilder builder)
 		{

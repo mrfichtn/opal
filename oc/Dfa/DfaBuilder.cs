@@ -38,7 +38,6 @@ namespace Opal.Dfa
 			RemoveUnreachableStates(logger, dfaList);
 			//Reduce states, by combining states with equal transitions
             HopcroftAlgorithm(logger, dfaList);
-
 			return new Dfa(matches, acceptingStates, dfaList);
 		}
 

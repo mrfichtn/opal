@@ -11,7 +11,7 @@ namespace Opal.Containers
         internal BitArray(uint[] data, int length)
         {
             if ((length & 0x1F) != 0)
-                throw new ArgumentNullException(
+                throw new ArgumentException(
                     "Length must be divisible by 32", 
                     nameof(length));
             this.data = data;
@@ -21,7 +21,7 @@ namespace Opal.Containers
         public BitArray(int length)
         {
             if ((length & 0x1F) != 0)
-                throw new ArgumentNullException(
+                throw new ArgumentException(
                     "Length must be divisible by 32",
                     nameof(length));
             var words = length >> 5;

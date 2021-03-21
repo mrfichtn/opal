@@ -13,7 +13,7 @@ namespace Opal.Dfa
         public void WriteInit(Dfa dfa, Generator generator)
         {
             generator.Write("CharClasses.")
-                .Write(dfa.GetMethod("Decompress", dfa.MaxClass))
+                .Write(Dfa.GetMethod("Decompress", dfa.MaxClass))
                 .Write("(_charToClassCompressed)");
         }
 

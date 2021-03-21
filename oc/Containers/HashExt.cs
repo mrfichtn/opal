@@ -6,15 +6,11 @@ namespace Opal.Containers
 {
     public static class HashExt
     {
-        public static HashSet<T> ToSet<T>(this IEnumerable<T> collection)
-        {
-            return new HashSet<T>(collection);
-        }
+        public static HashSet<T> ToSet<T>(this IEnumerable<T> collection) =>
+            new HashSet<T>(collection);
 
-        public static HashSet<T> ToSet<T, U>(this IEnumerable<U> collection, Func<U, T> selector)
-        {
-            return new HashSet<T>(collection.Select(selector));
-        }
+        public static HashSet<T> ToSet<T, U>(this IEnumerable<U> collection, Func<U, T> selector) =>
+            new HashSet<T>(collection.Select(selector));
 
         public static void CopyFrom<T>(this HashSet<T> result, IEnumerable<T> collection)
         {

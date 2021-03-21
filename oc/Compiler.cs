@@ -168,10 +168,14 @@ namespace Opal
             }
             else
             {
+                var internalFrameFile = options.HasOption("no.lib", false) ?
+                    "Opal.FrameFiles.Parser.txt" :
+                    "Opal.FrameFiles.LibParser.txt";
+                
                 logger.LogMessage(Importance.Normal, "Using internal frame file");
                 TemplateProcessor2.FromAssembly(csharp, 
                     templContext,
-                    "Opal.FrameFiles.Parser.txt");
+                    internalFrameFile);
             }
         }
     }
