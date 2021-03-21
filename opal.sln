@@ -27,6 +27,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F470BC51-CD21-461D-B433-90413F9DE602}"
 	ProjectSection(SolutionItems) = preProject
 		build\build.props = build\build.props
+		ToDo.txt = ToDo.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "perftests", "tests\perftests\perftests.csproj", "{72FCACAE-EF90-4C5B-ADC8-218A10DF5DF8}"

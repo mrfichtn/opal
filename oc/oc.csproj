@@ -1,24 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\build\build.props" />
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net5.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<Description>LR(1) compiler-compiler</Description>
-		<Version>1.0.14</Version>
-		<Copyright>Copyright© 2018-2020</Copyright>
 		<RootNamespace>Opal</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <IsTool>True</IsTool>
-    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
-    <LangVersion>9</LangVersion>
-    <Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Logging\ConsoleLogger.cs" />
-	  <Compile Remove="Logging\ILogger.cs" />
 	  <Compile Remove="Logging\Importance.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="FrameFiles\LibParser.txt" />
 	  <None Remove="FrameFiles\Parser.txt" />
 	  <None Remove="FrameFiles\StateScanner.txt" />
 	  <None Remove="FrameFiles\SwitchScanner.txt" />
@@ -26,6 +20,7 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="FrameFiles\LibParser.txt" />
     <EmbeddedResource Include="FrameFiles\Parser.txt" />
     <EmbeddedResource Include="FrameFiles\SwitchScanner.txt" />
   </ItemGroup>

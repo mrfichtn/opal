@@ -32,8 +32,8 @@ namespace Opal
 			var result = new int[char.MaxValue];
 			for (var i = 0; i < char.MaxValue; i++)
 				result[i] = 1;
-			foreach (var item in sparseArray)
-				result[item.ch] = item.cls + 1;
+			foreach (var (ch, cls) in sparseArray)
+				result[ch] = cls + 1;
 			return result;
         }
 	}

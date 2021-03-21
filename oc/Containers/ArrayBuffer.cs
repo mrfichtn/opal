@@ -4,7 +4,8 @@
     {
         private int pos;
 
-        public ArrayBuffer(T[] array) => Array = array;
+        public ArrayBuffer(T[] array) => 
+            Array = array;
 
         public T[] Array { get; }
 

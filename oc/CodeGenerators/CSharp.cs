@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Generators
 {
-    public class CSharp: Generator, ILanguage
+    public class CSharp: Generator<CSharp>, ILanguage
     {
         public CSharp(string file)
             :   base(file)
@@ -39,7 +39,9 @@ namespace Generators
             EndBlock(string.Format("//End namespace {0}", name));
         }
 
-        public void StartClass(string name, AccessSpecifier specifier, ClassFlags flags = ClassFlags.None,
+        public void StartClass(string name, 
+            AccessSpecifier specifier, 
+            ClassFlags flags = ClassFlags.None,
             IList<string>? superClasses = null)
         {
             Write(ToString(specifier));
@@ -62,17 +64,19 @@ namespace Generators
             StartBlock();
         }
 
-        public void EndClass()
-        {
+        public void EndClass() =>
             EndBlock();
-        }
 
-        public void MemberVariable(string type, string name, AccessSpecifier specifier = AccessSpecifier.Private)
+        public void MemberVariable(string type,
+            string name,
+            AccessSpecifier specifier = AccessSpecifier.Private)
         {
             WriteLine("{0} {1} {2};", ToString(specifier), type, name);
         }
             
-        public void WriteInterfaceProp(string type, string name, PropertyAccess access)
+        public void WriteInterfaceProp(string type, 
+            string name, 
+            PropertyAccess access)
         {
             Write("{0} {1} {{ ", type, name);
             switch (access)
@@ -89,7 +93,9 @@ namespace Generators
             }
         }
 
-        public void StartProp(string type, string name, AccessSpecifier specifier)
+        public void StartProp(string type, 
+            string name, 
+            AccessSpecifier specifier)
         {
             WriteLine("{0} {1} {2}", ToString(specifier), type, name);
             StartBlock();
@@ -107,7 +113,11 @@ namespace Generators
             StartBlock();
         }
 
-        public void StartMethod(string retType, string name, AccessSpecifier specifier, bool isStatic, params string[] methodParams)
+        public void StartMethod(string retType, 
+            string name, 
+            AccessSpecifier specifier, 
+            bool isStatic, 
+            params string[] methodParams)
         {
             Write(ToString(specifier));
             if (isStatic)
@@ -123,7 +133,9 @@ namespace Generators
             StartBlock();
         }
 
-        public void StartConstructor(string name, AccessSpecifier specifier, params string[] methodParams)
+        public void StartConstructor(string name, 
+            AccessSpecifier specifier, 
+            params string[] methodParams)
         {
             Write(ToString(specifier));
             Write(" {0}(", name);
@@ -138,10 +150,8 @@ namespace Generators
         }
 
 
-        public void InlineComment(string comment)
-        {
-            WriteLine(inlineComment(comment));
-        }
+        public void InlineComment(string comment) =>
+            WriteLine($"//{comment}");
 
         public void DeclareScalar(string type, string name, string? init = null)
         {
@@ -154,33 +164,16 @@ namespace Generators
 
         #endregion
 
-        private string inlineComment(string comment)
+        private static string ToString(AccessSpecifier specifier)
         {
-            return string.Format("//{0}", comment);
-        }
-
-        private string ToString(AccessSpecifier specifier)
-        {
-            string result;
-            switch (specifier)
+            return specifier switch
             {
-                case AccessSpecifier.Internal:
-                    result = "internal";
-                    break;
-                case AccessSpecifier.Private:
-                    result = "private";
-                    break;
-                case AccessSpecifier.Protected:
-                    result = "protected";
-                    break;
-                case AccessSpecifier.Public:
-                    result = "public";
-                    break;
-                default:
-                    result = string.Empty;
-                    break;
-            }
-            return result;
+                AccessSpecifier.Internal => "internal",
+                AccessSpecifier.Private => "private",
+                AccessSpecifier.Protected => "protected",
+                AccessSpecifier.Public => "public",
+                _ => string.Empty,
+            };
         }
     }
 }

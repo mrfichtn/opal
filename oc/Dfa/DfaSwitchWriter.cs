@@ -1,5 +1,4 @@
 ﻿using Generators;
-using Opal.Containers;
 using Opal.Nfa;
 using Opal.Templates;
 using System.Collections.Generic;
@@ -7,22 +6,22 @@ using System.Linq;
 
 namespace Opal.Dfa
 {
-    public class DfaSwitchWriter: IGeneratable, ITemplateContext
+    public class DfaSwitchWriter: IDfaWriter, ITemplateContext
     {
         private readonly Dfa dfa;
         private readonly IEnumerable<DfaNode> states;
-        public DfaSwitchWriter(Dfa dfa, bool syntaxErrorTokens)
+        public DfaSwitchWriter(Dfa dfa, ISyntaxErrorHandler syntaxErrorHandler)
         {
             this.dfa = dfa;
-            this.states = syntaxErrorTokens ?
-                dfa.States.AddSyntaxError() :
-                dfa.States;
+            states = syntaxErrorHandler.GetStates(dfa);
         }
 
         public void Write(Generator generator) =>
-            TemplateProcessor2.FromAssembly(generator, this, "Opal.FrameFiles.SwitchScanner.txt");
+            TemplateProcessor2.FromAssembly(generator, 
+                this, 
+                "Opal.FrameFiles.SwitchScanner.txt");
 
-        private void WriteStates(IGenerator generator)
+        private void WriteStates(Generator generator)
         {
             generator.Indent();
             var nextStates = new HashSet<int>();
@@ -125,14 +124,8 @@ namespace Opal.Dfa
             return found;
         }
 
-        bool ITemplateContext.Condition(string varName)
-        {
-            return false;
-        }
+        bool ITemplateContext.Condition(string varName) => false;
 
-        string? ITemplateContext.Include(string name)
-        {
-            return null;
-        }
+        string? ITemplateContext.Include(string name) => null;
     }
 }

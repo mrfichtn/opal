@@ -5,7 +5,7 @@ namespace ExprBuilder;
 
 Options
 	// no_action		= "null"
-	scanner				= "switch"
+	// scanner			= "switch"
 
 Characters
 	plus_char   = [+]
@@ -14,7 +14,7 @@ Characters
 	alpha       = [a-zA-Z]
 	id	        = [_]+alpha
 	id2         = id + digit 
-	quote       = ["] 
+	quote       = ["]
 
 Tokens 
 	Int = '0'|([1-9]digit*) ;
@@ -22,8 +22,6 @@ Tokens
 	DoubleInt = ('0'|([1-9]digit*))'D' ;
 	Identifier = id id2* ;
 	white_space<ignore> = white_space+ ;
-	true = "true";
-	false = "false";
 
 Productions expr
 
@@ -87,6 +85,6 @@ Productions expr
 		| DoubleInt				{ DoubleConstant.ParseInt($0:Token); }
 
 	bool
-		= true					{ new Constant<bool>($0:Token, true); }
-		| false					{ new Constant<bool>($0:Token, false); }
+		= "true"				{ new Constant<bool>($0:Token, true); }
+		| "false"				{ new Constant<bool>($0:Token, false); }
 				

@@ -24,7 +24,7 @@ namespace Opal.Nfa
 
         public IMatch Difference(IMatch match) => match.Invert();
 
-        public bool Equals(IMatch? other) =>
+        public bool Equals(IMatch? other) => 
             (other != null) && other.Count == Count;
 
         public IEnumerator<char> GetEnumerator()
@@ -45,11 +45,9 @@ namespace Opal.Nfa
 
         public IMatch Union(IMatch match) => this;
 
-        public string SwitchCondition(string varName) =>
-            "true";
+        public string SwitchCondition(string varName) => "true";
 
         public override string ToString() => "𝕌";
-
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

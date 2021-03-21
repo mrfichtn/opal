@@ -1,8 +1,6 @@
-﻿using Opal.Containers;
-using Opal.ParseTree;
+﻿using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Opal.Nfa
@@ -14,8 +12,12 @@ namespace Opal.Nfa
         /// <summary>
         /// Creates an empty, starting node
         /// </summary>
-        /// <param name="machine"></param>
         public Graph() : this(new Machine())
+        {
+        }
+
+        public Graph(string text)
+            : this(new Machine(), text)
         {
         }
 
@@ -33,7 +35,7 @@ namespace Opal.Nfa
             this.end = end;
         }
 
-        public Graph(Machine machine)
+        private Graph(Machine machine)
         {
             Machine = machine;
             Start = end = machine.Nodes.CreateEnd();
@@ -42,7 +44,7 @@ namespace Opal.Nfa
         /// <summary>
         /// Creates NFA graph from a string
         /// </summary>
-        public Graph(Machine machine, string text)
+        private Graph(Machine machine, string text)
         {
             if (string.IsNullOrEmpty(text)) throw new ArgumentNullException(nameof(text));
 
@@ -55,21 +57,17 @@ namespace Opal.Nfa
             Start = node;
         }
 
-        public Graph(string text)
-            : this(new Machine(), text)
-        {
-        }
 
         /// <summary>
         /// Creates graph from a single match
         /// </summary>
         /// <param name="machine"></param>
         /// <param name="match"></param>
-        public Graph(Machine machine, IMatch match)
+        private Graph(Machine machine, IMatch match)
         {
             if (match == null) throw new ArgumentNullException(nameof(match));
 
-            this.Machine = machine;
+            Machine = machine;
             end = machine.Nodes.CreateEnd();
             Start = machine.SetMatch(end, match);
         }
@@ -90,8 +88,6 @@ namespace Opal.Nfa
 
         public Graph Create(string value) => new Graph(Machine, value);
 
-        public Graph Create(StringConst text) => Create(text.Value);
-
         public Graph Create(IMatch match) => new Graph(Machine, match);
 
         public int MarkEnd(string tokenName, string keyword)
@@ -106,6 +102,14 @@ namespace Opal.Nfa
         }
 
         public static Graph MarkEnd(Token id, Token attr, Graph g)
+        {
+            var ignore = (attr?.Value == "ignore");
+            if (!g.Machine.AcceptingStates.TryAdd(id.Value!, ignore, g.end, out _))
+                throw new Exception(string.Format("Duplicate symbol {0}", id.Value));
+            return g;
+        }
+
+        public static Graph MarkEnd(Identifier id, Token attr, Graph g)
         {
             var ignore = (attr?.Value == "ignore");
             if (!g.Machine.AcceptingStates.TryAdd(id.Value!, ignore, g.end, out _))
@@ -352,7 +356,6 @@ namespace Opal.Nfa
             return result.ToString();
         }
 
-        private ref NfaNode Node(int index) =>
-            ref Machine.Nodes[index];
+        private ref NfaNode Node(int index) => ref Machine.Nodes[index];
     }
 }

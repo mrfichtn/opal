@@ -20,8 +20,8 @@ namespace perftests
 				.Add(mapleDef)
 				;
 			
-			var intArrayTest = new IntArrayTest();
-			var fullData = intArrayTest.Data;
+			//var intArrayTest = new IntArrayTest();
+			//var fullData = intArrayTest.Data;
 			var stateScannerTest = new StateScannerTest();
 			var switchScannerTest = new SwitchScannerTest();
 
@@ -41,12 +41,13 @@ namespace perftests
 
 			var sourceSlice = "\"SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, DATA_TYPE, IS_NULLABLE ";
 
-			var ch = sourceSlice[0];
 			var scanner = new OpalSwitchScanner(sourceSlice);
 			var t = scanner.RawNextToken();
+			Console.WriteLine(t.Value);
 
 			var scanner2 = new OpalStateScanner(sourceSlice);
 			t = scanner2.RawNextToken();
+			Console.WriteLine(t.Value);
 
 
 			Console.WriteLine("Comparing token streams");

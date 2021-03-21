@@ -1,7 +1,5 @@
 ﻿using Generators;
-using Opal.Containers;
-using Opal.Dfa;
-using Opal.ParseTree;
+using Opal.Logging;
 using Opal.Templates;
 using System;
 using System.Collections.Generic;
@@ -11,42 +9,38 @@ using System.Text;
 
 namespace Opal
 {
-    public sealed class Compiler : ITemplateContext
+    public sealed class Compiler
     {
         private readonly ILogger logger;
         private readonly string inPath;
-        private Parser? parser;
-        private Dfa.Dfa? dfa;
-        private ProductionList? prods;
-        private LR1.LR1Parser? lr1Parser;
-        private readonly Dictionary<string, object> options;
-        private IGeneratable? scannerWriter;
-        
-        private bool emitTokenStates;
-        private bool emitStateScanner;
-        private bool compressScanner;
+        private readonly Options options;
+        private Logger? parserLogger;
 
         public Compiler(ILogger logger, string inPath)
         {
-            options = new Dictionary<string, object>();
             this.logger = logger;
             this.inPath = inPath;
+            options = new Options();
             outPath = Path.ChangeExtension(this.inPath, ".Parser.cs");
         }
 
+        #region OutPath Property
         public string OutPath
         {
             get => outPath;
             set => outPath = value ?? throw new ArgumentNullException(nameof(OutPath));
         }
         private string outPath;
+        #endregion
 
         public string? Namespace { get; set; }
+
+        #region ParserFrame Property
         public string? ParserFrame
         {
             get
             {
-                options.TryGetOption("frame", out var value);
+                options.TryGet("frame", out var value);
                 return value;
             }
             set 
@@ -57,146 +51,132 @@ namespace Opal
                     options["frame"] = value; 
             }
         }
+        #endregion
 
-        public IEnumerable<LogItem> Log => 
-            (parser != null) ? parser.Log : Enumerable.Empty<LogItem>();
+        #region Log Property
+        public IEnumerable<LogItem> Log => parserLogger ?? Enumerable.Empty<LogItem>();
+        #endregion
 
         public bool Compile()
         {
             Console.OutputEncoding = Encoding.Unicode;
             var fileName = Path.GetFileName(inPath);
             var fileDir = Path.GetDirectoryName(fileName) ?? ".";
-            parser = new Parser(inPath);
-            parser.SetOptions(options);
+            var parser = new Parser(inPath);
+            parserLogger = parser.Logger;
             logger.LogMessage(Importance.Normal, "Parsing {0}", fileName);
-            var isOk = parser.Parse();
+            var isOk = parser.TryParse(out var lang);
             if (!isOk)
                 return isOk;
-
-            var lang = parser.Language;
+            
             if (lang == null)
             {
                 logger.LogError("Failed to return language element from root");
                 return false;
             }
-            prods = lang.Productions;
 
-            var nfa = parser.Graph;
-            if (!prods.SetStates(logger, parser.Graph.Machine.AcceptingStates))
+            lang.MergeTo(options);
+
+            if (!new ScannerBuilder(options).TryBuild(
+                logger, parser.Logger, lang, out var scannerWriter))
                 return false;
 
-            if (options.TryGetOption("nfa", out var nfaPath))
-            {
-                if (string.IsNullOrEmpty(nfaPath))
-                    nfaPath = Path.ChangeExtension(inPath, ".nfa.txt");
-                File.WriteAllText(nfaPath, nfa.ToString());
-            }
+            var grammar = lang.BuildGrammar(parser.Logger, 
+                scannerWriter!.Symbols,
+                options);
 
-            logger.LogMessage(Importance.Normal, "Building dfa");
-            dfa = nfa.ToDfa();
-
-            emitStateScanner = (!options.TryGetOption("scanner", out var scannerValue) ||
-                    scannerValue!.Equals("state", StringComparison.InvariantCultureIgnoreCase));
-
-            compressScanner = options.HasOption("scanner.compress") ?? true;
-            var syntaxErrorTokens = options.HasOption("syntax.error.tokens") ?? true;
-
-            scannerWriter = emitStateScanner ?
-                    new DfaStateWriter(dfa, compressScanner, syntaxErrorTokens) as IGeneratable :
-                    new DfaSwitchWriter(dfa, syntaxErrorTokens);
-
+            if (grammar == null)
+                return false;
 
             logger.LogMessage(Importance.Normal, "Building LR1");
-            var grammar = new LR1.Grammar(lang.Productions);
-            var grammarPath = Path.ChangeExtension(inPath, ".grammar.txt");
-            var grammarText = grammar.ToString();
-            File.WriteAllText(grammarPath, grammarText);
+            var lr1 = new LR1.Grammar(grammar);
+            WriteGrammar(lr1, options);
 
-            lr1Parser = new LR1.LR1Parser(logger, grammar, lang.Conflicts);
+            var lr1Parser = new LR1.LR1Parser(logger, lr1, lang.Conflicts);
+            WriteLr1States(lr1Parser, options);
 
-            var statesPath = Path.ChangeExtension(inPath, ".states.txt");
-            File.WriteAllText(statesPath, lr1Parser.States.ToString());
-
-            emitTokenStates = !emitStateScanner || 
-                (options.HasOption("emit_token_states") ?? false);
-
-            using (var csharp = new Generator(OutPath))
-            {
-                if (!string.IsNullOrEmpty(Namespace))
-                    lang.Namespace = new ParseTree.Identifier(Namespace!);
-
-                var frameSpecified = false;
-                if (options.TryGetOption("frame", out var frameFile) && 
-                    !string.IsNullOrEmpty(frameFile))
-                {
-                    frameSpecified = File.Exists(frameFile);
-                    if (!frameSpecified)
-                    {
-                        frameFile = Path.Combine(fileDir, frameFile);
-                        frameSpecified = File.Exists(frameFile);
-                        if (!frameSpecified)
-                            logger.LogWarning("Unable to find frame file {0}", frameFile);
-                    }
-                }
-                if (frameSpecified)
-                {
-                    logger.LogMessage(Importance.Normal, "Using frame file {0}", frameFile!);
-                    logger.LogMessage(Importance.Normal, "Writing output {0}", OutPath);
-                    TemplateProcessor2.FromFile(csharp, this, frameFile!);
-                }
-                else
-                {
-                    logger.LogMessage(Importance.Normal, "Using internal frame file");
-                    logger.LogMessage(Importance.Normal, "Writing output {0}", OutPath);
-                    TemplateProcessor2.FromAssembly(csharp, this, "Opal.FrameFiles.Parser.txt");
-                }
-            }
+            WriteParser(lang,
+                grammar,
+                lr1Parser,
+                scannerWriter,
+                fileDir);
 
             return isOk;
         }
 
-        bool ITemplateContext.Condition(string varName) => options.HasOption(varName) ?? false;
-
-        string? ITemplateContext.Include(string name) => string.Empty;
-
-        bool ITemplateContext.WriteVariable(Generator generator, string varName)
+        /// <summary>
+        /// If lr1.grammar is set to a file path, this method will write out 
+        /// a clean copy of the grammar (i.e without attributes / actions)
+        /// </summary>
+        private static void WriteGrammar(LR1.Grammar lr1,
+            Options options)
         {
-            bool result = true;
-            switch (varName)
+            if (options.TryGet("lr1.grammar", out var filePath))
             {
-                case "usings":              generator.Write(parser!.Usings);    break;
-                case "namespace.start":
-                    if (parser!.Language!.Namespace != null)
-                    {
-                        generator.WriteLine("namespace {0}", parser.Language.Namespace)
-                            .Write("{")
-                            .Indent();
-                    }
-                    break;
-                case "productions":
-                    generator.Indent(2);
-                    options.TryGetOption("no_action", out var noAction);
-                    if (prods != null)
-                        prods.Write(generator, noAction!);
-                    generator.UnIndent(2);
-                    break;
-                case "actions":                 lr1Parser!.Actions.Write(generator); break;
-                case "parser.symbols":          lr1Parser!.WriteSymbols(generator); break;
-                case "scanner":                 scannerWriter!.Write(generator); break;
-                case "scanner.states":          dfa!.WriteTokenEnum(generator, emitTokenStates); break;
-                case "namespace.end":
-                    if (parser!.Language!.Namespace != null)
-                        generator.EndBlock();
-                    break;
-                case "namespace":               generator.Write(parser!.Language!.Namespace); break;
-                default:
-                    if (options.TryGetOption(varName, out var value))
-                        generator.Write(value!);
-                    else
-                        result = false;
-                    break;
+                var grammarText = lr1.ToString();
+                File.WriteAllText(filePath!, grammarText);
             }
-            return result;
+        }
+
+        /// <summary>
+        /// If lr1.states is set to a file path, this method will write out 
+        /// the lr(1) states prior to generating the action table
+        /// </summary>
+        private static void WriteLr1States(LR1.LR1Parser lr1Parser,
+            Options options)
+        {
+            if (options.TryGet("lr1.states", out var filePath))
+                File.WriteAllText(filePath!, lr1Parser.States.ToString());
+        }
+
+        private void WriteParser(ParseTree.Language lang, 
+            Productions.Grammar grammar,
+            LR1.LR1Parser lr1Parser,
+            ScannerBuilder.ScannerWriter scanner,
+            string fileDir)
+        {
+            using var csharp = new Generator(OutPath);
+            if (!string.IsNullOrEmpty(Namespace))
+                lang.Namespace = new ParseTree.Identifier(Namespace!);
+
+            var frameSpecified = false;
+            if (options.TryGet("frame", out var frameFile) &&
+                !string.IsNullOrEmpty(frameFile))
+            {
+                frameSpecified = File.Exists(frameFile);
+                if (!frameSpecified)
+                {
+                    frameFile = Path.Combine(fileDir, frameFile);
+                    frameSpecified = File.Exists(frameFile);
+                    if (!frameSpecified)
+                        logger.LogWarning("Unable to find frame file {0}", frameFile);
+                }
+            }
+
+            logger.LogMessage(Importance.Normal, "Generating parser file {0}", OutPath);
+            var templContext = new ParserTemplateContext(options,
+                Namespace,
+                lang,
+                grammar,
+                lr1Parser,
+                scanner);
+
+            if (frameSpecified)
+            {
+                logger.LogMessage(Importance.Normal, "Using frame file {0}", frameFile!);
+                TemplateProcessor2.FromFile(csharp, templContext, frameFile);
+            }
+            else
+            {
+                var internalFrameFile = options.HasOption("no.lib", false) ?
+                    "Opal.FrameFiles.Parser.txt" :
+                    "Opal.FrameFiles.LibParser.txt";
+                
+                logger.LogMessage(Importance.Normal, "Using internal frame file");
+                TemplateProcessor2.FromAssembly(csharp, 
+                    templContext,
+                    internalFrameFile);
+            }
         }
     }
 }

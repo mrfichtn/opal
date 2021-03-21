@@ -1,11 +1,11 @@
-﻿using Generators;
+﻿using System;
 
 namespace Opal.ParseTree
 {
     /// <summary>
     /// Identifier
     /// </summary>
-    public class Identifier: Segment, IGeneratable
+    public class Identifier: Segment, IEquatable<Identifier>
     {
         public Identifier(Segment s, string value)
             : base(s)
@@ -13,69 +13,37 @@ namespace Opal.ParseTree
             Value = value;
         }
 
-        public Identifier(Identifier id, Token t)
+        protected Identifier(Identifier id, Token t)
             : base(id.Start, t.End)
         {
             Value = id.Value + "." + t.Value;
         }
 
-        public Identifier(Identifier id, Identifier id2)
-            : base(id.Start, id2.End)
-        {
-            Value = id.Value + "." + id2.Value;
-        }
-
         public Identifier(Token t)
-            : base(t)
+            : this(t, t.Value)
         {
-            Value = t.Value!;
         }
 
-        public Identifier(string value)
-        {
+        public Identifier(string value) =>
             Value = value;
-        }
 
-        public static Identifier Add(Identifier id, Token t)
-        {
-            id.End = t.End;
-            id.Value += "." + t.Value;
-            return id;
-        }
+        public static Identifier Add(Identifier id, Token t) =>
+            new Identifier(id, t);
 
-        public string Value { get; private set; }
+        public string Value { get; }
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => Value;
 
-        public static bool Equals(Identifier id1, Identifier id2)
-        {
-            bool result;
-            if (id1 == null)
-                result = (id2 == null);
-            else if (id2 == null)
-                result = false;
-            else
-                result = id1.Value == id2.Value;
+        public static Identifier MakeType(Identifier id, GenericArgs args) =>
+            new Identifier(id, string.Format("{0}<{1}>", id, args));
 
-            return result;
-        }
+        public bool Equals(Identifier? other) =>
+            string.Equals(Value, other?.Value);
 
-        public void Write(Generator generator)
-        {
-            generator.Write(Value);
-        }
+        public override bool Equals(object? obj) =>
+            Equals(obj as Identifier);
 
-        public static string BuildList(string list, Identifier id2)
-        {
-            return string.Format("{0},{1}", list, id2);
-        }
-
-        public static Identifier MakeType(Identifier id, GenericArgs args)
-        {
-            return new Identifier(id, string.Format("{0}<{1}>", id, args));
-        }
+        public override int GetHashCode() =>
+            Value.GetHashCode();
     }
 }

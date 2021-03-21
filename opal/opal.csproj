@@ -5,18 +5,12 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Description>LR(1) compiler-compiler</Description>
-		<Copyright>Copyright© 2018-2020</Copyright>
 		<RootNamespace>Opal</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <IsTool>True</IsTool>
-    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
-    <LangVersion>9</LangVersion>
-    <Nullable>enable</Nullable>
-	</PropertyGroup>
-
-  <!--<ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-  </ItemGroup>-->
+	</PropertyGroup>    
+    
+	<ItemGroup>
+	  <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+	</ItemGroup>
 
 </Project>

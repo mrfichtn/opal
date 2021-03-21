@@ -27,5 +27,16 @@ namespace OpalTests
             Assert.IsTrue(Strings.FromHexDigit('F', out value));
             Assert.AreEqual(0xf, value);
         }
+
+        [TestMethod]
+        public void FromEscCharStringTests()
+        {
+            char ch;
+            Assert.IsTrue(Strings.FromEscCharString(@"'\x123'", out ch));
+            Assert.AreEqual('\x123', ch);
+
+            Assert.IsTrue(Strings.FromEscCharString(@"'\x1234'", out ch));
+            Assert.AreEqual('\x1234', ch);
+        }
     }
 }

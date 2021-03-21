@@ -1,5 +1,13 @@
 <Project>
 	<PropertyGroup>
 		<Version>1.0.14</Version>
-	</PropertyGroup>
+
+    <Copyright>Copyright© 2018-2020</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/mrfichtn/opal</RepositoryUrl>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+    <PackageOutputPath>..\pub</PackageOutputPath>
+
+  </PropertyGroup>
 </Project>

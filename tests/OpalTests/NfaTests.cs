@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Opal;
+using Opal.Containers;
 using Opal.Dfa;
+using Opal.Logging;
 using Opal.Nfa;
 
 namespace OpalTests
@@ -16,25 +19,29 @@ namespace OpalTests
             var g2 = graph.Create("world");
             g2.MarkEnd("kw_world", "world");
             graph = graph.Union(g2);
+            var logger = new ConsoleLogger("");
 
-            var dfa = graph.ToDfa();
+            var dfa = graph.ToDfa(logger);
             var actual = new ScannerStateTable(dfa.States).Create();
 
             var expected = new[]
             { 
-            // ▽  ⌀  o  l  e  h  d  r  w
-                0, 0, 0, 0, 0, 1, 0, 0, 2, 0,
-                0, 0, 0, 0, 7, 0, 0, 0, 0, 0,
-                0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 4, 0, 0,
-                0, 0, 0, 5, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
-                2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 8, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 9, 0, 0, 0, 0, 0, 0,
-                0, 0,10, 0, 0, 0, 0, 0, 0, 0,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            //  ▽ ⌀  o  l  e  h  d  r  w
+                0, 0, 0, 0, 0, 1, 0, 0, 2, 0, //0
+                0, 0, 0, 0, 7, 0, 0, 0, 0, 0, //1  'h'
+                0, 0, 3, 0, 0, 0, 0, 0, 0, 0, //2  'w'
+                0, 0, 0, 0, 0, 0, 0, 4, 0, 0, //3  'wo'
+                0, 0, 0, 5, 0, 0, 0, 0, 0, 0, //4  'wor'
+                0, 0, 0, 0, 0, 0, 6, 0, 0, 0, //5  'worl'
+                2, 0, 0, 0, 0, 0, 0, 0, 0, 0, //6  'world'
+                0, 0, 0, 8, 0, 0, 0, 0, 0, 0, //7  'he'
+                0, 0, 0, 9, 0, 0, 0, 0, 0, 0, //8  'hel'
+                0, 0,10, 0, 0, 0, 0, 0, 0, 0, //9  'hell'
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 0  //10 'hello'
             };
+
+            var actualText = actual.ToText();
+
             Verify(expected, actual);
 
             actual = new ScannerStateTableWithSyntaxErrors(dfa.States).Create();
@@ -58,7 +65,7 @@ namespace OpalTests
             Verify(expected, actual);
         }
 
-        void Verify(int[] expected, int[,] actual)
+        private static void Verify(int[] expected, int[,] actual)
         {
             var index = 0;
             foreach (var item in actual)

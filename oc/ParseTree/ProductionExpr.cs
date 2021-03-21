@@ -3,203 +3,261 @@ using System.Text;
 
 namespace Opal.ParseTree
 {
-    public class ProductionExpr: Segment
+    public abstract class ProductionExpr: Segment
     {
-        public ProductionExpr(Segment s)
-            : base(s)
-        {
-            _quantifier = Quantifier.One;
-        }
-
-        #region Properties
-
-        #region Quantifier Property
-        public Quantifier Quantifier
-        {
-            get { return _quantifier; }
-            set { _quantifier = value; }
-        }
-        private Quantifier _quantifier;
-        #endregion
-
-        #region Id Property
-        public int Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
-        private int _id;
-        #endregion
-
-        #region Ignore Property
-        public bool Ignore { get; protected set; }
-        #endregion
-
-        public bool IsTerminal { get; set; }
-
-        #region CallMethod Property
-        public bool CallMethod { get; set; }
-        #endregion
-
-        public string? PropName { get; set; }
-
-        public Identifier? Type { get; set; }
-
-        #endregion
-
-        public static ProductionExpr SetAttributes(ProductionExpr expr, ProductionAttr attr)
-        {
-            if (attr != null)
-            {
-                expr.SetOption(attr.Option);
-                if (attr.IsMethod)
-                {
-                    expr.CallMethod = true;
-                    if (attr.ArgType != null)
-                        expr.Type = attr.ArgType;
-                }
-            }
-            return expr;
-        }
-
-        public override string ToString()
-        {
-            return _quantifier switch
-            {
-                Quantifier.Plus => "+",
-                Quantifier.Question => "?",
-                Quantifier.Star => "*",
-                _ => string.Empty,
-            };
-        }
-
-        public virtual bool WriteSignature(IGenerator generator, bool wroteArg) =>
-            wroteArg;
-
-        public virtual bool WriteArg(IGenerator generator, bool wroteArg, int index, string type) =>
-            wroteArg;
-
-        public virtual void WriteType(StringBuilder builder, string? @default)
-        {
-        }
+        public ProductionExpr(Segment segment)
+            : base(segment)
+        {}
 
 
-        public bool SetOption(Identifier option)
-        {
-            bool isOk = true;
-            switch (option.Value)
-            {
-                case "ignore": Ignore = true; break;
-                default: PropName = option.Value; break;
-            }
-            return isOk;
-        }
+        public abstract string Name { get; }
+
+
+        /// <summary>
+        /// If an expression is a character or string, then this method adds the string to 
+        /// the token section.  This is how inline tokens (keywords) are processed.
+        /// </summary>
+        public virtual void DeclareToken(DeclareTokenContext context)
+        {}
+
+        public virtual void AddImproptuDeclaration(ImproptuDeclContext context)
+        { }
+
+
+        public abstract Productions.TerminalBase Build(Productions.GrammarBuilder builder);
+
+        public override string ToString() => Name;
     }
 
-    public class SymbolProd : ProductionExpr
+    public class SymbolProdExpr : ProductionExpr
     {
-        public SymbolProd(Token t)
+        public Identifier name;
+
+        public SymbolProdExpr(Token t)
             : base(t)
         {
-            Name = t.Value!;
+            name = new Identifier(t);
         }
 
-        public SymbolProd(Segment s, string name, int id = 0)
+        public SymbolProdExpr(Segment s, string name)
             : base(s)
         {
-            Name = name;
-            Id = id;
+            this.name = new Identifier(s, name);
         }
 
-        public string Name { get; }
+        public override string Name => name.Value;
 
-        public void SetTerminal(int state)
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder)
         {
-            Id = state;
-            IsTerminal = true;
+            if (builder.TryFind(name.Value, out var id, out var isTerminal))
+            {
+                return isTerminal ?
+                    new Productions.TerminalSymbol(name, id) :
+                    new Productions.NonTerminalSymbol(name, id);
+            }
+            return builder.MissingSymbol(name);
         }
-
-        public override bool WriteSignature(IGenerator generator, bool wroteArg)
-        {
-            if (wroteArg)
-                generator.Write(", ");
-            generator.Write($"{Name} {PropName}");
-            return true;
-        }
-
-        public override bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
-        {
-            if (wroteArg)
-                generator.Write(", ");
-
-            generator.Write("a{0}", index);
-            return true;
-        }
-
-        public override void WriteType(StringBuilder builder, string? @default)
-        {
-            if (!string.IsNullOrEmpty(PropName))
-                builder.Append('<').Append(PropName).Append('>');
-            else if (!string.IsNullOrEmpty(@default))
-                builder.Append('<').Append(@default).Append('>');
-            else if (IsTerminal)
-                builder.Append("<Token>");
-        }
-
-        public override string ToString() => Name + base.ToString();
     }
 
     public class StringTokenProd : ProductionExpr
     {
-        public StringTokenProd(Segment seg, string token, int id = 0)
-            : base(seg)
+        private readonly StringConst text;
+        private string? name;
+        private int id;
+
+        public StringTokenProd(StringConst text)
+            : base(text)
         {
-            Text = token;
-            Id = id;
-            IsTerminal = true;
+            this.text = text;
         }
 
-        public StringTokenProd(StringConst str, int id)
-            : base(str)
+        public override string Name => name!;
+
+
+        public override void DeclareToken(DeclareTokenContext context) =>
+            (name, id) = context.AddDefinition(text);
+
+
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder) =>
+            new Productions.TerminalString(text, name!, id);
+
+        public override string ToString() => $"\"{text.Value.ToEsc()}\"";
+    }
+
+    public class CharTokenProd: ProductionExpr
+    {
+        private readonly CharConst ch;
+        private readonly StringConst text;
+        private string? name;
+        private int id;
+
+        public CharTokenProd(CharConst ch)
+            : base(ch)
         {
-            Text = str.Value;
-            Id = id;
-            IsTerminal = true;
+            this.ch = ch;
+            text = new StringConst(ch, new string(ch.Value, 1));
         }
 
-        public string Text { get; }
+        public override string Name => name!;
 
-        public override string ToString() => $"\"{Text.ToEsc()}\"";
+        public override void DeclareToken(DeclareTokenContext context) =>
+            (name, id) = context.AddDefinition(text);
 
-        public override bool WriteSignature(IGenerator generator, bool wroteArg)
+
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder) =>
+            new Productions.TerminalString(text,
+                name!,
+                id);
+
+        public override string ToString() => $"\'{Opal.Containers.Strings.ToEsc(ch.Value)}\'";
+    }
+
+    public abstract class UnaryProdExpr: ProductionExpr
+    {
+        protected readonly ProductionExpr expr;
+
+        public UnaryProdExpr(ProductionExpr expr, Segment segment)
+            : base(new Segment(expr, segment))
         {
-            if (!Ignore)
+            this.expr = expr;
+        }
+
+        public override string Name => expr.Name + NameSuffix;
+
+        protected abstract string NameSuffix { get; }
+
+        public override void DeclareToken(DeclareTokenContext context) =>
+            expr.DeclareToken(context);
+
+        public override Productions.TerminalBase Build(Productions.GrammarBuilder builder)
+        {
+            var symbol = expr.Build(builder);
+            return Build(builder, symbol);
+        }
+
+        protected virtual Productions.TerminalBase Build(
+            Productions.GrammarBuilder grammarBuilder,
+            Productions.TerminalBase symbol)
+        {
+            var name = symbol.Name + NameSuffix;
+            var found = grammarBuilder.TryFind(name, out var id, out var isTerminal);
+            if (!found)
+                return grammarBuilder.MissingSymbol(new Identifier(this, name));
+
+            return !isTerminal ?
+                new Productions.NonTerminalSymbol(this, name, id) :
+                new Productions.TerminalSymbol(this, name, id);
+        }
+    }
+
+    public class QuestionProdExpr: UnaryProdExpr
+    {
+        public QuestionProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        {}
+
+        protected override string NameSuffix => "_option";
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
+        {
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
+
+            var definitions = new ProdDefList(
+                new ProdDef(new ProductionExprList(expr)))
             {
-                generator.Write($"Token {PropName}");
-                wroteArg = true;
-            }
-            return wroteArg;
+                new ProdDef()
+            };
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
         }
+    }
 
-        public override bool WriteArg(IGenerator generator, bool wroteArg, int index, string type)
+    public class PlusProdExpr: UnaryProdExpr
+    {
+        public PlusProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        { }
+
+        protected override string NameSuffix => "_list";
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
         {
-            if (!Ignore)
-            {
-                if (wroteArg)
-                    generator.Write(", ");
-                wroteArg = true;
-                generator.Write("a{0}", index);
-            }
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
 
-            return wroteArg;
+            if (!context.TryFindType(expr.Name, out var exprType))
+                exprType = "Object";
+
+            var actionType = new Identifier(exprType + "List");
+
+            var definitions = new ProdDefList(
+                new ProdDef(
+                    new ProductionExprList(expr),
+                    new ActionNewExpr(actionType,
+                        new ActionArgs(new ActionArg(0)))),
+                new ProdDef(
+                    new ProductionExprList(
+                        new SymbolProdExpr(this, baseName),
+                        expr),
+                    new ActionFuncExpr(
+                        actionType,
+                        new ActionArgs(new ActionArg(0), new ActionArg(1)))));
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
         }
+    }
 
-        public override void WriteType(StringBuilder builder, string? @default)
+    public class StarProdExpr: UnaryProdExpr
+    {
+        public StarProdExpr(ProductionExpr expr, Segment segment)
+            : base(expr, segment)
+        { }
+
+        protected override string NameSuffix => "_list";
+
+        public override void AddImproptuDeclaration(ImproptuDeclContext context)
         {
-            if (!string.IsNullOrEmpty(@default))
-                builder.Append('<').Append(@default).Append('>');
-            else
-                builder.Append("<Token>");
+            var baseName = Name;
+            if (context.HasSymbol(baseName))
+                return;
+
+            if (!context.TryFindType(expr.Name, out var exprType))
+                exprType = "Object";
+
+            var actionType = new Identifier(exprType + "List");
+
+            var definitions = new ProdDefList(
+                new ProdDef(
+                    new ProductionExprList(),
+                    new ActionNewExpr(actionType,
+                        new ActionArgs())),
+                new ProdDef(
+                    new ProductionExprList(
+                        new SymbolProdExpr(this, baseName),
+                        expr),
+                    new ActionFuncExpr(
+                        actionType,
+                        new ActionArgs(new ActionArg(0), new ActionArg(1)))));
+
+            var production = new Production(
+                new Identifier(this, baseName),
+                null,
+                definitions);
+
+            context.Add(production);
         }
     }
 }

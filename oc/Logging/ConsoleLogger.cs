@@ -1,128 +1,97 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace Opal.Logging
 {
     public class ConsoleLogger : ILogger
-    {
-        private readonly string _file;
-        private readonly ConsoleColor _oldColor;
+	{
+		private readonly ConsoleLog log;
+		private readonly string file;
 
-        public ConsoleLogger(string file)
+		public ConsoleLogger(ConsoleLog log, string file)
         {
-            _file = file;
-            _oldColor = Console.ForegroundColor;
+			this.log = log;
+			this.file = file;
         }
+		
+		public ConsoleLogger(string file)
+			: this(new ConsoleLog(), file)
+		{ }
 
-        public void LogCommandLine(string commandLine)
-        {
-            LogCommandLine(Importance.Low, commandLine);
-        }
+		public void LogError(string message) =>
+			log.ErrorLine(message);
 
-        public void LogCommandLine(Importance importance, string commandLine)
-        {
-            Log(importance, commandLine);
-        }
+		public void LogError(string message, params object[] messageArgs) =>
+			LogError(string.Format(message, messageArgs));
 
-        public void LogError(string message, params object[] messageArgs)
-        {
-            Log(ConsoleColor.Red, message, messageArgs);
-        }
+		public void LogError(Segment segment, string message, params object[] messageArgs) =>
+			LogError(Format(segment, message, messageArgs));
 
-        public void LogError(string subcategory, string errorCode, string helpKeyword, int lineNumber, 
-            int columnNumber, int endLineNumber, int endColumnNumber, string message, params object[] messageArgs)
-        {
-            Log(ConsoleColor.Red, subcategory, errorCode, helpKeyword, lineNumber, columnNumber, 
-                endLineNumber, endColumnNumber, message, messageArgs);
-        }
+		public void LogMessage(string message, params object[] messageArgs) =>
+			LogMessage(Importance.Low, message, messageArgs);
 
-        public void LogMessage(string message, params object[] messageArgs)
-        {
-            LogMessage(Importance.Low, message, messageArgs);
-        }
+		public void LogMessage(Importance importance, string message)
+		{
+			switch (importance)
+			{
+				case Importance.High:
+					log.HighLine(message);
+					break;
+				case Importance.Normal:
+					log.NormalLine(message);
+					break;
+				case Importance.Low:
+					log.LowLine(message);
+					break;
+			}
+		}
 
-        public void LogMessage(Importance importance, string message, params object[] messageArgs)
-        {
-            if ((messageArgs == null) || (messageArgs.Length == 0))
-                Log(importance, message);
-            else
-                Log(importance, string.Format(message, messageArgs));
-        }
+		public void LogMessage(Importance importance,
+			string message,
+			params object[] messageArgs) =>
+			LogMessage(importance, string.Format(message, messageArgs));
 
-        public void LogWarning(string subcategory, string warningCode, string helpKeyword, int lineNumber, 
-            int columnNumber, int endLineNumber, int endColumnNumber, string message, params object[] messageArgs)
-        {
-            Log(ConsoleColor.Yellow, subcategory, warningCode, helpKeyword, lineNumber, columnNumber,
-                endLineNumber, endColumnNumber, message, messageArgs);
-        }
+		public void LogMessage(Importance importance, 
+			Segment segment, 
+			string message, 
+			params object[] messageArgs) =>
+			LogMessage(importance, Format(segment, message, message));
 
-        public void LogWarning(string message, params object[] messageArgs)
-        {
-            Log(ConsoleColor.Yellow, message, messageArgs);
-        }
+		public void LogWarning(Segment segment, 
+			string message, 
+			params object[] messageArgs) =>
+			LogWarning(Format(segment, message, messageArgs));
 
-        private void Log(ConsoleColor color, string subcategory, string code, string helpKeyword, int lineNumber, int columnNumber, 
-            int endLineNumber, int endColumnNumber, string message, params object[] messageArgs)
-        {
-            var builder = new StringBuilder();
-            if (!string.IsNullOrEmpty(_file))
-                builder.Append(_file);
-            if (lineNumber > 0)
-            {
-                builder.Append('(').Append(lineNumber);
-                if (columnNumber > 0)
-                {
-                    builder.Append(',').Append(columnNumber);
-                    if (endLineNumber > 0)
-                    {
-                        builder.Append(',').Append(endLineNumber);
-                        if (endColumnNumber > 0)
-                            builder.Append(',').Append(endColumnNumber);
-                    }
-                }
-                builder.Append(')');
-            }
-            if (builder.Length > 0)
-                builder.Append(":\t");
-            if (messageArgs == null || messageArgs.Length == 0)
-                builder.Append(message);
-            else
-                builder.AppendFormat(message, messageArgs);
-            Log(color, builder.ToString());
-        }
+		public void LogWarning(string message) =>
+			log.WarnLine(message);
 
-        private void Log(Importance importance, string message)
-        {
-            ConsoleColor color;
-            switch (importance)
-            {
-                case Importance.High:
-                    color = ConsoleColor.White;
-                    break;
-                case Importance.Normal:
-                    color = ConsoleColor.Gray;
-                    break;
-                case Importance.Low:
-                default:
-                    color = ConsoleColor.DarkGray;
-                    break;
-            }
-            Log(color, message);
-        }
+		public void LogWarning(string message, params object[] messageArgs) =>
+			log.WarnLine(string.Format(message, messageArgs));
 
-        private void Log(ConsoleColor color, string message, params object[] messageArgs)
-        {
-            if (messageArgs == null || messageArgs.Length == 0)
-                Log(color, message);
-            else
-                Log(color, string.Format(message, messageArgs));
-        }
-
-        private void Log(ConsoleColor color, string message)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ForegroundColor = _oldColor;
-        }
-    }
+		public string Format(Segment segment, 
+			string message, 
+			params object[] messageArgs)
+		{
+			var builder = new StringBuilder();
+			if (!string.IsNullOrEmpty(file))
+				builder.Append(file);
+			if (segment.Start.Ln > 0)
+			{
+				builder.Append('(').Append(segment.Start.Ln);
+				if (segment.Start.Col > 0)
+				{
+					builder.Append(',').Append(segment.Start.Col);
+					if (segment.End.Ln > 0)
+						builder.Append(',').Append(segment.End.Ln).Append(',').Append(segment.End.Col);
+				}
+				builder.Append(')');
+			}
+			if (builder.Length > 0)
+				builder.Append(":\t");
+			if (messageArgs == null || messageArgs.Length == 0)
+				builder.Append(message);
+			else
+				builder.AppendFormat(message, messageArgs);
+			return builder.ToString();
+		}
+	}
 }

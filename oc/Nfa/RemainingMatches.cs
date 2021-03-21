@@ -12,9 +12,6 @@ namespace Opal.Nfa
             var data = new CharClass();
             foreach (var match in matches)
                 data.AddTo(match);
-
-            var cond = data.SwitchCondition("x");
-
             return data.Invert()
                 .Reduce();
         }

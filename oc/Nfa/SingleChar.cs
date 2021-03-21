@@ -26,7 +26,7 @@ namespace Opal.Nfa
         public SingleChar(char ch) =>
             Ch = ch;
 
-        public SingleChar(EscChar ch)
+        public SingleChar(CharConst ch)
             : base(ch)
         {
             Ch = ch.Value;

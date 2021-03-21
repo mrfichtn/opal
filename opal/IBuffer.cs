@@ -37,5 +37,7 @@ namespace Opal
 		/// <param name="end"></param>
 		/// <returns></returns>
 		string GetString(int beg, int end);
+
+		string Line(Position position);
 	}
 }

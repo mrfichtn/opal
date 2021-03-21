@@ -7,19 +7,20 @@ Options
 	//frame					= "opal.parser.frame"
 	no_action				= "null"
 	//nfa					= "opal.nfa.txt"
-	scanner					= "switch"
-	//scanner					= "state"
+	//scanner				= "switch"
+	scanner					= "state"
 	emit_token_states		= false
 	no.token				= true
 	no.buffer				= true
 	no.logger				= true
 	no.lrstack				= true
 	syntax.error.tokens     = true
+	//nullable				= "disable"
 
 Characters
 	char_class_ctrl 		= [\[\]\^\\]
-	char_class_char 		= !char_class_ctrl-[\r\n\t]
-	char_class_esc          = char_class_ctrl+["'0abfnrtv]
+	char_class_char 		= !char_class_ctrl - [\r\n\t]
+	char_class_esc          = char_class_ctrl + ["'0abfnrtv]
 	
 	esc                     = [\\]
 	letter					= [a-zA-Z]
@@ -90,109 +91,133 @@ Productions language
 		characters_section 
 		token_section 
 		production_section
-		conflict_section
-																{ new Language($1: Identifier, $4: Graph, _productions, conflicts); }
+		conflict_section										{ new Language(
+																	srcFile,
+																	$0: UsingList,
+																	$1: Identifier, 
+																	$2: OptionList,
+																	$3: CharacterList,
+																	$4: TokenList, 
+																	$5: ProductionSection, 
+																	$6: ConflictList); }
 
-	using_section = | using_section using_decl; 
+	using_section =												{ new UsingList(); }
+				  | using_section using_decl					{ UsingList.Add($0, $1); }
 	
-	using_decl = "using" Identifier ';'							{ AddNamespace($1); }
+	using_decl = "using" Identifier ';'							{ new Using($1); }
 
 	namespace_section   = 
 						| "namespace" Identifier ';'			{ $1; }
 
 	option_section	= 
-					| "Options" option_list;
+					| "Options" option_list						{ $1; }
 
-	option_list = option 
-				| option_list option;
+	option_list =        										{ new OptionList(); }
+				| option_list option		                    { OptionList.Add($0, $1); }
 
-	option	=	Identifier '=' string_literal					{ AddOption($0, $2: StringConst); }
-			|	Identifier '=' Boolean							{ AddOption($0, $2: BoolConst); }
+	option	=	Identifier '=' string_literal                   { new Option($0, $2); }
+	option  =   Identifier '=' Boolean                          { new Option($0, $2); }
 
-	characters_section	= | "Characters" character_expr;
 
-	character_expr	=  character_pair							{ Add($0); }
-					|  character_expr character_pair			{ Add($1); }
+	characters_section	=										{ new CharacterList(); }
+							| "Characters" character_list       { $1; }
 
-	character_pair = identifier '=' char_class_concat			{ new NamedCharClass($0, $2: IMatch); }
+	character_list	=  character    							{ new CharacterList($0); }
+					|  character_list character     			{ CharacterList.Add($0, $1); }
 
-	char_class_concat = char_class_unary
-				      | char_class_concat '+' char_class_unary	{ Match.Union($0:IMatch, $2:IMatch); }
-				      | char_class_concat '-' char_class_unary	{ Match.Difference($0:IMatch, $2:IMatch); }
+	character       = identifier '=' char_class_concat			{ new Character($0, $2); }
 
-	char_class_unary = 	char_class_primary 
-					 | '!' char_class_unary						{ Match.Invert($0, $1: IMatch); }
+	char_class_concat											<CharacterExpr>
+					  = char_class_unary						{ $0; }
+				      | char_class_concat '+' char_class_unary	{ new CharacterUnionExpr($0, $2); }
+				      | char_class_concat '-' char_class_unary	{ new CharacterDiffExpr($0, $2); }
 
-	char_class_primary	= CharClass
-						| identifier							{ FindCharClass($0); }
-						| Char									{ new SingleChar($0: CharConst); }
+	char_class_unary 											<CharacterExpr>	
+					 = char_class_primary						{ $0; }
+					 | '!' char_class_unary						{ new CharacterInvertExpr($0, $1); }
 
-	token_section	=											{ SetGraph(); }
+	char_class_primary											<CharacterExpr>
+						= CharClass								{ new CharacterClass($0); }
+						| Identifier							{ new CharacterSymbol($0); }
+						| Char									{ new SingleChar($0); }
+
+	token_section	=											
 					| "Tokens" token_list						{ $1; }
 
-	token_list  = token											{ SetGraph($0: Graph); }
-				| token_list token								{ Graph.Union($1: Graph); }
+	token_list  = token											{ new TokenList($0); }
+				| token_list token								{ TokenList.Add($0, $1); }
 
-	token		= identifier token_attr '=' token_expr ';'		{ Graph.MarkEnd($0, $1: Token, $3: Graph); }
+	token		= identifier token_attr '=' token_expr ';'		{ new TokenDeclaration($0, $1, $3); }
 
 	token_attr	= 
 				| '<' identifier '>'							{ $1; }
 
-	token_expr	= token_quantifier
-				| token_expr '|' token_quantifier				{ Graph.Union($0: Graph, $2: Graph); }
-				| token_expr token_quantifier					{ Graph.Concatenate($0: Graph, $1: Graph); }
+	token_expr													<TokenExpr>
+				= token_quantifier                              { $0; }
+				| token_expr '|' token_quantifier				{ new UnionTokenExpr($0, $2); }
+				| token_expr token_quantifier					{ new ConcatTokenExpr($0, $1); }
 
-	token_quantifier = token_primary
-					 | token_primary '+'							{ Graph.PlusClosure($0: Graph); }
-					 | token_primary '*'							{ Graph.StarClosure($0: Graph); }
-					 | token_primary '?'							{ Graph.QuestionClosure($0: Graph); }
-					 | token_primary '{' Integer '}'				{ Graph.Quantifier($0: Graph, $2: Integer); }
-					 | token_primary '{' Integer ',' Integer '}'	{ Graph.RangeQuantifier($0: Graph, $2: Integer, $4: Integer); }
+	token_quantifier											<TokenExpr>
+				= token_primary                                 { $0; }
+				| token_primary '+'								{ new PlusClosureExpr($0); }
+				| token_primary '*'								{ new StarClosureExpr($0); }
+				| token_primary '?'								{ new QuestionClosureExpr($0); }
+				| token_primary '{' Integer '}'					{ new QuantifierTokenExpr($0, $2); }
+				| token_primary '{' Integer ',' Integer '}'		{ new RangeTokenExpr($0, $2, $4); }
 
-	token_primary	= identifier								{ CreateGraph(FindCharClass($0)); }
-					| Char										{ CreateGraph($0: EscChar); }
-					| CharClass									{ CreateGraph($0: IMatch); }
-					| string_literal							{ Graph.Create($0: StringConst); }
+	token_primary												<TokenExpr>
+					= identifier								{ new SymbolTokenExpr($0); }
+					| Char										{ new CharTokenExpr($0); }
+					| CharClass									{ new CharClassTokenExpr($0); }
+					| string_literal							{ new StringLiteralTokenExpr($0); }
 					| '(' token_expr ')'						{ $1; }
 
-	production_section	= "Productions" identifier prod_list	{ _productions.SetLanguage($1); }
+	production_section	= "Productions" identifier prod_list	{ new ProductionSection($1, $2); }
 
-	prod_list	=	
-				| prod_list production;
+	prod_list	=												{ new ProductionList(); }
+				| prod_list production							{ ProductionList.Add($0, $1); }
 
 	production	
-		= identifier production_attr '=' prod_def_list			{ _productions.Add($0, $1, $3:ProdDefList); }
+		= identifier production_attr_option '=' prod_def_list	{ new Production($0, $1, $3); }
 
-	production_attr	=
-					| '<' Identifier func_opt '>'				{ new ProductionAttr($1, $2); }
+	production_attr_option	= production_attr					{ $0; }
+							| ;
+	
+	production_attr	= '<' Identifier nullable_opt '>'			{ new ProductionAttr($1, $2); }
 		
-	func_opt	=	
-				| '(' func_opt_arg_type ')'						{ new FuncOption($1: Identifier); }
+	nullable_opt =												{ false; }
+				 | '?'											{ true; }
 	
 	func_opt_arg_type =	| Identifier;
 
-	prod_def_list	
-		=  prod_def_start prod_exprs ';'						{ ProdDefList.Add($0, $1); }
+	prod_def_list	                                            <ProdDefList>
+		=  prod_def_start prod_expr_list ';'					{ ProdDefList.Add($0, $1); }
 		|  prod_def_start prod_def								{ ProdDefList.Add($0, $1); }
 
 	prod_def_start 
 		=														{ new ProdDefList(); }
-		| prod_def_start prod_exprs '|'							{ ProdDefList.Add($0, $1); }
+		| prod_def_start prod_expr_list '|'						{ ProdDefList.Add($0, $1); }
 		| prod_def_start prod_def '|'							{ ProdDefList.Add($0, $1); }
 
 	prod_def 
-		= prod_exprs prod_action optional_semicolon				{ new ProdDef($0, $1: ActionExpr); }
+		= prod_expr_list prod_action optional_semicolon			{ new ProdDef($0, $1: ActionExpr); }
 
 	optional_semicolon = | ';';
 
-	prod_exprs	=												{ new ProductionExprs(); }
-				| prod_exprs prod_expr							{ ProductionExprs.Add($0, $1: ProductionExpr); }
+	prod_expr_list =											{ new ProductionExprList(); }
+				   | prod_expr_list prod_expr					{ ProductionExprList.Add($0, $1: ProductionExpr); }
 
-	prod_expr = prod_expr_primary production_attr				{ ProductionExpr.SetAttributes($0: ProductionExpr, $1: ProductionAttr); }
+	prod_expr	= prod_expr_quantifier 							{ $0: ProductionExpr; }
 
-	prod_expr_primary	= identifier							{ new SymbolProd($0); }
-						| string_literal								{ AddStringTokenProd($0: StringConst); }
-						| Char									{ AddStringTokenProd($0: CharConst); }
+	prod_expr_quantifier = prod_expr_primary						
+						 | prod_expr_primary '?'				{ new QuestionProdExpr($0, $1); }
+						 | prod_expr_primary '+'                { new PlusProdExpr($0, $1); }
+						 | prod_expr_primary '*'                { new StarProdExpr($0, $1); }
+						 ;
+
+	prod_expr_primary	= identifier							{ new SymbolProdExpr($0); }
+						| string_literal						{ new StringTokenProd($0: StringConst); }
+						| Char									{ new CharTokenProd($0: CharConst); }
 
 	prod_action =  '{' action_stmt  '}'							{ $1; }
 
@@ -207,14 +232,18 @@ Productions language
 				| action_expr									{ new ActionArgs($0: ActionExpr); }
 				| action_args ',' action_expr					{ ActionArgs.Add($0, $2: ActionExpr); }
 
-	action_primary_expr = arg action_cast						{ new ActionArg($0, $1: Identifier); }
+	action_primary_expr = action_arg     						{ $0; }
 						| Identifier							{ new ActionMember($0); }
 						| Integer                               { new ActionIntConstant($0); }
-						| string_literal                                { new ActionStringConstant($0: StringConst); }
+						| string_literal                        { new ActionStringConstant($0: StringConst); }
 						| Boolean                               { new ActionBoolConstant($0); }
 
-	action_cast = 
-				| ':' Identifier								{ $1; }
+	action_arg = arg											{ new ActionArg($0); }
+	           | arg ':' nullable_type                          { ActionArgCasted.Create($0, $2); }
+
+
+	nullable_type = type                                       { new NullableType($0); }
+	              | type '?'                                   { new NullableType($0, $1); }
 
 	type	=	Identifier										{ $0:Identifier; }
 			|	Identifier '<' generic_args '>'					{ Identifier.MakeType($0:Identifier, $2:GenericArgs); }
@@ -224,12 +253,12 @@ Productions language
 					|	generic_args ',' type					{ GenericArgs.Add($0, $2:Identifier); }
 				
 				
-	conflict_section	=
-						| "Conflicts" conflict_list
+	conflict_section	=                                       { new ConflictList(); }
+						| "Conflicts" conflict_list				{ $1; }
 						;
 
-	conflict_list		=										
-						| conflict_list conflict				{ conflicts.Add($1); }
+	conflict_list		=										{ new ConflictList(); }
+						| conflict_list conflict				{ ConflictList.Add($0, $1); }
 						
 
 	conflict			= Identifier ',' Identifier ':' Identifier Identifier ';'
@@ -240,7 +269,7 @@ Productions language
 
 	CharClass = char_class										{ new CharClass($0); }
 	Char = char_string											{ new EscChar($0); }
-	string_literal = regular_string_literal						{ $0; }
+	string_literal = regular_string_literal						{ $0: StringConst; }
 	regular_string_literal = string								{ new EscString($0); }
 	Integer = integer											{ new DecInteger($0); }
 	Boolean = "true"											{ new BoolConst($0, true); }

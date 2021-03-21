@@ -26,66 +26,9 @@ namespace Opal.Dfa
         public Matches Matches { get; }
         #endregion
 
-        public void WriteCompressedMap(IGenerator language)
-        {
-            //Write map
-            language.Indent();
-            language.WriteLine("private static readonly byte[] _charToClassCompressed = ");
-            language.WriteCompressedArray(MaxClass, MatchToClass);
-            language.UnIndent();
-        }
-
-        public void WriteSparseMap(IGenerator language)
-        {
-            //(char, int)[] charClasses =
-            //{
-            //    ('a', 0), ('b', 1)
-            //};
-
-            //Write map
-            language.Indent();
-            language.WriteLine("private static readonly (char ch, int cls)[] _charToClass = ");
-            language.StartBlock();
-
-            var first = false;
-            int column = 0;
-            for (var i = 0; i < MatchToClass.Length; i++)
-            {
-                var state = MatchToClass[i];
-                if (state == 0)
-                    continue;
-                if (first)
-                    first = false;
-                else
-                    language.Write(',');
-                
-                if (column == 8)
-                {
-                    language.WriteLine();
-                    column = 0;
-                }
-                column++;
-
-                language.Write("('")
-                    .WriteEscChar(i)
-                    .Write("', ")
-                    .Write(state)
-                    .Write(")");
-            }
-
-            language.EndBlock(";");
-        }
-
-
-        public string GetClassReadMethod() => GetMethod("Read", MaxClass);
-
-        public string GetStatesReadMethod() => GetMethod("Read", States.Length);
-
-        public string GetClassDecompressMethod() => GetMethod("Decompress", MaxClass);
         public string GetStatesDecompressMethod() => GetMethod("Decompress", States.Length);
 
-
-        public string GetMethod(string method, int max)
+        public static string GetMethod(string method, int max)
         {
             string result;
             if (max <= byte.MaxValue)
@@ -121,42 +64,6 @@ namespace Opal.Dfa
             if (result)
                 name = Identifier.SafeName(name);
             return result;
-        }
-
-        /// <summary>
-        /// Writes token name to id constants
-        /// </summary>
-        public void WriteTokenEnum(IGenerator generator, bool emitTokenStates)
-        {
-            generator.WriteLine("public class TokenStates")
-                .WriteLine("{")
-                .Indent();
-
-            if (emitTokenStates)
-            {
-                foreach (var state in AcceptingStates.AllStates)
-                {
-                    if (state.index == 0)
-                        generator.WriteLine("public const int SyntaxError = -1;");
-                    var name = Identifier.SafeName(state.name);
-                    generator.WriteLine($"public const int {name} = {state.index};");
-                }
-            }
-            else
-            {
-                generator.WriteLine("public const int SyntaxError = -1;")
-                    .WriteLine("public const int Empty = 0;");
-            }
-            generator.UnIndent()
-                .WriteLine("}");
-        }
-
-        public int[,] GetStateTable(bool addSyntaxError = false)
-        {
-            var tableFactory = !addSyntaxError ?
-                new ScannerStateTable(States) :
-                new ScannerStateTableWithSyntaxErrors (States);
-            return tableFactory.Create();
         }
     }
 }

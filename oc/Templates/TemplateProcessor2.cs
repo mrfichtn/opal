@@ -1,16 +1,12 @@
 ﻿using Generators;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Opal.Containers;
 
 namespace Opal.Templates
 {
-	public class TemplateProcessor2
+    public class TemplateProcessor2
 	{
-		private string templ;
+		private readonly string templ;
 
 		public TemplateProcessor2(string templ) =>
 			this.templ = templ;

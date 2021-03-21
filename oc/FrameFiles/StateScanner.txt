@@ -20,7 +20,7 @@
 	}
 
 	public static Scanner FromFile(string filePath, int line = 1, int column = 0) =>
-		new Scanner(new FileBuffer(filePath), line, column);
+		new Scanner(StringBuffer.FromFile(filePath), line, column);
 
 $(dfa.class.data)
 $(dfa.state.data)

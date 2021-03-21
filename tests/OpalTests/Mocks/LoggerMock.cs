@@ -1,4 +1,5 @@
 ﻿using Opal;
+using Opal.Logging;
 using System.Text;
 
 namespace OpalTests.Mocks

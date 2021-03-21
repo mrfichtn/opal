@@ -5,34 +5,24 @@ namespace Generators
 {
     public class GeneratorBase: IDisposable
     {
-        private bool _isDisposed;
-        private readonly bool _ownsStream;
-        protected readonly TextWriter _stream;
-        protected int _indent;
-        protected bool _indented;
+        private bool isDisposed;
+        private readonly bool ownsStream;
+        private readonly TextWriter stream;
+        protected int indent;
+        protected bool indented;
 
         public GeneratorBase(TextWriter stream, bool ownsStream = true)
         {
-            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            _ownsStream = ownsStream;
+            this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            this.ownsStream = ownsStream;
             Line = 1;
         }
 
-        public GeneratorBase()
-            : this(new StringWriter(), true)
-        {
-        }
-
-        public GeneratorBase(string path)
-            : this(new StreamWriter(path))
-        {
-        }
-
         public GeneratorBase(GeneratorBase generator)
-            : this(generator._stream, false)
+            : this(generator.stream, false)
         {
-            _indent = generator._indent;
-            _indented = generator._indented;
+            indent = generator.indent;
+            indented = generator.indented;
         }
 
         public void Dispose()
@@ -43,33 +33,41 @@ namespace Generators
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if (!_isDisposed)
+            if (!isDisposed)
             {
-                if (isDisposing && _ownsStream)
-                    _stream.Dispose();
-                _isDisposed = true;
+                if (isDisposing && ownsStream)
+                    stream.Dispose();
+                isDisposed = true;
             }
         }
 
-        #region Properties
         public int Line { get; set; }
-        #endregion
 
-        public void Close()
-        {
-            _stream.Close();
-        }
+        public void Close() => stream.Close();
 
-        public override string? ToString() => _stream.ToString();
+        public override string? ToString() => stream.ToString();
 
         public void WriteIndent()
         {
-            if (_indented == false)
+            if (indented == false)
             {
-                for (int i = 0; i < _indent; i++)
-                    _stream.Write('\t');
-                _indented = true;
+                for (int i = 0; i < indent; i++)
+                    stream.Write('\t');
+                indented = true;
             }
+        }
+
+        public void WriteText(string text) =>
+            stream.Write(text);
+
+        public void WriteChar(char ch) =>
+            stream.Write(ch);
+
+        public void NewLine()
+        {
+            stream.WriteLine();
+            Line++;
+            indented = false;
         }
     }
 }

@@ -4,30 +4,31 @@ Symbols:
 [2] = Double(T)
 [3] = DoubleInt(T)
 [4] = Identifier(T)
-[5] = true(T)
-[6] = false(T)
-[7] = =>(T)
-[8] = ((T)
-[9] = )(T)
-[10] = +(T)
-[11] = -(T)
-[12] = *(T)
-[13] = /(T)
-[14] = !(T)
-[15] = ~(T)
+[5] = =>(T)
+[6] = ((T)
+[7] = )(T)
+[8] = +(T)
+[9] = -(T)
+[10] = *(T)
+[11] = /(T)
+[12] = !(T)
+[13] = ~(T)
+[14] = @true(T)
+[15] = @false(T)
 [16] = expr
 [17] = assignable
 [18] = unassignable
-[19] = sum
-[20] = lambda
-[21] = identifier
+[19] = lambda
+[20] = lambda_parameters
+[21] = sum
 [22] = term
 [23] = unary
 [24] = primary
-[25] = constant
-[26] = int
-[27] = double
-[28] = bool
+[25] = identifier
+[26] = constant
+[27] = int
+[28] = double
+[29] = bool
 
 R0: S' -> expr
 R1: expr -> assignable
@@ -35,26 +36,28 @@ R2: expr -> unassignable
 R3: assignable -> sum
 R4: unassignable -> lambda
 R5: lambda -> identifier => sum
-R6: sum -> sum + term
-R7: sum -> sum - term
-R8: sum -> term
-R9: term -> term * unary
-R10: term -> term / unary
-R11: term -> unary
-R12: unary -> primary
-R13: unary -> - primary
-R14: unary -> + primary
-R15: unary -> ! primary
-R16: unary -> ~ primary
-R17: primary -> ( expr )
-R18: primary -> constant
-R19: primary -> identifier
-R20: identifier -> Identifier
-R21: constant -> int
-R22: constant -> double
-R23: constant -> bool
-R24: int -> Int
-R25: double -> Double
-R26: double -> DoubleInt
-R27: bool -> true
-R28: bool -> false
+R6: lambda_parameters -> identifier
+R7: lambda_parameters -> ( )
+R8: sum -> sum + term
+R9: sum -> sum - term
+R10: sum -> term
+R11: term -> term * unary
+R12: term -> term / unary
+R13: term -> unary
+R14: unary -> primary
+R15: unary -> - primary
+R16: unary -> + primary
+R17: unary -> ! primary
+R18: unary -> ~ primary
+R19: primary -> ( expr )
+R20: primary -> constant
+R21: primary -> identifier
+R22: identifier -> Identifier
+R23: constant -> int
+R24: constant -> double
+R25: constant -> bool
+R26: int -> Int
+R27: double -> Double
+R28: double -> DoubleInt
+R29: bool -> @true
+R30: bool -> @false

@@ -1,16 +1,14 @@
-﻿using Microsoft.VisualStudio.TextManager.Interop;
+﻿using Opal.Logging;
 using Opal.ParseTree;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Opal.LR1
 {
     public class ConflictResolvers
     {
-        private Dictionary<Key, int> data;
+        private readonly Dictionary<Key, int> data;
         
         public ConflictResolvers(ConflictList conflicts, 
             Symbols symbols,
@@ -21,7 +19,7 @@ namespace Opal.LR1
             {
                 if (symbols.TryFind(conflict.Symbol, out var symbol))
                 {
-                    var key = new Key(conflict.State, symbol.Id);
+                    var key = new Key(conflict.State, symbol!.Id);
                     var action = conflict.Shift ?
                         conflict.NextState :
                         -(int)(2 + conflict.NextState);
@@ -34,6 +32,15 @@ namespace Opal.LR1
             }
         }
 
+
+        public int Count => data.Count;
+
+        public bool TryFind(int state, uint symbol, out int action)
+        {
+            var key = new Key(state, symbol);
+            return data.TryGetValue(key, out action);
+        }
+
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -44,13 +51,6 @@ namespace Opal.LR1
             return builder.ToString();
         }
 
-        public int Count => data.Count;
-
-        public bool TryFind(int state, uint symbol, out int action)
-        {
-            var key = new Key(state, symbol);
-            return data.TryGetValue(key, out action);
-        }
 
         struct Key: IEquatable<Key>
         {
@@ -68,6 +68,9 @@ namespace Opal.LR1
                 return State == other.State &&
                     Symbol == other.Symbol;
             }
+
+            public override bool Equals(object? obj) =>
+                (obj is Key key) && Equals(key);
 
             public override int GetHashCode()
             {

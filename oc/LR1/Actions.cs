@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Generators;
+﻿using Generators;
 
 namespace Opal.LR1
 {
@@ -12,12 +8,10 @@ namespace Opal.LR1
 	{
 		///*state*/, /*lookahead*/
 		private readonly int[,] _data;
-		private readonly Symbols _symbols;
 
-		public Actions(int[,] data, Symbols symbols)
+		public Actions(int[,] data)
 		{
 			_data = data;
-			_symbols = symbols;
 		}
 
 		public ActionType GetAction(uint state, uint token, out uint arg)
@@ -35,16 +29,16 @@ namespace Opal.LR1
 			else
 			{
 				actionType = ActionType.Reduce;
-				action = action - 2;
+				action -= 2;
 			}
 			arg = (uint)action;
 			return actionType;
 		}
 
-		public void Write(IGenerator generator)
+		public void Write(Generator generator)
 		{
 			generator.Indent(1);
-			generator.WriteLine("private readonly int[,] _actions = ");
+			generator.WriteLine("private static readonly int[,] _actions = ");
 			generator.StartBlock();
 
 			var stateCount = _data.GetLength(0);

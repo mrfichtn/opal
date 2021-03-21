@@ -108,5 +108,8 @@ namespace Opal
 			}
 			return result.ToString();
 		}
+
+		public string Line(Position position) =>
+			throw new NotImplementedException();
 	}
 }
