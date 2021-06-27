@@ -8,25 +8,14 @@ namespace Opal
     public interface IBuffer : IDisposable
 	{
 		/// <summary>
-		/// Full length of source
-		/// </summary>
-		long Length { get; }
-
-		/// <summary>
 		/// Current buffer position
 		/// </summary>
-		int Position { get; set; }
+		int Position { get; }
 
 		/// <summary>
 		/// Returns next character, moves the position one forward
 		/// </summary>
 		int Read();
-
-		/// <summary>
-		/// Examines the next character in the stream, leaves position at the same place
-		/// </summary>
-		/// <returns></returns>
-		int Peek();
 
 		string PeekLine();
 
@@ -36,7 +25,7 @@ namespace Opal
 		/// <param name="beg"></param>
 		/// <param name="end"></param>
 		/// <returns></returns>
-		string GetString(int beg, int end);
+		string GetToken(int end);
 
 		string Line(Position position);
 	}

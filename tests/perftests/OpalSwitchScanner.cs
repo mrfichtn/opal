@@ -1617,10 +1617,10 @@ namespace perftests
             token = new Token(startPosition,
                 new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
                 lastAcceptingState,
-                buffer.GetString(startPosition.Ch, lastAcceptingPosition));
+                buffer.GetToken(/*startPosition.Ch,*/ lastAcceptingPosition));
             if (buffer.Position != lastAcceptingPosition)
             {
-                buffer.Position = lastAcceptingPosition;
+                //buffer.Position = lastAcceptingPosition;
                 line = lastLine;
                 column = lastColumn;
                 NextChar();
@@ -1631,7 +1631,7 @@ namespace perftests
             token = new Token(startPosition,
                 new Position(lastLine, lastColumn, lastAcceptingPosition - 1),
                 lastAcceptingState,
-                buffer.GetString(startPosition.Ch, lastAcceptingPosition));
+                buffer.GetToken(/*startPosition.Ch,*/ lastAcceptingPosition));
             NextChar();
             return token;
         }

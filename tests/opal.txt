@@ -10,10 +10,6 @@ Options
 	//scanner				= "switch"
 	scanner					= "state"
 	emit_token_states		= false
-	no.token				= true
-	no.buffer				= true
-	no.logger				= true
-	no.lrstack				= true
 	syntax.error.tokens     = true
 	//nullable				= "disable"
 

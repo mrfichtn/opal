@@ -40,13 +40,16 @@ namespace CalcTest
 					items = 1;
 					state = Reduce(5, At(0));
 					break;
-				case 3: // expr = t3
+				case 3: // expr = t3_option
 					items = 1;
 					state = Reduce(5, At(0));
 					break;
-				case 4: // t3_list = t3
+				case 4: // t3_option = t3
 					items = 1;
-					state = Reduce(6, new List<T3>(At<Token>(0)));
+					state = Reduce(6, At(0));
+					break;
+				case 5: // t3_option =
+					state = Push(6, null);
 					break;
 	
 			}
@@ -56,11 +59,12 @@ namespace CalcTest
 		#region Actions Table
 		private static readonly int[,] _actions = 
 		{
-			{ -1, -1, 2, 3, 4, 1, -1 },
+			{ -7, -1, 2, 3, 5, 1, 4 },
 			{ -2, -1, -1, -1, -1, -1, -1 },
 			{ -3, -1, -1, -1, -1, -1, -1 },
 			{ -4, -1, -1, -1, -1, -1, -1 },
 			{ -5, -1, -1, -1, -1, -1, -1 },
+			{ -6, -1, -1, -1, -1, -1, -1 },
 		};
 	
 		#endregion
@@ -74,7 +78,7 @@ namespace CalcTest
 			"t2",
 			"t3",
 			"expr",
-			"t3_list"
+			"t3_option"
 		};
 		#endregion
 	
@@ -292,7 +296,5 @@ namespace CalcTest
 		public const int t2 = 3;
 		public const int t3 = 4;
 	}
-	
-	
 	
 }

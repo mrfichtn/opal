@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Opal
+﻿namespace Opal
 {
     public static class CharClasses
     {

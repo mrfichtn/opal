@@ -6,6 +6,8 @@ namespace Opal
     public class StringBuffer : IBuffer
 	{
 		private readonly string text;
+		private int position;
+		private int tokenStart;
 
 		public StringBuffer(string text) => this.text = text;
 
@@ -18,28 +20,31 @@ namespace Opal
 		public void Dispose() => GC.SuppressFinalize(this);
 
 		public long Length => text.Length;
-		public int Position { get; set; }
+		public int Position => position;
 
-		public int Read() => (Position < text.Length) ? text[Position++] : -1;
+		public int Read() => (position < text.Length) ? text[position++] : -1;
 		
-		public int Peek() => (Position < text.Length) ? text[Position] : -1;
-
 		public string PeekLine()
 		{
-			if (Position >= text.Length)
+			if (position >= text.Length)
 				return string.Empty;
 			int i;
-			for (i = Position; i < text.Length; i++)
+			for (i = position; i < text.Length; i++)
 			{
 				var ch = text[i];
 				if (ch == '\r' || ch == '\n')
 					break;
 			}
-			return text.Substring(Position, i - Position);
+			return text.Substring(position, i - position);
 		}
 
-		public string GetString(int start, int end) => 
-			text.Substring(start, end-start);
+		public string GetToken(int length)
+		{
+			var result = text.Substring(tokenStart, length);
+			tokenStart += length;
+			position = tokenStart + 1;
+			return result;
+		}
 
 		public string Line(Position position)
         {

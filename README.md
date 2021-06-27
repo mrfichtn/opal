@@ -3,6 +3,7 @@
 Opal is an LR(1) parser generator somewhat optimized for building tree structures following a parser.  For example, for the following sample file
 
 `using System.Linq.Expressions;
+
 `namespace CalcTest;
 `Options
 `	scanner                 = "state"
