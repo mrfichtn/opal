@@ -45,16 +45,8 @@ namespace Opal
         public string GetToken(int length)
         {
             var result = builder.ToString(0, length);
+            remaining = builder.Length - length;
             builder.Remove(0, length);
-            if (length > remaining)
-            {
-                filePos += length - remaining;
-                remaining = 0;
-            }
-            else
-            {
-                remaining -= length;
-            }
             return result;
         }
 

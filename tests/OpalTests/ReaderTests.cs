@@ -15,7 +15,19 @@ namespace OpalTests
             TestReader(Encoding.UTF8, s => new Utf8Reader(s));
         }
 
-        private void TestReader(Encoding encoding,
+        [TestMethod]
+        public void TestUtf16BigEndian()
+        {
+            TestReader(Encoding.Unicode, s => new Utf16BigEndian(s));
+        }
+
+        [TestMethod]
+        public void TestAscii()
+        {
+            TestReader(Encoding.ASCII, s => new AnsiReader(s));
+        }
+
+        private static void TestReader(Encoding encoding,
             Func<Stream, ReaderBase> createReader)
         {
             var buffer = new MemoryStream();

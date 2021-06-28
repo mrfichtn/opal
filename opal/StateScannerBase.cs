@@ -49,6 +49,7 @@ namespace Opal
 				var nextState = GetNextState(stateIndex);
 				if (nextState <= 0)
 				{
+					var pos = buffer.Position;
 					var value = buffer.GetToken(lastAcceptingPosition - startPosition.Ch);
 
 					var token = new Token(startPosition,
@@ -56,7 +57,7 @@ namespace Opal
 						lastAcceptingState,
 						value);
 
-					if (buffer.Position > lastAcceptingPosition + 1)
+					if (pos != lastAcceptingPosition + 1)
 					{
 						//buffer.Position = lastAcceptingPosition + 1;
 						line = lastLine;
