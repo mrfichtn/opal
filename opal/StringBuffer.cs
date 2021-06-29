@@ -42,7 +42,7 @@ namespace Opal
 		{
 			var result = text.Substring(tokenStart, length);
 			tokenStart += length;
-			position = tokenStart + 1;
+			position = tokenStart;
 			return result;
 		}
 

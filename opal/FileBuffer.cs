@@ -8,7 +8,6 @@ namespace Opal
     public class FileBuffer : IBuffer
     {
         private readonly ReaderBase reader;
-        //private readonly StreamReader reader;
         private readonly StringBuilder builder;
         private readonly List<long> lineStarts;
         private int filePos;
@@ -31,10 +30,7 @@ namespace Opal
                   encoding)
         { }
 
-        public int Position
-        {
-            get => filePos - remaining;
-        }
+        public int Position => filePos - remaining;
 
         public void Dispose()
         {
@@ -45,14 +41,14 @@ namespace Opal
         public string GetToken(int length)
         {
             var result = builder.ToString(0, length);
-            remaining = builder.Length - length;
             builder.Remove(0, length);
+            remaining = builder.Length;
             return result;
         }
 
         public string Line(Position position)
         {
-            if (position.Ln <= 0 || position.Ln >= lineStarts.Count)
+            if ((position.Ln <= 0) || (position.Ln >= lineStarts.Count))
                 return string.Empty;
 
             var oldPosition = reader.Position;
@@ -120,17 +116,14 @@ namespace Opal
 
         private static ReaderBase CreateReader(Stream stream, EncodingType encoding)
         {
-            ReaderBase? result;
-            switch (encoding)
+            ReaderBase? result = encoding switch
             {
-                case EncodingType.Ansi: result = new AnsiReader(stream); break;
-                case EncodingType.Utf8: result = new Utf8Reader(stream); break;
-                case EncodingType.Utf16BigEndian: result = new Utf16BigEndian(stream); break;
-                case EncodingType.Utf16LittleEndian: result = new Utf16LittleEndian(stream); break;
-                default:
-                    result = null;
-                    break;
-            }
+                EncodingType.Ansi => new AnsiReader(stream),
+                EncodingType.Utf8 => new Utf8Reader(stream),
+                EncodingType.Utf16BigEndian => new Utf16BigEndian(stream),
+                EncodingType.Utf16LittleEndian => new Utf16LittleEndian(stream),
+                _ => null,
+            };
             if (result != null)
             {
                 result.SkipBOM();

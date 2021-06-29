@@ -49,14 +49,31 @@ namespace OpalTests
         }
 
         [TestMethod]
-        public void TestBuffer()
+        public void TestFileBuffer()
         {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write("44+4+4");
-            writer.Flush();
-            stream.Seek(0, SeekOrigin.Begin);
-            var buffer = new FileBuffer(stream);
+            static IBuffer CreateBuffer(string s)
+            {
+                var stream = new MemoryStream();
+                var writer = new StreamWriter(stream);
+                writer.Write(s);
+                writer.Flush();
+                stream.Seek(0, SeekOrigin.Begin);
+                return new FileBuffer(stream);
+            }
+
+            TestBuffer(CreateBuffer);
+        }
+
+        [TestMethod]
+        public void TestStringBuffer()
+        {
+            TestBuffer(x => new StringBuffer(x));
+        }
+
+
+        private static void TestBuffer(Func<string, IBuffer> createBuffer)
+        {
+            var buffer = createBuffer("44+4+4");
             var scanner = new Scanner(buffer);
             var token = scanner.NextToken();
             Assert.AreEqual("44", token.Value);

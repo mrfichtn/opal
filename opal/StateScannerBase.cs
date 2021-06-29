@@ -59,11 +59,14 @@ namespace Opal
 
 					if (pos != lastAcceptingPosition + 1)
 					{
-						//buffer.Position = lastAcceptingPosition + 1;
 						line = lastLine;
 						column = lastColumn;
 						NextChar();
 					}
+					else
+                    {
+						buffer.Read();
+                    }
 					return token;
 				}
 				else
